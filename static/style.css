@@ -1,0 +1,1857 @@
+/* ==========================================================
+   RESET
+========================================================== */
+
+* {
+
+    box-sizing: border-box;
+
+    margin: 0;
+
+    padding: 0;
+
+}
+
+
+html {
+
+    scroll-behavior: smooth;
+
+}
+
+
+body {
+
+    font-family:
+        "Segoe UI",
+        Arial,
+        sans-serif;
+
+    background:
+        linear-gradient(
+            135deg,
+            #f4f9fc 0%,
+            #eef6fb 100%
+        );
+
+    color: #172b3a;
+
+    min-height: 100vh;
+
+}
+
+
+/* ==========================================================
+   APP SHELL
+========================================================== */
+
+.app-shell {
+
+    width: 92%;
+
+    max-width: 1280px;
+
+    margin: 0 auto;
+
+    padding: 28px 0 40px;
+
+}
+
+
+/* ==========================================================
+   HEADER
+========================================================== */
+
+.topbar {
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    padding-bottom: 25px;
+
+    border-bottom:
+        1px solid #dce9f1;
+
+}
+
+
+.brand {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 14px;
+
+}
+
+
+.brand-logo {
+
+    width: 52px;
+
+    height: 52px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    border-radius: 15px;
+
+    font-size: 27px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #0d9be8,
+            #126bc4
+        );
+
+    box-shadow:
+        0 8px 20px
+        rgba(13, 139, 215, 0.25);
+
+}
+
+
+.brand-text h1 {
+
+    font-size: 25px;
+
+    font-weight: 800;
+
+    letter-spacing: -0.5px;
+
+}
+
+
+.brand-text p {
+
+    margin-top: 4px;
+
+    color: #7c8d9c;
+
+    font-size: 12px;
+
+}
+
+
+.header-right {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 15px;
+
+}
+
+
+.system-time {
+
+    font-size: 12px;
+
+    font-weight: 700;
+
+    color: #748696;
+
+}
+
+
+.connection {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 8px;
+
+    padding: 9px 14px;
+
+    border-radius: 30px;
+
+    font-size: 11px;
+
+    font-weight: 800;
+
+}
+
+
+.connection.connected {
+
+    background: #e5f8ed;
+
+    color: #14834a;
+
+}
+
+
+.connection.disconnected {
+
+    background: #ffe8e8;
+
+    color: #c23a3a;
+
+}
+
+
+.connection-dot {
+
+    width: 7px;
+
+    height: 7px;
+
+    border-radius: 50%;
+
+    background: currentColor;
+
+}
+
+
+/* ==========================================================
+   PAGE INTRO
+========================================================== */
+
+.page-intro {
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    margin: 32px 0 22px;
+
+}
+
+
+.eyebrow,
+.card-kicker {
+
+    display: block;
+
+    color: #7890a2;
+
+    font-size: 9px;
+
+    font-weight: 800;
+
+    letter-spacing: 1.2px;
+
+}
+
+
+.page-intro h2 {
+
+    margin-top: 5px;
+
+    font-size: 26px;
+
+    letter-spacing: -0.5px;
+
+}
+
+
+.page-intro p:last-child {
+
+    margin-top: 7px;
+
+    color: #8293a2;
+
+    font-size: 12px;
+
+}
+
+
+.current-mode {
+
+    text-align: right;
+
+}
+
+
+.current-mode span {
+
+    display: block;
+
+    font-size: 9px;
+
+    font-weight: 800;
+
+    color: #91a0ad;
+
+    letter-spacing: 1px;
+
+}
+
+
+.current-mode strong {
+
+    display: block;
+
+    margin-top: 4px;
+
+    color: #1688d7;
+
+    font-size: 20px;
+
+}
+
+
+/* ==========================================================
+   CARDS
+========================================================== */
+
+.card {
+
+    background: #ffffff;
+
+    border: 1px solid #e3edf3;
+
+    border-radius: 18px;
+
+    padding: 22px;
+
+    box-shadow:
+        0 8px 28px
+        rgba(35, 76, 102, 0.07);
+
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
+
+}
+
+
+.card:hover {
+
+    transform: translateY(-2px);
+
+    box-shadow:
+        0 12px 32px
+        rgba(35, 76, 102, 0.10);
+
+}
+
+
+.card-heading {
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: flex-start;
+
+}
+
+
+.card-heading h3 {
+
+    margin-top: 5px;
+
+    font-size: 18px;
+
+}
+
+
+.status-badge {
+
+    padding: 6px 10px;
+
+    border-radius: 20px;
+
+    font-size: 9px;
+
+    font-weight: 800;
+
+}
+
+
+.status-badge.normal {
+
+    background: #e8f8ee;
+
+    color: #168449;
+
+}
+
+
+.status-badge.off {
+
+    background: #eef2f5;
+
+    color: #687b8a;
+
+}
+
+
+.status-badge.on {
+
+    background: #dff4ff;
+
+    color: #087fc4;
+
+}
+
+
+.status-badge.low {
+
+    background: #fff3d8;
+
+    color: #b77a08;
+
+}
+
+
+.status-badge.full {
+
+    background: #e8f8ee;
+
+    color: #168449;
+
+}
+
+
+/* ==========================================================
+   MAIN GRID
+========================================================== */
+
+.main-grid {
+
+    display: grid;
+
+    grid-template-columns:
+        1.35fr
+        1fr
+        1fr;
+
+    gap: 18px;
+
+}
+
+
+/* ==========================================================
+   WATER CARD
+========================================================== */
+
+.water-card {
+
+    min-height: 355px;
+
+}
+
+
+.water-main {
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    margin-top: 20px;
+
+}
+
+
+.water-number {
+
+    font-size: 45px;
+
+    font-weight: 800;
+
+    color: #117ec5;
+
+    letter-spacing: -2px;
+
+}
+
+
+.water-caption {
+
+    margin-top: 4px;
+
+    color: #8798a6;
+
+    font-size: 11px;
+
+}
+
+
+.tank-visual {
+
+    width: 90px;
+
+    height: 155px;
+
+}
+
+
+.tank-glass {
+
+    position: relative;
+
+    width: 100%;
+
+    height: 100%;
+
+    overflow: hidden;
+
+    border:
+        3px solid #b9d3e2;
+
+    border-radius:
+        10px 10px 16px 16px;
+
+    background:
+        linear-gradient(
+            180deg,
+            #f7fbfd,
+            #edf6fa
+        );
+
+}
+
+
+.water-fill {
+
+    position: absolute;
+
+    left: 0;
+
+    bottom: 0;
+
+    width: 100%;
+
+    height: 75%;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    color: white;
+
+    font-size: 10px;
+
+    font-weight: 800;
+
+    background:
+        linear-gradient(
+            180deg,
+            #31aef2,
+            #087dcc
+        );
+
+    transition:
+        height 0.6s ease,
+        width 0.6s ease;
+
+}
+
+
+.water-fill::before {
+
+    content: "";
+
+    position: absolute;
+
+    top: -7px;
+
+    left: -10%;
+
+    width: 120%;
+
+    height: 14px;
+
+    border-radius: 50%;
+
+    background: #38b4f2;
+
+}
+
+
+.water-fill span {
+
+    position: relative;
+
+    z-index: 2;
+
+}
+
+
+.level-scale {
+
+    display: flex;
+
+    justify-content: space-between;
+
+    margin-top: 11px;
+
+    color: #94a2ae;
+
+    font-size: 9px;
+
+}
+
+
+.level-legend {
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(3, 1fr);
+
+    gap: 8px;
+
+    margin-top: 18px;
+
+    padding-top: 15px;
+
+    border-top:
+        1px solid #edf2f5;
+
+}
+
+
+.level-legend div {
+
+    display: grid;
+
+    grid-template-columns:
+        auto auto;
+
+    column-gap: 5px;
+
+    align-items: center;
+
+}
+
+
+.level-legend small {
+
+    grid-column: 2;
+
+    color: #96a3ae;
+
+    font-size: 8px;
+
+}
+
+
+.legend-color {
+
+    grid-row: span 2;
+
+    width: 8px;
+
+    height: 8px;
+
+    border-radius: 50%;
+
+}
+
+
+.low-color {
+
+    background: #f0aa22;
+
+}
+
+
+.normal-color {
+
+    background: #23ad6b;
+
+}
+
+
+.full-color {
+
+    background: #158ddd;
+
+}
+
+
+/* ==========================================================
+   PUMP
+========================================================== */
+
+.pump-card {
+
+    text-align: center;
+
+}
+
+
+.pump-card .card-heading {
+
+    text-align: left;
+
+}
+
+
+.pump-center {
+
+    margin: 20px 0 15px;
+
+}
+
+
+.pump-circle {
+
+    width: 62px;
+
+    height: 62px;
+
+    margin: 0 auto 10px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    border-radius: 50%;
+
+    background: #eef3f6;
+
+    font-size: 25px;
+
+    transition: all 0.3s ease;
+
+}
+
+
+.pump-circle.on {
+
+    background: #dff4ff;
+
+    box-shadow:
+        0 0 0 8px
+        rgba(22, 142, 229, 0.08);
+
+    animation:
+        pumpPulse 1.5s infinite;
+
+}
+
+
+@keyframes pumpPulse {
+
+    0% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.06);
+    }
+
+    100% {
+        transform: scale(1);
+    }
+
+}
+
+
+.pump-state {
+
+    font-size: 28px;
+
+    font-weight: 800;
+
+    color: #718290;
+
+}
+
+
+.pump-state.on {
+
+    color: #108bd5;
+
+}
+
+
+.pump-center p {
+
+    margin-top: 4px;
+
+    color: #91a0ad;
+
+    font-size: 10px;
+
+}
+
+
+.pump-buttons {
+
+    display: flex;
+
+    gap: 8px;
+
+}
+
+
+.btn {
+
+    flex: 1;
+
+    padding: 11px 8px;
+
+    border: none;
+
+    border-radius: 9px;
+
+    font-size: 10px;
+
+    font-weight: 800;
+
+    cursor: pointer;
+
+    transition: all 0.2s ease;
+
+}
+
+
+.btn:hover:not(:disabled) {
+
+    transform: translateY(-1px);
+
+}
+
+
+.btn:disabled {
+
+    cursor: not-allowed;
+
+    opacity: 0.5;
+
+}
+
+
+.btn-on {
+
+    background: #168edc;
+
+    color: white;
+
+}
+
+
+.btn-off {
+
+    background: #eef2f5;
+
+    color: #596c7b;
+
+}
+
+
+.control-notice {
+
+    margin-top: 12px;
+
+    padding: 8px;
+
+    border-radius: 7px;
+
+    background: #f7fafc;
+
+    color: #8b99a5;
+
+    font-size: 9px;
+
+}
+
+
+/* ==========================================================
+   MODE CARD
+========================================================== */
+
+.mode-display {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 13px;
+
+    margin: 20px 0;
+
+}
+
+
+.mode-icon {
+
+    width: 50px;
+
+    height: 50px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    border-radius: 13px;
+
+    background: #eaf6fd;
+
+    font-size: 21px;
+
+}
+
+
+.mode-value {
+
+    font-size: 29px;
+
+    font-weight: 800;
+
+    color: #148bd6;
+
+}
+
+
+.mode-display p {
+
+    margin-top: 3px;
+
+    color: #8796a3;
+
+    font-size: 9px;
+
+}
+
+
+.mode-buttons {
+
+    display: flex;
+
+    gap: 7px;
+
+}
+
+
+.mode-button {
+
+    flex: 1;
+
+    padding: 10px;
+
+    border:
+        1px solid #dce7ee;
+
+    border-radius: 9px;
+
+    background: white;
+
+    color: #70818f;
+
+    font-size: 10px;
+
+    font-weight: 800;
+
+    cursor: pointer;
+
+    transition: 0.2s ease;
+
+}
+
+
+.mode-button.active {
+
+    border-color: #168edc;
+
+    background: #eaf6fd;
+
+    color: #087fc4;
+
+}
+
+
+.mode-explanation {
+
+    display: flex;
+
+    gap: 7px;
+
+    margin-top: 15px;
+
+    padding-top: 12px;
+
+    border-top:
+        1px solid #edf2f5;
+
+    font-size: 8px;
+
+    color: #8a99a5;
+
+}
+
+
+.mode-explanation strong {
+
+    color: #168edc;
+
+}
+
+
+/* ==========================================================
+   SECONDARY GRID
+========================================================== */
+
+.secondary-grid {
+
+    display: grid;
+
+    grid-template-columns:
+        2fr
+        1fr;
+
+    gap: 18px;
+
+    margin-top: 18px;
+
+}
+
+
+/* ==========================================================
+   GRAPH
+========================================================== */
+
+.graph-card {
+
+    min-height: 310px;
+
+}
+
+
+.live-badge {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 5px;
+
+    padding: 5px 9px;
+
+    border-radius: 20px;
+
+    background: #e8f8ee;
+
+    color: #168449;
+
+    font-size: 8px;
+
+    font-weight: 800;
+
+}
+
+
+.live-badge span {
+
+    width: 6px;
+
+    height: 6px;
+
+    border-radius: 50%;
+
+    background: #21aa68;
+
+}
+
+
+.graph-area {
+
+    width: 100%;
+
+    height: 210px;
+
+    margin-top: 15px;
+
+    border:
+        1px solid #edf2f5;
+
+    border-radius: 12px;
+
+    overflow: hidden;
+
+    background:
+        linear-gradient(
+            180deg,
+            #fbfdff,
+            #f6fafc
+        );
+
+}
+
+
+#waterLevelChart {
+
+    width: 100%;
+
+    height: 100%;
+
+    display: block;
+
+}
+
+
+.graph-footer {
+
+    display: flex;
+
+    justify-content: space-between;
+
+    margin-top: 9px;
+
+    color: #8b9aa6;
+
+    font-size: 9px;
+
+}
+
+
+.graph-footer > span:first-child {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 6px;
+
+    font-weight: 700;
+
+    color: #617382;
+
+}
+
+
+.graph-line-dot {
+
+    width: 7px;
+
+    height: 7px;
+
+    border-radius: 50%;
+
+    background: #168edc;
+
+}
+
+
+/* ==========================================================
+   CONDITION
+========================================================== */
+
+.condition-card {
+
+    min-height: 310px;
+
+}
+
+
+.condition-display {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 15px;
+
+    margin-top: 32px;
+
+}
+
+
+.condition-icon {
+
+    width: 65px;
+
+    height: 65px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    border-radius: 17px;
+
+    background: #e8f8ee;
+
+    font-size: 28px;
+
+}
+
+
+.condition-value {
+
+    color: #18a260;
+
+    font-size: 28px;
+
+    font-weight: 800;
+
+}
+
+
+.condition-display p {
+
+    margin-top: 4px;
+
+    color: #91a0ad;
+
+    font-size: 9px;
+
+}
+
+
+.condition-bar {
+
+    height: 8px;
+
+    margin-top: 30px;
+
+    border-radius: 10px;
+
+    overflow: hidden;
+
+    background: #edf2f5;
+
+}
+
+
+.condition-bar span {
+
+    display: block;
+
+    width: 72%;
+
+    height: 100%;
+
+    border-radius: inherit;
+
+    background:
+        linear-gradient(
+            90deg,
+            #24aa6a,
+            #53c88b
+        );
+
+}
+
+
+.condition-description {
+
+    margin-top: 15px;
+
+    color: #7f909e;
+
+    font-size: 10px;
+
+    line-height: 1.6;
+
+}
+
+
+/* ==========================================================
+   INFORMATION GRID
+========================================================== */
+
+.info-grid {
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(4, 1fr);
+
+    gap: 18px;
+
+    margin-top: 18px;
+
+}
+
+
+.info-card {
+
+    display: flex;
+
+    gap: 13px;
+
+    align-items: flex-start;
+
+}
+
+
+.info-icon {
+
+    width: 42px;
+
+    height: 42px;
+
+    flex-shrink: 0;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    border-radius: 11px;
+
+    font-size: 18px;
+
+}
+
+
+.blue-icon {
+
+    background: #e8f5fd;
+
+}
+
+
+.green-icon {
+
+    background: #e7f8ee;
+
+}
+
+
+.purple-icon {
+
+    background: #f1edff;
+
+}
+
+
+.cyan-icon {
+
+    background: #e5f8fa;
+
+}
+
+
+.info-card h3 {
+
+    margin-top: 4px;
+
+    font-size: 14px;
+
+}
+
+
+.info-value {
+
+    display: block;
+
+    margin-top: 10px;
+
+    color: #168bd5;
+
+    font-size: 20px;
+
+}
+
+
+.green-text {
+
+    color: #18a05e;
+
+}
+
+
+.info-card p {
+
+    margin-top: 3px;
+
+    color: #92a0ab;
+
+    font-size: 8px;
+
+}
+
+
+/* ==========================================================
+   SOURCE WATER SIMULATION BUTTON
+========================================================== */
+
+.source-water-button {
+
+    margin-top: 12px;
+
+    padding: 9px 14px;
+
+    border: none;
+
+    border-radius: 8px;
+
+    background: #fff0f0;
+
+    color: #c62828;
+
+    font-size: 11px;
+
+    font-weight: 700;
+
+    cursor: pointer;
+
+    transition: 0.2s ease;
+
+}
+
+
+.source-water-button:hover {
+
+    opacity: 0.85;
+
+    transform: translateY(-1px);
+
+}
+
+
+.source-water-button:active {
+
+    transform: translateY(0);
+
+}
+
+
+/* ==========================================================
+   WATER CONSUMPTION CONTROL
+========================================================== */
+
+.consumption-button {
+
+    margin-top: 12px;
+
+    padding: 9px 14px;
+
+    border: none;
+
+    border-radius: 8px;
+
+    background: #fff0f0;
+
+    color: #c62828;
+
+    font-size: 11px;
+
+    font-weight: 700;
+
+    cursor: pointer;
+
+    transition: 0.2s ease;
+
+}
+
+
+.consumption-button:hover {
+
+    opacity: 0.85;
+
+    transform: translateY(-1px);
+
+}
+
+
+.consumption-button:active {
+
+    transform: translateY(0);
+
+}
+
+
+.consumption-button.active {
+
+    background: #e8f8ee;
+
+    color: #168449;
+
+}
+
+
+.consumption-button.stopped {
+
+    background: #eef2f5;
+
+    color: #687b8a;
+
+}
+
+
+/* ==========================================================
+   CONSUMPTION STATUS
+========================================================== */
+
+.consumption-status {
+
+    display: inline-block;
+
+    margin-top: 8px;
+
+    padding: 4px 8px;
+
+    border-radius: 12px;
+
+    background: #fff0f0;
+
+    color: #c62828;
+
+    font-size: 8px;
+
+    font-weight: 800;
+
+}
+
+
+.consumption-status.active {
+
+    background: #e8f8ee;
+
+    color: #168449;
+
+}
+
+
+.consumption-status.stopped {
+
+    background: #eef2f5;
+
+    color: #687b8a;
+
+}
+
+
+/* ==========================================================
+   ALERTS
+========================================================== */
+
+.alerts-card {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 25px;
+
+    margin-top: 18px;
+
+    padding: 18px 22px;
+
+    background: white;
+
+    border:
+        1px solid #e3edf3;
+
+    border-radius: 18px;
+
+    box-shadow:
+        0 8px 28px
+        rgba(35, 76, 102, 0.07);
+
+}
+
+
+.alert-heading {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 11px;
+
+    min-width: 190px;
+
+}
+
+
+.alert-heading h3 {
+
+    margin-top: 4px;
+
+    font-size: 15px;
+
+}
+
+
+.alert-icon {
+
+    width: 39px;
+
+    height: 39px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    border-radius: 10px;
+
+    background: #fff5dd;
+
+}
+
+
+.alert-message {
+
+    flex: 1;
+
+    padding: 12px 15px;
+
+    border-radius: 9px;
+
+    font-size: 10px;
+
+    font-weight: 700;
+
+}
+
+
+.alert-message span {
+
+    margin-right: 6px;
+
+}
+
+
+.normal-alert {
+
+    background: #eaf8ef;
+
+    color: #168449;
+
+}
+
+
+.warning-alert {
+
+    background: #fff5df;
+
+    color: #aa7109;
+
+}
+
+
+.emergency-alert {
+
+    background: #ffe7e7;
+
+    color: #b72e2e;
+
+}
+
+
+/* ==========================================================
+   FOOTER
+========================================================== */
+
+footer {
+
+    margin-top: 25px;
+
+    text-align: center;
+
+    color: #9aa8b3;
+
+    font-size: 9px;
+
+}
+
+
+footer span {
+
+    margin: 0 7px;
+
+}
+
+
+/* ==========================================================
+   RESPONSIVE
+========================================================== */
+
+@media (max-width: 1050px) {
+
+    .main-grid {
+
+        grid-template-columns:
+            1fr 1fr;
+
+    }
+
+
+    .water-card {
+
+        grid-column: span 2;
+
+    }
+
+
+    .info-grid {
+
+        grid-template-columns:
+            1fr 1fr;
+
+    }
+
+}
+
+
+@media (max-width: 760px) {
+
+    .app-shell {
+
+        width: 94%;
+
+    }
+
+
+    .topbar {
+
+        align-items: flex-start;
+
+    }
+
+
+    .header-right {
+
+        flex-direction: column;
+
+        align-items: flex-end;
+
+        gap: 7px;
+
+    }
+
+
+    .page-intro {
+
+        align-items: flex-start;
+
+        gap: 15px;
+
+    }
+
+
+    .secondary-grid {
+
+        grid-template-columns: 1fr;
+
+    }
+
+
+    .alerts-card {
+
+        flex-direction: column;
+
+        align-items: stretch;
+
+    }
+
+
+    .alert-heading {
+
+        min-width: 0;
+
+    }
+
+}
+
+
+@media (max-width: 600px) {
+
+    .topbar {
+
+        flex-direction: column;
+
+        gap: 15px;
+
+    }
+
+
+    .header-right {
+
+        width: 100%;
+
+        flex-direction: row;
+
+        justify-content: space-between;
+
+        align-items: center;
+
+    }
+
+
+    .page-intro {
+
+        flex-direction: column;
+
+    }
+
+
+    .current-mode {
+
+        text-align: left;
+
+    }
+
+
+    .main-grid {
+
+        grid-template-columns: 1fr;
+
+    }
+
+
+    .water-card {
+
+        grid-column: span 1;
+
+    }
+
+
+    .info-grid {
+
+        grid-template-columns: 1fr;
+
+    }
+
+
+    .water-number {
+
+        font-size: 37px;
+
+    }
+
+
+    .pump-buttons {
+
+        flex-direction: column;
+
+    }
+
+
+    .source-water-button {
+
+        width: 100%;
+
+    }
+
+
+    .consumption-button {
+
+        width: 100%;
+
+    }
+
+}
