@@ -21,7 +21,9 @@ MAX_LEVEL = 100.0
 SOURCE_START_LEVEL = 100.0
 SOURCE_MIN_LEVEL = 0.0
 SOURCE_MAX_LEVEL = 100.0
-SOURCE_REFILL_RATE = 0.00
+
+# Source tank automatically refills at 2% per second
+SOURCE_REFILL_RATE = 1.00
 
 
 # ============================================================
@@ -81,9 +83,36 @@ def update_simulation():
 
 
     # --------------------------------------------------------
+    # SOURCE WATER AUTOMATIC REFILL
+    #
+    # The source tank automatically refills at
+    # SOURCE_REFILL_RATE percent per second.
+    #
+    # When the source tank reaches 100%, it becomes
+    # available again.
+    # --------------------------------------------------------
+
+    if system_data["sourceWaterLevel"] < SOURCE_MAX_LEVEL:
+
+        refill_amount = (
+            SOURCE_REFILL_RATE * elapsed
+        )
+
+        system_data["sourceWaterLevel"] += refill_amount
+
+
+        # Prevent source level from going above 100%
+        system_data["sourceWaterLevel"] = min(
+            SOURCE_MAX_LEVEL,
+            system_data["sourceWaterLevel"]
+        )
+
+
+    # --------------------------------------------------------
     # SOURCE WATER AVAILABILITY
     #
-    # When the source tank becomes empty, the pump stops.
+    # Source water is unavailable only when the source
+    # tank is completely empty.
     # --------------------------------------------------------
 
     if system_data["sourceWaterLevel"] <= SOURCE_MIN_LEVEL:
@@ -92,6 +121,7 @@ def update_simulation():
 
         system_data["sourceWater"] = False
 
+        # Pump cannot operate without source water
         system_data["pump"] = False
 
     else:
@@ -178,6 +208,34 @@ def update_simulation():
             system_data["sourceWater"] = False
 
             system_data["pump"] = False
+
+
+    # --------------------------------------------------------
+    # KEEP SOURCE TANK BETWEEN 0 AND 100
+    # --------------------------------------------------------
+
+    system_data["sourceWaterLevel"] = max(
+        SOURCE_MIN_LEVEL,
+        min(
+            SOURCE_MAX_LEVEL,
+            system_data["sourceWaterLevel"]
+        )
+    )
+
+
+    # --------------------------------------------------------
+    # UPDATE SOURCE WATER AVAILABILITY AFTER REFILL
+    # --------------------------------------------------------
+
+    if system_data["sourceWaterLevel"] > SOURCE_MIN_LEVEL:
+
+        system_data["sourceWater"] = True
+
+    else:
+
+        system_data["sourceWater"] = False
+
+        system_data["pump"] = False
 
 
     # --------------------------------------------------------
