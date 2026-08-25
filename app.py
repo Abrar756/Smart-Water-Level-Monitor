@@ -22,7 +22,7 @@ SOURCE_START_LEVEL = 100.0
 SOURCE_MIN_LEVEL = 0.0
 SOURCE_MAX_LEVEL = 100.0
 
-# Source tank automatically refills at 2% per second
+# Source tank automatically refills at 1% per second
 SOURCE_REFILL_RATE = 1.00
 
 
