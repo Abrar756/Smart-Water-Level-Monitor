@@ -760,7 +760,7 @@ function updateModeDisplay(
 
 
 // ============================================================
-// TANK BADGE
+// TANK BADGE + CONDITION DESCRIPTION
 // ============================================================
 
 function updateTankBadge(
@@ -773,37 +773,101 @@ function updateTankBadge(
         );
 
 
-    badge.textContent =
-        condition;
-
-
-    badge.className =
-        "status-badge";
-
-
-    if (condition === "LOW") {
-
-        badge.classList.add(
-            "low"
+    const conditionElement =
+        document.getElementById(
+            "tankCondition"
         );
+
+
+    const conditionDescription =
+        document.querySelector(
+            ".condition-description"
+        );
+
+
+    // --------------------------------------------------------
+    // UPDATE BADGE
+    // --------------------------------------------------------
+
+    if (badge) {
+
+        badge.textContent =
+            condition;
+
+
+        badge.className =
+            "status-badge";
+
+
+        if (condition === "LOW") {
+
+            badge.classList.add(
+                "low"
+            );
+
+        }
+
+        else if (
+            condition === "FULL"
+        ) {
+
+            badge.classList.add(
+                "full"
+            );
+
+        }
+
+        else {
+
+            badge.classList.add(
+                "normal"
+            );
+
+        }
 
     }
 
-    else if (
-        condition === "FULL"
-    ) {
 
-        badge.classList.add(
-            "full"
-        );
+    // --------------------------------------------------------
+    // UPDATE TANK CONDITION
+    // --------------------------------------------------------
+
+    if (conditionElement) {
+
+        conditionElement.textContent =
+            condition;
 
     }
 
-    else {
 
-        badge.classList.add(
-            "normal"
-        );
+    // --------------------------------------------------------
+    // UPDATE CONDITION DESCRIPTION
+    // --------------------------------------------------------
+
+    if (conditionDescription) {
+
+        if (condition === "LOW") {
+
+            conditionDescription.textContent =
+                "Tank water level is low. Pump may need to refill the tank.";
+
+        }
+
+        else if (
+            condition === "FULL"
+        ) {
+
+            conditionDescription.textContent =
+                "Tank is full and the water level is at or above 90%.";
+
+        }
+
+        else {
+
+            conditionDescription.textContent =
+                "Tank level is currently within the normal operating range.";
+
+        }
 
     }
 
