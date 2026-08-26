@@ -194,6 +194,20 @@ def update_simulation():
                 system_data["sourceWaterLevel"]
             )
 
+            # ------------------------------------------------
+            # MAIN TANK OVERFLOW PROTECTION
+            #
+            # The pump must automatically turn OFF when the
+            # main tank reaches 100%, regardless of whether
+            # the system is in AUTO or MANUAL mode.
+            # ------------------------------------------------
+
+            if system_data["waterLevel"] >= MAX_LEVEL:
+
+                system_data["waterLevel"] = MAX_LEVEL
+
+                system_data["pump"] = False
+
             # Source tank becomes unavailable at 0%
             if system_data["sourceWaterLevel"] <= SOURCE_MIN_LEVEL:
 
@@ -274,6 +288,13 @@ def update_simulation():
 
             system_data["pump"] = False
 
+        elif system_data["waterLevel"] >= MAX_LEVEL:
+
+            # Overflow protection also applies in AUTO mode
+            system_data["waterLevel"] = MAX_LEVEL
+
+            system_data["pump"] = False
+
         elif system_data["waterLevel"] <= AUTO_PUMP_ON_LEVEL:
 
             system_data["pump"] = True
@@ -288,6 +309,9 @@ def update_simulation():
     #
     # Manual mode does not automatically start/stop the pump
     # based on the main tank level.
+    #
+    # However, the pump MUST automatically turn OFF when
+    # the main tank reaches 100% to prevent overflow.
     # --------------------------------------------------------
 
     elif system_data["mode"] == "MANUAL":
@@ -297,6 +321,13 @@ def update_simulation():
             system_data["pump"] = False
 
         elif not system_data["sourceWater"]:
+
+            system_data["pump"] = False
+
+        elif system_data["waterLevel"] >= MAX_LEVEL:
+
+            # Overflow protection in MANUAL mode
+            system_data["waterLevel"] = MAX_LEVEL
 
             system_data["pump"] = False
 
@@ -438,6 +469,13 @@ def change_mode():
 
             system_data["pump"] = False
 
+        elif system_data["waterLevel"] >= MAX_LEVEL:
+
+            # Overflow protection
+            system_data["waterLevel"] = MAX_LEVEL
+
+            system_data["pump"] = False
+
         elif system_data["waterLevel"] <= AUTO_PUMP_ON_LEVEL:
 
             system_data["pump"] = True
@@ -452,6 +490,9 @@ def change_mode():
     #
     # Keep the current pump state.
     # The ON/OFF buttons can control it afterward.
+    #
+    # Overflow protection is still handled by
+    # update_simulation() when the tank reaches 100%.
     # --------------------------------------------------------
 
     return jsonify({
