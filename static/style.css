@@ -10,53 +10,35 @@
 
 :root {
 
-    /* ---------- PRIMARY BLUE ---------- */
+    --blue: #0b84f3;
+    --blue-dark: #0878df;
+    --blue-light: #eaf5ff;
 
-    --blue: #1677e8;
-    --blue-dark: #0f63c7;
-    --blue-light: #edf6ff;
+    --green: #12a86b;
+    --green-light: #eafaf3;
 
-    /* ---------- GREEN ---------- */
+    --red: #dc3545;
+    --red-light: #fff0f1;
 
-    --green: #18a66f;
-    --green-light: #eaf9f2;
+    --orange: #f59e0b;
+    --orange-light: #fff7e6;
 
-    /* ---------- RED ---------- */
+    --text: #16222d;
+    --muted: #71808c;
 
-    --red: #dc4655;
-    --red-light: #fff0f2;
-
-    /* ---------- ORANGE ---------- */
-
-    --orange: #ed9a12;
-    --orange-light: #fff7e8;
-
-    /* ---------- TEXT ---------- */
-
-    --text: #172633;
-    --muted: #73818d;
-
-    /* ---------- BORDERS ---------- */
-
-    --border: #e4ebf1;
-
-    /* ---------- BACKGROUND ---------- */
+    --border: #e7edf2;
 
     --background: #f5f8fb;
     --white: #ffffff;
 
-    /* ---------- SIDEBAR ---------- */
-
     --sidebar-width: 245px;
-
-    /* ---------- SHADOW ---------- */
 
     --shadow:
         0 8px 28px rgba(
-            26,
-            61,
-            88,
-            0.065
+            24,
+            55,
+            79,
+            0.07
         );
 
     --radius: 18px;
@@ -271,7 +253,7 @@ button:disabled {
         left;
 
     color:
-        #667682;
+        #667580;
 
     transition:
         0.2s ease;
@@ -283,10 +265,10 @@ button:disabled {
 .nav-item:hover {
 
     background:
-        #f1f7fc;
+        #f4f8fb;
 
     color:
-        var(--blue);
+        var(--blue-dark);
 }
 
 .nav-item.active {
@@ -295,7 +277,7 @@ button:disabled {
         var(--blue-light);
 
     color:
-        var(--blue);
+        var(--blue-dark);
 
     font-weight:
         700;
@@ -356,13 +338,12 @@ button:disabled {
 
 .emergency-nav {
     color:
-        #d64a58;
+        #d84a57;
 }
 
 .emergency-nav:hover {
-
     color:
-        #c83242;
+        #c82333;
 
     background:
         var(--red-light);
@@ -699,7 +680,7 @@ button:disabled {
         inline-block;
 
     color:
-        var(--blue);
+        var(--blue-dark);
 
     font-size:
         9px;
@@ -748,7 +729,7 @@ button:disabled {
         var(--blue-light);
 
     border:
-        1px solid #d9ebfb;
+        1px solid #d8ecff;
 
     border-radius:
         12px;
@@ -784,7 +765,7 @@ button:disabled {
         block;
 
     color:
-        var(--blue);
+        var(--blue-dark);
 
     font-size:
         14px;
@@ -840,7 +821,7 @@ button:disabled {
         block;
 
     color:
-        #8796a1;
+        #8a98a3;
 
     font-size:
         8px;
@@ -932,7 +913,7 @@ button:disabled {
         -1.5px;
 
     color:
-        var(--text);
+        #0878df;
 }
 
 .mini-tank {
@@ -1003,8 +984,8 @@ button:disabled {
     background:
         linear-gradient(
             180deg,
-            #43b9ff,
-            #1677e8
+            #43bcff,
+            #0878df
         );
 
     display:
@@ -1038,7 +1019,7 @@ button:disabled {
         7px;
 
     background:
-        #eaf0f4;
+        #edf2f5;
 
     border-radius:
         10px;
@@ -1062,7 +1043,7 @@ button:disabled {
         75%;
 
     background:
-        var(--blue);
+        #0878df;
 
     border-radius:
         inherit;
@@ -1080,7 +1061,7 @@ button:disabled {
         space-between;
 
     color:
-        #98a5ae;
+        #9aa7b0;
 
     font-size:
         8px;
@@ -1137,10 +1118,10 @@ button:disabled {
 .status-badge.off {
 
     background:
-        #eef2f5;
+        #f1f4f7;
 
     color:
-        #74828d;
+        #64727d;
 }
 
 .status-badge.low {
@@ -1158,7 +1139,7 @@ button:disabled {
         var(--blue-light);
 
     color:
-        var(--blue);
+        var(--blue-dark);
 }
 
 
@@ -1319,10 +1300,10 @@ button:disabled {
 .pump-off {
 
     background:
-        #edf1f4;
+        #f1f4f7;
 
     color:
-        #596773;
+        #64727d;
 }
 
 .control-button:disabled {
@@ -1402,7 +1383,7 @@ button:disabled {
         25px;
 
     color:
-        var(--blue);
+        var(--blue-dark);
 }
 
 .mode-main p {
@@ -1459,13 +1440,13 @@ button:disabled {
 .mode-button.active {
 
     background:
-        var(--blue);
+        #0878df;
 
     color:
         white;
 
     border-color:
-        var(--blue);
+        #0878df;
 }
 
 
@@ -1623,7 +1604,7 @@ button:disabled {
 .consumption-button {
 
     background:
-        var(--blue);
+        #0878df;
 
     color:
         white;
@@ -1730,7 +1711,7 @@ button:disabled {
         space-between;
 
     color:
-        #98a5ae;
+        #9aa7b0;
 
     font-size:
         8px;
@@ -1766,7 +1747,7 @@ button:disabled {
         50%;
 
     background:
-        var(--blue);
+        #0878df;
 
     display:
         inline-block;
@@ -1819,7 +1800,7 @@ button:disabled {
         var(--orange-light);
 
     color:
-        #b87905;
+        #b87500;
 }
 
 .emergency-alert {
@@ -1881,7 +1862,7 @@ button:disabled {
         6px;
 
     background:
-        #eaf0f4;
+        #edf2f5;
 
     border-radius:
         10px;
@@ -1905,7 +1886,7 @@ button:disabled {
         0;
 
     background:
-        var(--blue);
+        #0878df;
 
     border-radius:
         inherit;
@@ -1947,7 +1928,7 @@ button:disabled {
 .status-grid div {
 
     background:
-        #f7fafc;
+        #f8fafb;
 
     padding:
         13px;
@@ -2111,10 +2092,10 @@ td {
 .secondary-button:hover {
 
     border-color:
-        #cdd9e1;
+        #ccd7df;
 
     background:
-        #f7fafc;
+        #f8fafb;
 }
 
 
@@ -2381,7 +2362,7 @@ td {
         8px;
 
     background:
-        #eaf0f4;
+        #edf2f5;
 
     border-radius:
         10px;
@@ -2402,7 +2383,7 @@ td {
         0;
 
     background:
-        var(--blue);
+        #0878df;
 
     border-radius:
         inherit;
@@ -2547,9 +2528,9 @@ td {
 
     box-shadow:
         0 0 0 3px rgba(
-            22,
-            119,
-            232,
+            11,
+            132,
+            243,
             0.08
         );
 }
@@ -2593,7 +2574,7 @@ td {
         nowrap;
 
     border-left:
-        1px solid #edf1f4;
+        1px solid #e5edf3;
 
     min-height:
         40px;
@@ -2605,7 +2586,7 @@ td {
         center;
 
     background:
-        #f7fafc;
+        #f5f9fc;
 }
 
 .setting-field small {
@@ -2679,7 +2660,7 @@ td {
         none;
 
     background:
-        var(--blue);
+        #0878df;
 
     color:
         white;
@@ -2699,7 +2680,7 @@ td {
 
 .primary-button:hover {
     background:
-        var(--blue-dark);
+        #066bc8;
 }
 
 .settings-message {
@@ -2765,7 +2746,7 @@ td {
         13px;
 
     background:
-        #f7fafc;
+        #f8fafb;
 
     border-radius:
         11px;
@@ -2787,7 +2768,6 @@ td {
 }
 
 .current-settings-grid strong {
-
     font-size:
         11px;
 }
@@ -3105,7 +3085,6 @@ footer {
     }
 
     .graph-area {
-
         height:
             190px;
     }
