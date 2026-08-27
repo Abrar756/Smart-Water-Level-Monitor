@@ -10,36 +10,53 @@
 
 :root {
 
-    --blue: #0b84f3;
-    --blue-dark: #086dcc;
-    --blue-light: #eaf5ff;
+    /* ---------- PRIMARY BLUE ---------- */
 
-    --green: #16a36a;
-    --green-dark: #128456;
-    --green-light: #eafaf3;
+    --blue: #1677e8;
+    --blue-dark: #0f63c7;
+    --blue-light: #edf6ff;
 
-    --red: #dc3545;
-    --red-light: #fff0f1;
+    /* ---------- GREEN ---------- */
 
-    --orange: #f59e0b;
-    --orange-light: #fff7e6;
+    --green: #18a66f;
+    --green-light: #eaf9f2;
 
-    --text: #16222d;
-    --muted: #71808c;
+    /* ---------- RED ---------- */
 
-    --border: #e7edf2;
+    --red: #dc4655;
+    --red-light: #fff0f2;
+
+    /* ---------- ORANGE ---------- */
+
+    --orange: #ed9a12;
+    --orange-light: #fff7e8;
+
+    /* ---------- TEXT ---------- */
+
+    --text: #172633;
+    --muted: #73818d;
+
+    /* ---------- BORDERS ---------- */
+
+    --border: #e4ebf1;
+
+    /* ---------- BACKGROUND ---------- */
 
     --background: #f5f8fb;
     --white: #ffffff;
 
+    /* ---------- SIDEBAR ---------- */
+
     --sidebar-width: 245px;
+
+    /* ---------- SHADOW ---------- */
 
     --shadow:
         0 8px 28px rgba(
-            24,
-            55,
-            79,
-            0.07
+            26,
+            61,
+            88,
+            0.065
         );
 
     --radius: 18px;
@@ -67,9 +84,7 @@ body {
 }
 
 button,
-input,
-select,
-textarea {
+input {
     font-family: inherit;
 }
 
@@ -87,12 +102,8 @@ button:disabled {
 ============================================================ */
 
 .app {
-
-    min-height:
-        100vh;
-
-    display:
-        flex;
+    min-height: 100vh;
+    display: flex;
 }
 
 
@@ -260,7 +271,7 @@ button:disabled {
         left;
 
     color:
-        #667580;
+        #667682;
 
     transition:
         0.2s ease;
@@ -272,7 +283,7 @@ button:disabled {
 .nav-item:hover {
 
     background:
-        #f4f8fb;
+        #f1f7fc;
 
     color:
         var(--blue);
@@ -303,7 +314,6 @@ button:disabled {
 }
 
 .nav-text {
-
     font-size:
         13px;
 }
@@ -345,15 +355,14 @@ button:disabled {
 }
 
 .emergency-nav {
-
     color:
-        #d84a57;
+        #d64a58;
 }
 
 .emergency-nav:hover {
 
     color:
-        #c82333;
+        #c83242;
 
     background:
         var(--red-light);
@@ -652,13 +661,11 @@ button:disabled {
 }
 
 .app-page {
-
     display:
         none;
 }
 
 .active-page {
-
     display:
         block;
 }
@@ -741,7 +748,7 @@ button:disabled {
         var(--blue-light);
 
     border:
-        1px solid #d8ecff;
+        1px solid #d9ebfb;
 
     border-radius:
         12px;
@@ -833,7 +840,7 @@ button:disabled {
         block;
 
     color:
-        #8a98a3;
+        #8796a1;
 
     font-size:
         8px;
@@ -996,8 +1003,8 @@ button:disabled {
     background:
         linear-gradient(
             180deg,
-            #37b5ff,
-            #0b84f3
+            #43b9ff,
+            #1677e8
         );
 
     display:
@@ -1031,7 +1038,7 @@ button:disabled {
         7px;
 
     background:
-        #edf2f5;
+        #eaf0f4;
 
     border-radius:
         10px;
@@ -1073,7 +1080,7 @@ button:disabled {
         space-between;
 
     color:
-        #9aa7b0;
+        #98a5ae;
 
     font-size:
         8px;
@@ -1130,10 +1137,10 @@ button:disabled {
 .status-badge.off {
 
     background:
-        #f0f3f5;
+        #eef2f5;
 
     color:
-        #7c8993;
+        #74828d;
 }
 
 .status-badge.low {
@@ -1227,7 +1234,7 @@ button:disabled {
     }
 }
 
-.pump-status {
+.pump-state {
 
     display:
         block;
@@ -1239,8 +1246,7 @@ button:disabled {
         800;
 }
 
-.pump-status.on {
-
+.pump-state.on {
     color:
         var(--green);
 }
@@ -1297,7 +1303,6 @@ button:disabled {
 }
 
 .control-button:hover:not(:disabled) {
-
     transform:
         translateY(-1px);
 }
@@ -1311,12 +1316,6 @@ button:disabled {
         white;
 }
 
-.pump-on:hover:not(:disabled) {
-
-    background:
-        var(--green-dark);
-}
-
 .pump-off {
 
     background:
@@ -1324,12 +1323,6 @@ button:disabled {
 
     color:
         #596773;
-}
-
-.pump-off:hover:not(:disabled) {
-
-    background:
-        #e4eaee;
 }
 
 .control-button:disabled {
@@ -1461,18 +1454,6 @@ button:disabled {
 
     font-weight:
         700;
-
-    transition:
-        0.2s ease;
-}
-
-.mode-button:hover:not(.active) {
-
-    background:
-        #f7fafc;
-
-    border-color:
-        #d6e0e7;
 }
 
 .mode-button.active {
@@ -1485,14 +1466,6 @@ button:disabled {
 
     border-color:
         var(--blue);
-
-    box-shadow:
-        0 4px 12px rgba(
-            11,
-            132,
-            243,
-            0.15
-        );
 }
 
 
@@ -1534,25 +1507,21 @@ button:disabled {
 }
 
 .quick-status:last-child {
-
     border-bottom:
         none;
 }
 
 .quick-status span {
-
     color:
         var(--muted);
 }
 
 .quick-status strong {
-
     font-size:
         10px;
 }
 
 .healthy-text {
-
     color:
         var(--green);
 }
@@ -1560,7 +1529,6 @@ button:disabled {
 
 /* ============================================================
    CONSUMPTION CONTROL
-   REFINED HOME CONTROL
 ============================================================ */
 
 .consumption-control-card {
@@ -1578,13 +1546,10 @@ button:disabled {
         space-between;
 
     gap:
-        18px;
+        20px;
 
     padding:
-        17px 21px;
-
-    min-height:
-        78px;
+        18px 21px;
 }
 
 .consumption-main {
@@ -1597,30 +1562,21 @@ button:disabled {
 
     gap:
         13px;
-
-    min-width:
-        0;
 }
 
 .consumption-icon {
 
     width:
-        46px;
+        48px;
 
     height:
-        46px;
-
-    flex:
-        0 0 46px;
+        48px;
 
     border-radius:
         14px;
 
     background:
         var(--blue-light);
-
-    color:
-        var(--blue);
 
     display:
         flex;
@@ -1633,18 +1589,11 @@ button:disabled {
 
     font-size:
         21px;
-
-    transition:
-        0.25s ease;
 }
 
 .consumption-main h2 {
-
     font-size:
         15px;
-
-    line-height:
-        1.2;
 }
 
 .consumption-main p {
@@ -1656,10 +1605,7 @@ button:disabled {
         10px;
 
     margin-top:
-        4px;
-
-    line-height:
-        1.4;
+        3px;
 }
 
 .consumption-action {
@@ -1672,52 +1618,9 @@ button:disabled {
 
     gap:
         10px;
-
-    flex-shrink:
-        0;
 }
-
-/* Current state text */
-
-.consumption-status {
-
-    min-width:
-        60px;
-
-    text-align:
-        right;
-
-    font-size:
-        9px;
-
-    font-weight:
-        800;
-
-    color:
-        var(--green);
-
-    letter-spacing:
-        0.5px;
-}
-
-/* Main consumption button */
 
 .consumption-button {
-
-    border:
-        none;
-
-    min-width:
-        92px;
-
-    min-height:
-        36px;
-
-    padding:
-        0 15px;
-
-    border-radius:
-        10px;
 
     background:
         var(--blue);
@@ -1725,89 +1628,8 @@ button:disabled {
     color:
         white;
 
-    font-size:
-        10px;
-
-    font-weight:
-        800;
-
-    transition:
-        0.2s ease;
-
-    box-shadow:
-        0 4px 12px rgba(
-            11,
-            132,
-            243,
-            0.12
-        );
-}
-
-.consumption-button:hover {
-
-    background:
-        var(--blue-dark);
-
-    transform:
-        translateY(-1px);
-}
-
-.consumption-button:active {
-
-    transform:
-        translateY(0);
-}
-
-/*
-   If script.js applies these classes,
-   the button becomes visually clear for each state.
-*/
-
-.consumption-button.on {
-
-    background:
-        var(--green);
-
-    box-shadow:
-        0 4px 12px rgba(
-            22,
-            163,
-            106,
-            0.15
-        );
-}
-
-.consumption-button.on:hover {
-
-    background:
-        var(--green-dark);
-}
-
-.consumption-button.off {
-
-    background:
-        #edf1f4;
-
-    color:
-        #596773;
-
-    box-shadow:
-        none;
-}
-
-.consumption-button.off:hover {
-
-    background:
-        #e3e9ed;
-}
-
-.consumption-icon.off {
-
-    background:
-        #f0f3f5;
-
-    color:
-        #7c8993;
+    min-width:
+        92px;
 }
 
 
@@ -1908,7 +1730,7 @@ button:disabled {
         space-between;
 
     color:
-        #9aa7b0;
+        #98a5ae;
 
     font-size:
         8px;
@@ -1980,9 +1802,6 @@ button:disabled {
 
     font-size:
         10px;
-
-    transition:
-        0.2s ease;
 }
 
 .normal-alert {
@@ -1992,9 +1811,6 @@ button:disabled {
 
     color:
         var(--green);
-
-    border-color:
-        #d8f1e5;
 }
 
 .warning-alert {
@@ -2003,10 +1819,7 @@ button:disabled {
         var(--orange-light);
 
     color:
-        #b87500;
-
-    border-color:
-        #f8e3b7;
+        #b87905;
 }
 
 .emergency-alert {
@@ -2016,9 +1829,6 @@ button:disabled {
 
     color:
         var(--red);
-
-    border-color:
-        #f5d1d5;
 }
 
 
@@ -2071,7 +1881,7 @@ button:disabled {
         6px;
 
     background:
-        #edf2f5;
+        #eaf0f4;
 
     border-radius:
         10px;
@@ -2099,9 +1909,6 @@ button:disabled {
 
     border-radius:
         inherit;
-
-    transition:
-        width 0.4s ease;
 }
 
 .monitor-status-card {
@@ -2140,7 +1947,7 @@ button:disabled {
 .status-grid div {
 
     background:
-        #f8fafb;
+        #f7fafc;
 
     padding:
         13px;
@@ -2165,7 +1972,6 @@ button:disabled {
 }
 
 .status-grid strong {
-
     font-size:
         11px;
 }
@@ -2215,13 +2021,11 @@ button:disabled {
 }
 
 .history-card {
-
     overflow:
         hidden;
 }
 
 .table-container {
-
     overflow-x:
         auto;
 }
@@ -2302,18 +2106,15 @@ td {
 
     font-weight:
         750;
-
-    transition:
-        0.2s ease;
 }
 
 .secondary-button:hover {
 
     border-color:
-        #ccd7df;
+        #cdd9e1;
 
     background:
-        #f8fafb;
+        #f7fafc;
 }
 
 
@@ -2334,9 +2135,6 @@ td {
 
     margin-bottom:
         15px;
-
-    transition:
-        0.2s ease;
 }
 
 .alert-large-icon {
@@ -2367,9 +2165,6 @@ td {
 
     font-size:
         23px;
-
-    flex-shrink:
-        0;
 }
 
 .current-alert-card p {
@@ -2441,7 +2236,6 @@ td {
 }
 
 .emergency-card h2 {
-
     font-size:
         20px;
 }
@@ -2492,18 +2286,6 @@ td {
 
     font-weight:
         800;
-
-    transition:
-        0.2s ease;
-}
-
-.emergency-button:hover {
-
-    background:
-        #c82333;
-
-    transform:
-        translateY(-1px);
 }
 
 .emergency-message {
@@ -2522,7 +2304,6 @@ td {
 }
 
 .emergency-info-card h2 {
-
     margin-bottom:
         20px;
 }
@@ -2549,7 +2330,6 @@ td {
 }
 
 .safety-row span {
-
     color:
         var(--muted);
 }
@@ -2601,7 +2381,7 @@ td {
         8px;
 
     background:
-        #edf2f5;
+        #eaf0f4;
 
     border-radius:
         10px;
@@ -2626,13 +2406,9 @@ td {
 
     border-radius:
         inherit;
-
-    transition:
-        width 0.4s ease;
 }
 
 .analytics-row strong {
-
     text-align:
         right;
 }
@@ -2640,31 +2416,7 @@ td {
 
 /* ============================================================
    SETTINGS
-   REFINED TO MATCH THE ORIGINAL DESIGN
 ============================================================ */
-
-.settings-grid {
-
-    display:
-        grid;
-
-    grid-template-columns:
-        repeat(
-            2,
-            minmax(
-                0,
-                1fr
-            )
-        );
-
-    gap:
-        16px;
-}
-
-/*
-   These aliases keep compatibility if your older
-   settings HTML/CSS is still present.
-*/
 
 .settings-layout {
 
@@ -2677,93 +2429,6 @@ td {
     gap:
         16px;
 }
-
-.settings-card {
-
-    min-height:
-        0;
-
-    padding:
-        19px 21px;
-
-    transition:
-        border-color 0.2s ease,
-        box-shadow 0.2s ease,
-        transform 0.2s ease;
-}
-
-.settings-card:hover {
-
-    border-color:
-        #dce8f0;
-
-    box-shadow:
-        0 10px 30px rgba(
-            24,
-            55,
-            79,
-            0.09
-        );
-}
-
-.settings-card .card-label {
-
-    color:
-        #8a98a3;
-}
-
-.settings-card h2 {
-
-    font-size:
-        16px;
-
-    margin-bottom:
-        9px;
-}
-
-.settings-card strong {
-
-    display:
-        block;
-
-    color:
-        var(--blue);
-
-    font-size:
-        24px;
-
-    font-weight:
-        800;
-
-    line-height:
-        1.2;
-
-    margin-bottom:
-        7px;
-
-    letter-spacing:
-        -0.4px;
-}
-
-.settings-card p {
-
-    color:
-        var(--muted);
-
-    font-size:
-        10px;
-
-    line-height:
-        1.55;
-
-    max-width:
-        500px;
-}
-
-
-/* ============================================================
-   SETTINGS FORM
-============================================================ */
 
 .settings-section {
 
@@ -2806,9 +2471,6 @@ td {
     background:
         var(--blue-light);
 
-    color:
-        var(--blue);
-
     display:
         flex;
 
@@ -2823,7 +2485,6 @@ td {
 }
 
 .settings-section-header h2 {
-
     font-size:
         16px;
 }
@@ -2886,9 +2547,9 @@ td {
 
     box-shadow:
         0 0 0 3px rgba(
-            11,
-            132,
-            243,
+            22,
+            119,
+            232,
             0.08
         );
 }
@@ -2915,9 +2576,6 @@ td {
 
     color:
         var(--text);
-
-    background:
-        transparent;
 }
 
 .input-with-unit span {
@@ -2947,7 +2605,7 @@ td {
         center;
 
     background:
-        #f8fafb;
+        #f7fafc;
 }
 
 .setting-field small {
@@ -2968,11 +2626,6 @@ td {
         1.4;
 }
 
-
-/* ============================================================
-   SETTINGS ACTIONS
-============================================================ */
-
 .settings-actions-card {
 
     margin-top:
@@ -2989,13 +2642,9 @@ td {
 
     gap:
         20px;
-
-    padding:
-        18px 21px;
 }
 
 .settings-actions-card h2 {
-
     font-size:
         15px;
 }
@@ -3046,18 +2695,11 @@ td {
 
     font-weight:
         800;
-
-    transition:
-        0.2s ease;
 }
 
 .primary-button:hover {
-
     background:
         var(--blue-dark);
-
-    transform:
-        translateY(-1px);
 }
 
 .settings-message {
@@ -3096,11 +2738,6 @@ td {
         var(--red);
 }
 
-
-/* ============================================================
-   CURRENT SETTINGS
-============================================================ */
-
 .current-settings-card {
 
     margin-top:
@@ -3128,25 +2765,10 @@ td {
         13px;
 
     background:
-        #f8fafb;
-
-    border:
-        1px solid #edf1f4;
+        #f7fafc;
 
     border-radius:
         11px;
-
-    transition:
-        0.2s ease;
-}
-
-.current-settings-grid div:hover {
-
-    background:
-        #f5f9fc;
-
-    border-color:
-        #e0e8ed;
 }
 
 .current-settings-grid span {
@@ -3168,47 +2790,6 @@ td {
 
     font-size:
         11px;
-}
-
-
-/* ============================================================
-   SETTINGS NOTE
-============================================================ */
-
-.settings-note {
-
-    margin-top:
-        16px;
-
-    padding:
-        18px 21px;
-
-    border-left:
-        3px solid var(--blue);
-}
-
-.settings-note h2 {
-
-    font-size:
-        15px;
-
-    margin-bottom:
-        5px;
-}
-
-.settings-note p {
-
-    color:
-        var(--muted);
-
-    font-size:
-        10px;
-
-    line-height:
-        1.55;
-
-    max-width:
-        850px;
 }
 
 
@@ -3244,7 +2825,6 @@ footer {
 }
 
 .footer-dot {
-
     color:
         #c6d0d6;
 }
@@ -3287,10 +2867,10 @@ footer {
 ) {
 
     :root {
-
         --sidebar-width:
             245px;
     }
+
 
     .sidebar {
 
@@ -3316,7 +2896,6 @@ footer {
     }
 
     .sidebar-overlay.open {
-
         display:
             block;
     }
@@ -3393,12 +2972,6 @@ footer {
             );
     }
 
-    .settings-grid {
-
-        grid-template-columns:
-            1fr;
-    }
-
     .settings-layout {
 
         grid-template-columns:
@@ -3467,7 +3040,6 @@ footer {
     }
 
     .page-header h1 {
-
         font-size:
             22px;
     }
@@ -3514,11 +3086,6 @@ footer {
             32px;
     }
 
-
-    /* --------------------------------------------------------
-       CONSUMPTION MOBILE
-    -------------------------------------------------------- */
-
     .consumption-control-card {
 
         align-items:
@@ -3526,18 +3093,6 @@ footer {
 
         flex-direction:
             column;
-
-        gap:
-            13px;
-
-        padding:
-            16px;
-    }
-
-    .consumption-main {
-
-        width:
-            100%;
     }
 
     .consumption-action {
@@ -3548,19 +3103,6 @@ footer {
         justify-content:
             space-between;
     }
-
-    .consumption-status {
-
-        text-align:
-            left;
-    }
-
-    .consumption-button {
-
-        min-width:
-            95px;
-    }
-
 
     .graph-area {
 
@@ -3580,23 +3122,6 @@ footer {
             1fr 1fr;
     }
 
-
-    /* --------------------------------------------------------
-       SETTINGS MOBILE
-    -------------------------------------------------------- */
-
-    .settings-card {
-
-        padding:
-            17px;
-    }
-
-    .settings-card strong {
-
-        font-size:
-            22px;
-    }
-
     .settings-actions-card {
 
         flex-direction:
@@ -3604,9 +3129,6 @@ footer {
 
         align-items:
             stretch;
-
-        gap:
-            14px;
     }
 
     .settings-action-buttons {
@@ -3627,12 +3149,6 @@ footer {
             1fr 1fr;
     }
 
-    .settings-note {
-
-        padding:
-            16px;
-    }
-
     .current-alert-card {
 
         align-items:
@@ -3643,76 +3159,5 @@ footer {
 
         grid-template-columns:
             65px 1fr 45px;
-    }
-}
-
-
-/* ============================================================
-   EXTRA SMALL PHONE
-============================================================ */
-
-@media (
-    max-width: 380px
-) {
-
-    .topbar-title strong {
-
-        font-size:
-            14px;
-    }
-
-    .topbar-title span {
-
-        display:
-            none;
-    }
-
-    .page-container {
-
-        padding-left:
-            12px;
-
-        padding-right:
-            12px;
-    }
-
-    .pump-buttons,
-    .mode-buttons {
-
-        grid-template-columns:
-            1fr;
-    }
-
-    .consumption-main h2 {
-
-        font-size:
-            14px;
-    }
-
-    .consumption-main p {
-
-        font-size:
-            9px;
-    }
-
-    .consumption-action {
-
-        gap:
-            7px;
-    }
-
-    .consumption-button {
-
-        min-width:
-            88px;
-
-        padding:
-            0 10px;
-    }
-
-    .stats-grid {
-
-        grid-template-columns:
-            1fr;
     }
 }
