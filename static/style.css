@@ -1,7 +1,492 @@
 /* ========================================================== 
    RESET 
 ========================================================== */ 
- 
+ /* ============================================================
+   HAMBURGER APP MENU
+   Separated from index.html
+============================================================ */
+
+
+/* ============================================================
+   HAMBURGER BUTTON
+============================================================ */
+
+.hamburger-menu-button {
+
+    position: fixed;
+
+    top: 18px;
+
+    left: 18px;
+
+    z-index: 1200;
+
+    width: 48px;
+
+    height: 48px;
+
+    border: 0;
+
+    border-radius: 13px;
+
+    background: #2196f3;
+
+    cursor: pointer;
+
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: center;
+
+    justify-content: center;
+
+    gap: 5px;
+
+    box-shadow:
+        0 8px 22px rgba(0, 0, 0, .15);
+
+}
+
+
+/* ============================================================
+   HAMBURGER LINES
+============================================================ */
+
+.hamburger-menu-button span {
+
+    display: block;
+
+    width: 22px;
+
+    height: 3px;
+
+    border-radius: 3px;
+
+    background: #fff;
+
+    transition: .2s ease;
+
+}
+
+
+/* ============================================================
+   HAMBURGER → X ANIMATION
+============================================================ */
+
+.hamburger-menu-button.menu-open
+span:nth-child(1) {
+
+    transform:
+        translateY(8px)
+        rotate(45deg);
+
+}
+
+
+.hamburger-menu-button.menu-open
+span:nth-child(2) {
+
+    opacity: 0;
+
+}
+
+
+.hamburger-menu-button.menu-open
+span:nth-child(3) {
+
+    transform:
+        translateY(-8px)
+        rotate(-45deg);
+
+}
+
+
+/* ============================================================
+   DARK OVERLAY
+============================================================ */
+
+.app-menu-overlay {
+
+    position: fixed;
+
+    inset: 0;
+
+    z-index: 1090;
+
+    background:
+        rgba(0, 0, 0, .42);
+
+    opacity: 0;
+
+    visibility: hidden;
+
+    transition: .25s ease;
+
+}
+
+
+.app-menu-overlay.menu-visible {
+
+    opacity: 1;
+
+    visibility: visible;
+
+}
+
+
+/* ============================================================
+   SIDE MENU
+============================================================ */
+
+.app-side-menu {
+
+    position: fixed;
+
+    top: 0;
+
+    left: 0;
+
+    bottom: 0;
+
+    z-index: 1150;
+
+    width: min(310px, 84vw);
+
+    background: #fff;
+
+    box-shadow:
+        10px 0 35px rgba(0, 0, 0, .18);
+
+    transform:
+        translateX(-105%);
+
+    transition:
+        transform .28s ease;
+
+    display: flex;
+
+    flex-direction: column;
+
+    overflow-y: auto;
+
+}
+
+
+.app-side-menu.menu-visible {
+
+    transform:
+        translateX(0);
+
+}
+
+
+/* ============================================================
+   SIDE MENU HEADER
+============================================================ */
+
+.app-side-menu-header {
+
+    min-height: 82px;
+
+    padding:
+        18px
+        16px
+        16px
+        20px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    gap: 12px;
+
+}
+
+
+/* ============================================================
+   MENU BRAND
+============================================================ */
+
+.app-menu-brand {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 11px;
+
+}
+
+
+.app-menu-brand-icon {
+
+    width: 46px;
+
+    height: 46px;
+
+    border-radius: 13px;
+
+    display: grid;
+
+    place-items: center;
+
+    background: #e3f2fd;
+
+    font-size: 25px;
+
+}
+
+
+.app-menu-brand strong,
+.app-menu-brand small {
+
+    display: block;
+
+}
+
+
+.app-menu-brand strong {
+
+    font-size: 16px;
+
+}
+
+
+.app-menu-brand small {
+
+    margin-top: 3px;
+
+    opacity: .6;
+
+    font-size: 12px;
+
+}
+
+
+/* ============================================================
+   CLOSE BUTTON
+============================================================ */
+
+.app-menu-close {
+
+    width: 38px;
+
+    height: 38px;
+
+    border: 0;
+
+    border-radius: 10px;
+
+    background: #f2f5f8;
+
+    color: #607080;
+
+    font-size: 27px;
+
+    line-height: 1;
+
+    cursor: pointer;
+
+}
+
+
+/* ============================================================
+   DIVIDER
+============================================================ */
+
+.app-menu-divider {
+
+    height: 1px;
+
+    margin: 0 20px;
+
+    background:
+        rgba(0, 0, 0, .08);
+
+}
+
+
+/* ============================================================
+   MENU LINKS CONTAINER
+============================================================ */
+
+.app-menu-links {
+
+    display: grid;
+
+    gap: 5px;
+
+    padding: 18px 12px;
+
+}
+
+
+/* ============================================================
+   MENU LINK
+============================================================ */
+
+.app-menu-link {
+
+    width: 100%;
+
+    min-height: 52px;
+
+    padding: 0 15px;
+
+    border: 0;
+
+    border-radius: 12px;
+
+    background: transparent;
+
+    color: #536273;
+
+    font: inherit;
+
+    font-weight: 700;
+
+    text-align: left;
+
+    cursor: pointer;
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 13px;
+
+}
+
+
+/* ============================================================
+   MENU LINK HOVER / ACTIVE
+============================================================ */
+
+.app-menu-link:hover,
+.app-menu-link.active {
+
+    background: #e3f2fd;
+
+    color: #1976d2;
+
+}
+
+
+/* ============================================================
+   MENU ICON
+============================================================ */
+
+.app-menu-link-icon {
+
+    width: 28px;
+
+    text-align: center;
+
+    font-size: 20px;
+
+}
+
+
+/* ============================================================
+   EMERGENCY MENU ITEM
+============================================================ */
+
+.app-menu-link.app-menu-emergency {
+
+    color: #c62828;
+
+}
+
+
+.app-menu-link.app-menu-emergency:hover,
+.app-menu-link.app-menu-emergency.active {
+
+    background: #ffebee;
+
+    color: #c62828;
+
+}
+
+
+/* ============================================================
+   MENU FOOTER
+============================================================ */
+
+.app-menu-footer {
+
+    margin-top: auto;
+
+    padding:
+        18px
+        20px
+        24px;
+
+    color: #607080;
+
+    border-top:
+        1px solid rgba(0, 0, 0, .06);
+
+}
+
+
+.app-menu-footer span,
+.app-menu-footer small {
+
+    display: block;
+
+}
+
+
+.app-menu-footer span {
+
+    font-weight: 700;
+
+    font-size: 12px;
+
+}
+
+
+.app-menu-footer small {
+
+    margin-top: 4px;
+
+    opacity: .6;
+
+    font-size: 11px;
+
+}
+
+
+/* ============================================================
+   MOBILE RESPONSIVE MENU
+============================================================ */
+
+@media (max-width: 700px) {
+
+    .hamburger-menu-button {
+
+        top: 12px;
+
+        left: 12px;
+
+        width: 46px;
+
+        height: 46px;
+
+    }
+
+
+    .app-side-menu {
+
+        width:
+            min(320px, 88vw);
+
+    }
+
+}
 * { 
  
     box-sizing: border-box; 
