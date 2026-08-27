@@ -15,6 +15,7 @@
     --blue-light: #eaf5ff;
 
     --green: #16a36a;
+    --green-dark: #128456;
     --green-light: #eafaf3;
 
     --red: #dc3545;
@@ -66,7 +67,9 @@ body {
 }
 
 button,
-input {
+input,
+select,
+textarea {
     font-family: inherit;
 }
 
@@ -300,6 +303,7 @@ button:disabled {
 }
 
 .nav-text {
+
     font-size:
         13px;
 }
@@ -341,6 +345,7 @@ button:disabled {
 }
 
 .emergency-nav {
+
     color:
         #d84a57;
 }
@@ -647,11 +652,13 @@ button:disabled {
 }
 
 .app-page {
+
     display:
         none;
 }
 
 .active-page {
+
     display:
         block;
 }
@@ -1233,6 +1240,7 @@ button:disabled {
 }
 
 .pump-status.on {
+
     color:
         var(--green);
 }
@@ -1289,6 +1297,7 @@ button:disabled {
 }
 
 .control-button:hover:not(:disabled) {
+
     transform:
         translateY(-1px);
 }
@@ -1302,6 +1311,12 @@ button:disabled {
         white;
 }
 
+.pump-on:hover:not(:disabled) {
+
+    background:
+        var(--green-dark);
+}
+
 .pump-off {
 
     background:
@@ -1309,6 +1324,12 @@ button:disabled {
 
     color:
         #596773;
+}
+
+.pump-off:hover:not(:disabled) {
+
+    background:
+        #e4eaee;
 }
 
 .control-button:disabled {
@@ -1445,13 +1466,13 @@ button:disabled {
         0.2s ease;
 }
 
-.mode-button:hover {
-
-    border-color:
-        #cbd8e1;
+.mode-button:hover:not(.active) {
 
     background:
-        #f8fafb;
+        #f7fafc;
+
+    border-color:
+        #d6e0e7;
 }
 
 .mode-button.active {
@@ -1464,6 +1485,14 @@ button:disabled {
 
     border-color:
         var(--blue);
+
+    box-shadow:
+        0 4px 12px rgba(
+            11,
+            132,
+            243,
+            0.15
+        );
 }
 
 
@@ -1505,21 +1534,25 @@ button:disabled {
 }
 
 .quick-status:last-child {
+
     border-bottom:
         none;
 }
 
 .quick-status span {
+
     color:
         var(--muted);
 }
 
 .quick-status strong {
+
     font-size:
         10px;
 }
 
 .healthy-text {
+
     color:
         var(--green);
 }
@@ -1527,16 +1560,13 @@ button:disabled {
 
 /* ============================================================
    CONSUMPTION CONTROL
-   REFINED
+   REFINED HOME CONTROL
 ============================================================ */
 
 .consumption-control-card {
 
     margin-top:
         16px;
-
-    min-height:
-        78px;
 
     display:
         flex;
@@ -1548,14 +1578,14 @@ button:disabled {
         space-between;
 
     gap:
-        20px;
+        18px;
 
     padding:
-        15px 19px;
+        17px 21px;
+
+    min-height:
+        78px;
 }
-
-
-/* LEFT SIDE */
 
 .consumption-main {
 
@@ -1566,7 +1596,7 @@ button:disabled {
         center;
 
     gap:
-        12px;
+        13px;
 
     min-width:
         0;
@@ -1575,19 +1605,22 @@ button:disabled {
 .consumption-icon {
 
     width:
-        45px;
+        46px;
 
     height:
-        45px;
+        46px;
 
     flex:
-        0 0 45px;
+        0 0 46px;
 
     border-radius:
-        13px;
+        14px;
 
     background:
         var(--blue-light);
+
+    color:
+        var(--blue);
 
     display:
         flex;
@@ -1599,13 +1632,16 @@ button:disabled {
         center;
 
     font-size:
-        20px;
+        21px;
+
+    transition:
+        0.25s ease;
 }
 
 .consumption-main h2 {
 
     font-size:
-        14px;
+        15px;
 
     line-height:
         1.2;
@@ -1617,17 +1653,14 @@ button:disabled {
         var(--muted);
 
     font-size:
-        9px;
+        10px;
 
     margin-top:
-        3px;
+        4px;
 
     line-height:
         1.4;
 }
-
-
-/* RIGHT SIDE */
 
 .consumption-action {
 
@@ -1638,73 +1671,53 @@ button:disabled {
         center;
 
     gap:
-        8px;
+        10px;
 
     flex-shrink:
         0;
 }
 
-
-/* CONSUMPTION STATUS */
+/* Current state text */
 
 .consumption-status {
 
-    display:
-        inline-flex;
-
-    align-items:
-        center;
-
-    justify-content:
-        center;
-
     min-width:
-        50px;
+        60px;
 
-    min-height:
-        25px;
-
-    padding:
-        0 9px;
-
-    border-radius:
-        20px;
-
-    background:
-        var(--green-light);
-
-    color:
-        var(--green);
+    text-align:
+        right;
 
     font-size:
-        8px;
+        9px;
 
     font-weight:
         800;
+
+    color:
+        var(--green);
 
     letter-spacing:
         0.5px;
 }
 
-
-/* CONSUMPTION BUTTON */
+/* Main consumption button */
 
 .consumption-button {
-
-    min-width:
-        86px;
-
-    min-height:
-        34px;
 
     border:
         none;
 
-    border-radius:
-        9px;
+    min-width:
+        92px;
+
+    min-height:
+        36px;
 
     padding:
-        0 12px;
+        0 15px;
+
+    border-radius:
+        10px;
 
     background:
         var(--blue);
@@ -1713,13 +1726,21 @@ button:disabled {
         white;
 
     font-size:
-        9px;
+        10px;
 
     font-weight:
         800;
 
     transition:
         0.2s ease;
+
+    box-shadow:
+        0 4px 12px rgba(
+            11,
+            132,
+            243,
+            0.12
+        );
 }
 
 .consumption-button:hover {
@@ -1737,37 +1758,56 @@ button:disabled {
         translateY(0);
 }
 
+/*
+   If script.js applies these classes,
+   the button becomes visually clear for each state.
+*/
 
-/* ON/OFF VARIANTS */
-
-.consumption-on {
+.consumption-button.on {
 
     background:
         var(--green);
 
-    color:
-        white;
+    box-shadow:
+        0 4px 12px rgba(
+            22,
+            163,
+            106,
+            0.15
+        );
 }
 
-.consumption-on:hover {
+.consumption-button.on:hover {
 
     background:
-        #128b59;
+        var(--green-dark);
 }
 
-.consumption-off {
+.consumption-button.off {
 
     background:
         #edf1f4;
 
     color:
         #596773;
+
+    box-shadow:
+        none;
 }
 
-.consumption-off:hover {
+.consumption-button.off:hover {
 
     background:
         #e3e9ed;
+}
+
+.consumption-icon.off {
+
+    background:
+        #f0f3f5;
+
+    color:
+        #7c8993;
 }
 
 
@@ -1954,7 +1994,7 @@ button:disabled {
         var(--green);
 
     border-color:
-        #d7f1e5;
+        #d8f1e5;
 }
 
 .warning-alert {
@@ -1966,7 +2006,7 @@ button:disabled {
         #b87500;
 
     border-color:
-        #f6dfb1;
+        #f8e3b7;
 }
 
 .emergency-alert {
@@ -1978,7 +2018,7 @@ button:disabled {
         var(--red);
 
     border-color:
-        #f4cdd1;
+        #f5d1d5;
 }
 
 
@@ -2125,6 +2165,7 @@ button:disabled {
 }
 
 .status-grid strong {
+
     font-size:
         11px;
 }
@@ -2174,11 +2215,13 @@ button:disabled {
 }
 
 .history-card {
+
     overflow:
         hidden;
 }
 
 .table-container {
+
     overflow-x:
         auto;
 }
@@ -2291,6 +2334,9 @@ td {
 
     margin-bottom:
         15px;
+
+    transition:
+        0.2s ease;
 }
 
 .alert-large-icon {
@@ -2322,8 +2368,8 @@ td {
     font-size:
         23px;
 
-    flex:
-        0 0 55px;
+    flex-shrink:
+        0;
 }
 
 .current-alert-card p {
@@ -2395,6 +2441,7 @@ td {
 }
 
 .emergency-card h2 {
+
     font-size:
         20px;
 }
@@ -2475,6 +2522,7 @@ td {
 }
 
 .emergency-info-card h2 {
+
     margin-bottom:
         20px;
 }
@@ -2501,6 +2549,7 @@ td {
 }
 
 .safety-row span {
+
     color:
         var(--muted);
 }
@@ -2577,9 +2626,13 @@ td {
 
     border-radius:
         inherit;
+
+    transition:
+        width 0.4s ease;
 }
 
 .analytics-row strong {
+
     text-align:
         right;
 }
@@ -2587,20 +2640,8 @@ td {
 
 /* ============================================================
    SETTINGS
-   REFINED FOR YOUR CURRENT HTML
+   REFINED TO MATCH THE ORIGINAL DESIGN
 ============================================================ */
-
-/*
-   IMPORTANT:
-   Your current HTML uses:
-
-       .settings-grid
-       .settings-card
-       .settings-note
-
-   The old CSS was styling a different settings structure.
-   These rules are therefore the actual settings-page styling.
-*/
 
 .settings-grid {
 
@@ -2609,7 +2650,7 @@ td {
 
     grid-template-columns:
         repeat(
-            3,
+            2,
             minmax(
                 0,
                 1fr
@@ -2617,184 +2658,12 @@ td {
         );
 
     gap:
-        15px;
-}
-
-
-/* INDIVIDUAL SETTINGS CARD */
-
-.settings-card {
-
-    min-height:
-        175px;
-
-    display:
-        flex;
-
-    flex-direction:
-        column;
-
-    justify-content:
-        flex-start;
-
-    transition:
-        transform 0.2s ease,
-        box-shadow 0.2s ease,
-        border-color 0.2s ease;
-}
-
-.settings-card:hover {
-
-    transform:
-        translateY(-2px);
-
-    border-color:
-        #dbe7ef;
-
-    box-shadow:
-        0 10px 30px rgba(
-            24,
-            55,
-            79,
-            0.09
-        );
-}
-
-.settings-card .card-label {
-
-    margin-bottom:
-        6px;
-}
-
-.settings-card h2 {
-
-    font-size:
         16px;
-
-    line-height:
-        1.3;
-
-    margin-bottom:
-        10px;
 }
-
-.settings-card strong {
-
-    display:
-        block;
-
-    font-size:
-        24px;
-
-    line-height:
-        1.15;
-
-    color:
-        var(--blue);
-
-    margin-bottom:
-        10px;
-
-    letter-spacing:
-        -0.5px;
-}
-
-.settings-card p {
-
-    color:
-        var(--muted);
-
-    font-size:
-        10px;
-
-    line-height:
-        1.55;
-
-    margin-top:
-        auto;
-}
-
-
-/* SETTINGS CARD COLOR VARIANTS */
-
-.settings-card:nth-child(3) strong {
-
-    color:
-        var(--green);
-}
-
-.settings-card:nth-child(5) strong {
-
-    color:
-        #168fca;
-}
-
-.settings-card:nth-child(6) strong {
-
-    color:
-        var(--text);
-
-    font-size:
-        18px;
-
-    letter-spacing:
-        -0.2px;
-}
-
-
-/* SETTINGS INFORMATION CARD */
-
-.settings-note {
-
-    margin-top:
-        15px;
-
-    padding:
-        18px 21px;
-
-    background:
-        linear-gradient(
-            135deg,
-            #ffffff,
-            #f9fcfe
-        );
-}
-
-.settings-note .card-label {
-
-    color:
-        var(--blue);
-}
-
-.settings-note h2 {
-
-    font-size:
-        15px;
-
-    margin-bottom:
-        5px;
-}
-
-.settings-note p {
-
-    color:
-        var(--muted);
-
-    font-size:
-        10px;
-
-    line-height:
-        1.55;
-
-    max-width:
-        850px;
-}
-
 
 /*
-   The following settings classes are retained because they may
-   still be used by your existing JavaScript or future settings
-   controls. They do not interfere with the current design.
+   These aliases keep compatibility if your older
+   settings HTML/CSS is still present.
 */
 
 .settings-layout {
@@ -2808,6 +2677,93 @@ td {
     gap:
         16px;
 }
+
+.settings-card {
+
+    min-height:
+        0;
+
+    padding:
+        19px 21px;
+
+    transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease,
+        transform 0.2s ease;
+}
+
+.settings-card:hover {
+
+    border-color:
+        #dce8f0;
+
+    box-shadow:
+        0 10px 30px rgba(
+            24,
+            55,
+            79,
+            0.09
+        );
+}
+
+.settings-card .card-label {
+
+    color:
+        #8a98a3;
+}
+
+.settings-card h2 {
+
+    font-size:
+        16px;
+
+    margin-bottom:
+        9px;
+}
+
+.settings-card strong {
+
+    display:
+        block;
+
+    color:
+        var(--blue);
+
+    font-size:
+        24px;
+
+    font-weight:
+        800;
+
+    line-height:
+        1.2;
+
+    margin-bottom:
+        7px;
+
+    letter-spacing:
+        -0.4px;
+}
+
+.settings-card p {
+
+    color:
+        var(--muted);
+
+    font-size:
+        10px;
+
+    line-height:
+        1.55;
+
+    max-width:
+        500px;
+}
+
+
+/* ============================================================
+   SETTINGS FORM
+============================================================ */
 
 .settings-section {
 
@@ -2850,6 +2806,9 @@ td {
     background:
         var(--blue-light);
 
+    color:
+        var(--blue);
+
     display:
         flex;
 
@@ -2864,6 +2823,7 @@ td {
 }
 
 .settings-section-header h2 {
+
     font-size:
         16px;
 }
@@ -2955,6 +2915,9 @@ td {
 
     color:
         var(--text);
+
+    background:
+        transparent;
 }
 
 .input-with-unit span {
@@ -3005,6 +2968,11 @@ td {
         1.4;
 }
 
+
+/* ============================================================
+   SETTINGS ACTIONS
+============================================================ */
+
 .settings-actions-card {
 
     margin-top:
@@ -3021,9 +2989,13 @@ td {
 
     gap:
         20px;
+
+    padding:
+        18px 21px;
 }
 
 .settings-actions-card h2 {
+
     font-size:
         15px;
 }
@@ -3074,11 +3046,18 @@ td {
 
     font-weight:
         800;
+
+    transition:
+        0.2s ease;
 }
 
 .primary-button:hover {
+
     background:
         var(--blue-dark);
+
+    transform:
+        translateY(-1px);
 }
 
 .settings-message {
@@ -3117,6 +3096,11 @@ td {
         var(--red);
 }
 
+
+/* ============================================================
+   CURRENT SETTINGS
+============================================================ */
+
 .current-settings-card {
 
     margin-top:
@@ -3146,8 +3130,23 @@ td {
     background:
         #f8fafb;
 
+    border:
+        1px solid #edf1f4;
+
     border-radius:
         11px;
+
+    transition:
+        0.2s ease;
+}
+
+.current-settings-grid div:hover {
+
+    background:
+        #f5f9fc;
+
+    border-color:
+        #e0e8ed;
 }
 
 .current-settings-grid span {
@@ -3169,6 +3168,47 @@ td {
 
     font-size:
         11px;
+}
+
+
+/* ============================================================
+   SETTINGS NOTE
+============================================================ */
+
+.settings-note {
+
+    margin-top:
+        16px;
+
+    padding:
+        18px 21px;
+
+    border-left:
+        3px solid var(--blue);
+}
+
+.settings-note h2 {
+
+    font-size:
+        15px;
+
+    margin-bottom:
+        5px;
+}
+
+.settings-note p {
+
+    color:
+        var(--muted);
+
+    font-size:
+        10px;
+
+    line-height:
+        1.55;
+
+    max-width:
+        850px;
 }
 
 
@@ -3204,6 +3244,7 @@ footer {
 }
 
 .footer-dot {
+
     color:
         #c6d0d6;
 }
@@ -3242,41 +3283,14 @@ footer {
 ============================================================ */
 
 @media (
-    max-width: 1100px
-) {
-
-    .settings-grid {
-
-        grid-template-columns:
-            repeat(
-                2,
-                minmax(
-                    0,
-                    1fr
-                )
-            );
-    }
-
-    .monitor-grid {
-
-        grid-template-columns:
-            repeat(
-                2,
-                1fr
-            );
-    }
-}
-
-
-@media (
     max-width: 900px
 ) {
 
     :root {
+
         --sidebar-width:
             245px;
     }
-
 
     .sidebar {
 
@@ -3302,6 +3316,7 @@ footer {
     }
 
     .sidebar-overlay.open {
+
         display:
             block;
     }
@@ -3378,22 +3393,16 @@ footer {
             );
     }
 
-    .settings-layout {
+    .settings-grid {
 
         grid-template-columns:
             1fr;
     }
 
-    .settings-grid {
+    .settings-layout {
 
         grid-template-columns:
-            repeat(
-                2,
-                minmax(
-                    0,
-                    1fr
-                )
-            );
+            1fr;
     }
 
     .current-settings-grid {
@@ -3458,11 +3467,13 @@ footer {
     }
 
     .page-header h1 {
+
         font-size:
             22px;
     }
 
     .page-header p {
+
         font-size:
             10px;
     }
@@ -3477,6 +3488,7 @@ footer {
     }
 
     .card {
+
         padding:
             16px;
     }
@@ -3497,28 +3509,29 @@ footer {
     }
 
     .large-number {
+
         font-size:
             32px;
     }
 
 
-    /* --------------------------------------------
+    /* --------------------------------------------------------
        CONSUMPTION MOBILE
-    -------------------------------------------- */
+    -------------------------------------------------------- */
 
     .consumption-control-card {
 
         align-items:
-            stretch;
+            flex-start;
 
         flex-direction:
             column;
 
         gap:
-            12px;
+            13px;
 
         padding:
-            15px 16px;
+            16px;
     }
 
     .consumption-main {
@@ -3532,53 +3545,34 @@ footer {
         width:
             100%;
 
-        display:
-            grid;
-
-        grid-template-columns:
-            auto 1fr;
-
-        gap:
-            8px;
+        justify-content:
+            space-between;
     }
 
     .consumption-status {
 
-        min-width:
-            52px;
+        text-align:
+            left;
     }
 
     .consumption-button {
 
-        width:
-            100%;
+        min-width:
+            95px;
     }
 
 
-    /* --------------------------------------------
-       GRAPH
-    -------------------------------------------- */
-
     .graph-area {
+
         height:
             190px;
     }
-
-
-    /* --------------------------------------------
-       MONITOR
-    -------------------------------------------- */
 
     .monitor-grid {
 
         grid-template-columns:
             1fr;
     }
-
-
-    /* --------------------------------------------
-       STATISTICS
-    -------------------------------------------- */
 
     .stats-grid {
 
@@ -3587,20 +3581,14 @@ footer {
     }
 
 
-    /* --------------------------------------------
-       SETTINGS
-    -------------------------------------------- */
-
-    .settings-grid {
-
-        grid-template-columns:
-            1fr;
-    }
+    /* --------------------------------------------------------
+       SETTINGS MOBILE
+    -------------------------------------------------------- */
 
     .settings-card {
 
-        min-height:
-            155px;
+        padding:
+            17px;
     }
 
     .settings-card strong {
@@ -3609,23 +3597,6 @@ footer {
             22px;
     }
 
-    .settings-card:nth-child(6) strong {
-
-        font-size:
-            17px;
-    }
-
-    .settings-note {
-
-        padding:
-            16px;
-    }
-
-
-    /* --------------------------------------------
-       SETTINGS ACTIONS
-    -------------------------------------------- */
-
     .settings-actions-card {
 
         flex-direction:
@@ -3633,6 +3604,9 @@ footer {
 
         align-items:
             stretch;
+
+        gap:
+            14px;
     }
 
     .settings-action-buttons {
@@ -3647,32 +3621,23 @@ footer {
             1;
     }
 
-
-    /* --------------------------------------------
-       CURRENT SETTINGS
-    -------------------------------------------- */
-
     .current-settings-grid {
 
         grid-template-columns:
             1fr 1fr;
     }
 
+    .settings-note {
 
-    /* --------------------------------------------
-       ALERT
-    -------------------------------------------- */
+        padding:
+            16px;
+    }
 
     .current-alert-card {
 
         align-items:
             flex-start;
     }
-
-
-    /* --------------------------------------------
-       ANALYTICS
-    -------------------------------------------- */
 
     .analytics-row {
 
@@ -3690,89 +3655,64 @@ footer {
     max-width: 380px
 ) {
 
-    .page-container {
+    .topbar-title strong {
 
-        padding-left:
-            11px;
-
-        padding-right:
-            11px;
-    }
-
-    .card {
-
-        padding:
+        font-size:
             14px;
     }
 
-    .page-header h1 {
+    .topbar-title span {
 
-        font-size:
-            20px;
+        display:
+            none;
     }
 
-    .mode-pill {
+    .page-container {
 
-        min-width:
-            62px;
+        padding-left:
+            12px;
 
-        padding:
-            6px 7px;
-    }
-
-    .mode-pill strong {
-
-        font-size:
+        padding-right:
             12px;
     }
 
     .pump-buttons,
     .mode-buttons {
 
-        gap:
-            6px;
-    }
-
-    .control-button,
-    .mode-button {
-
-        font-size:
-            9px;
-    }
-
-    .consumption-main {
-
-        gap:
-            9px;
-    }
-
-    .consumption-icon {
-
-        width:
-            42px;
-
-        height:
-            42px;
-
-        flex-basis:
-            42px;
+        grid-template-columns:
+            1fr;
     }
 
     .consumption-main h2 {
 
         font-size:
-            13px;
+            14px;
     }
 
     .consumption-main p {
 
         font-size:
-            8px;
+            9px;
+    }
+
+    .consumption-action {
+
+        gap:
+            7px;
+    }
+
+    .consumption-button {
+
+        min-width:
+            88px;
+
+        padding:
+            0 10px;
     }
 
     .stats-grid {
 
-        gap:
-            9px;
+        grid-template-columns:
+            1fr;
     }
 }
