@@ -1,4 +1,10 @@
 // ============================================================
+// SMART WATER MONITOR
+// COMPLETE FRONTEND CONTROLLER
+// ============================================================
+
+
+// ============================================================
 // GRAPH DATA
 // ============================================================
 
@@ -13,67 +19,121 @@ const MAX_GRAPH_POINTS = 60;
 
 const historyData = [];
 
-const MAX_HISTORY_POINTS = 200;
+const MAX_HISTORY_POINTS = 500;
 
 
 // ============================================================
-// ALERT HISTORY
+// ALERT STATE
 // ============================================================
 
-const alertHistory = [];
+let lastAlertType = null;
 
-let lastAlertState = "";
+let lastAlertActive = false;
 
 
 // ============================================================
-// NAVIGATION
+// PAGE INFORMATION
 // ============================================================
 
 const pageInformation = {
 
     homePage: {
+
         title: "Home",
-        subtitle: "Water Management Overview"
+
+        subtitle:
+            "Water Management Overview"
+
     },
 
     monitorPage: {
+
         title: "Live Monitor",
-        subtitle: "Real-Time System Information"
+
+        subtitle:
+            "Real-Time Water System Information"
+
     },
 
     historyPage: {
+
         title: "History",
-        subtitle: "Recent System Records"
+
+        subtitle:
+            "Recent System Readings"
+
     },
 
     alertsPage: {
+
         title: "Alerts",
-        subtitle: "System Conditions & Notifications"
+
+        subtitle:
+            "System Conditions and Alert History"
+
     },
 
     emergencyPage: {
+
         title: "Emergency",
-        subtitle: "Safety Control"
+
+        subtitle:
+            "Safety Control"
+
     },
 
     analyticsPage: {
+
         title: "Analytics",
-        subtitle: "Water System Statistics"
+
+        subtitle:
+            "Water System Statistics"
+
     },
 
     settingsPage: {
+
         title: "Settings",
-        subtitle: "System Configuration"
+
+        subtitle:
+            "System Configuration"
+
     }
 
 };
 
 
 // ============================================================
-// INITIALIZE NAVIGATION
+// DOM READY
 // ============================================================
 
-function initializeNavigation() {
+document.addEventListener(
+    "DOMContentLoaded",
+    function() {
+
+        setupNavigation();
+
+        setupEmergencyButton();
+
+        setupConsumptionButton();
+
+        setupHistoryButton();
+
+        setupSettingsControls();
+
+        updateClock();
+
+        updateDashboard();
+
+    }
+);
+
+
+// ============================================================
+// NAVIGATION
+// ============================================================
+
+function setupNavigation() {
 
     const navItems =
         document.querySelectorAll(
@@ -81,31 +141,9 @@ function initializeNavigation() {
         );
 
 
-    navItems.forEach(
-        button => {
-
-            button.addEventListener(
-                "click",
-                function () {
-
-                    const pageId =
-                        this.dataset.page;
-
-
-                    showPage(
-                        pageId
-                    );
-
-                }
-            );
-
-        }
-    );
-
-
-    const menuButton =
-        document.getElementById(
-            "menuButton"
+    const pages =
+        document.querySelectorAll(
+            ".app-page"
         );
 
 
@@ -121,19 +159,78 @@ function initializeNavigation() {
         );
 
 
+    const menuButton =
+        document.getElementById(
+            "menuButton"
+        );
+
+
+    const closeSidebar =
+        function() {
+
+            if (sidebar) {
+
+                sidebar.classList.remove(
+                    "open"
+                );
+
+            }
+
+            if (overlay) {
+
+                overlay.classList.remove(
+                    "active"
+                );
+
+            }
+
+        };
+
+
+    const openSidebar =
+        function() {
+
+            if (sidebar) {
+
+                sidebar.classList.add(
+                    "open"
+                );
+
+            }
+
+            if (overlay) {
+
+                overlay.classList.add(
+                    "active"
+                );
+
+            }
+
+        };
+
+
     if (menuButton) {
 
         menuButton.addEventListener(
             "click",
-            function () {
+            function() {
 
-                sidebar.classList.toggle(
-                    "open"
-                );
+                if (
+                    sidebar &&
+                    sidebar.classList.contains(
+                        "open"
+                    )
+                ) {
 
-                overlay.classList.toggle(
-                    "open"
-                );
+                    closeSidebar();
+
+                }
+
+                else {
+
+                    openSidebar();
+
+                }
 
             }
         );
@@ -145,173 +242,148 @@ function initializeNavigation() {
 
         overlay.addEventListener(
             "click",
-            function () {
-
-                sidebar.classList.remove(
-                    "open"
-                );
-
-                overlay.classList.remove(
-                    "open"
-                );
-
-            }
+            closeSidebar
         );
 
     }
+
+
+    navItems.forEach(
+        function(item) {
+
+            item.addEventListener(
+                "click",
+                function() {
+
+                    const pageId =
+                        item.dataset.page;
+
+
+                    if (!pageId) {
+
+                        return;
+
+                    }
+
+
+                    navItems.forEach(
+                        function(nav) {
+
+                            nav.classList.remove(
+                                "active"
+                            );
+
+                        }
+                    );
+
+
+                    item.classList.add(
+                        "active"
+                    );
+
+
+                    pages.forEach(
+                        function(page) {
+
+                            page.classList.remove(
+                                "active-page"
+                            );
+
+                        }
+                    );
+
+
+                    const selectedPage =
+                        document.getElementById(
+                            pageId
+                        );
+
+
+                    if (selectedPage) {
+
+                        selectedPage.classList.add(
+                            "active-page"
+                        );
+
+                    }
+
+
+                    updatePageHeader(
+                        pageId
+                    );
+
+
+                    closeSidebar();
+
+
+                    // Draw graph when returning
+                    // to a page containing canvas.
+
+                    setTimeout(
+                        function() {
+
+                            drawWaterGraph();
+
+                        },
+                        50
+                    );
+
+                }
+            );
+
+        }
+    );
 
 }
 
 
 // ============================================================
-// SHOW PAGE
+// PAGE HEADER
 // ============================================================
 
-function showPage(
+function updatePageHeader(
     pageId
 ) {
 
-    const pages =
-        document.querySelectorAll(
-            ".app-page"
-        );
-
-
-    pages.forEach(
-        page => {
-
-            page.classList.remove(
-                "active-page"
-            );
-
-        }
-    );
-
-
-    const selectedPage =
+    const title =
         document.getElementById(
-            pageId
+            "pageTitle"
         );
 
 
-    if (selectedPage) {
-
-        selectedPage.classList.add(
-            "active-page"
+    const subtitle =
+        document.getElementById(
+            "pageSubtitle"
         );
-
-    }
-
-
-    const navItems =
-        document.querySelectorAll(
-            ".nav-item"
-        );
-
-
-    navItems.forEach(
-        item => {
-
-            item.classList.remove(
-                "active"
-            );
-
-
-            if (
-                item.dataset.page ===
-                pageId
-            ) {
-
-                item.classList.add(
-                    "active"
-                );
-
-            }
-
-        }
-    );
 
 
     const info =
-        pageInformation[pageId];
+        pageInformation[
+            pageId
+        ];
 
 
-    if (info) {
+    if (!info) {
 
-        const title =
-            document.getElementById(
-                "pageTitle"
-            );
-
-
-        const subtitle =
-            document.getElementById(
-                "pageSubtitle"
-            );
-
-
-        if (title) {
-
-            title.textContent =
-                info.title;
-
-        }
-
-
-        if (subtitle) {
-
-            subtitle.textContent =
-                info.subtitle;
-
-        }
+        return;
 
     }
 
 
-    // Close mobile menu
+    if (title) {
 
-    const sidebar =
-        document.getElementById(
-            "sidebar"
-        );
-
-
-    const overlay =
-        document.getElementById(
-            "sidebarOverlay"
-        );
-
-
-    if (sidebar) {
-
-        sidebar.classList.remove(
-            "open"
-        );
+        title.textContent =
+            info.title;
 
     }
 
 
-    if (overlay) {
+    if (subtitle) {
 
-        overlay.classList.remove(
-            "open"
-        );
-
-    }
-
-
-    // Load settings when page is opened
-
-    if (pageId === "settingsPage") {
-
-        loadSettings();
+        subtitle.textContent =
+            info.subtitle;
 
     }
-
-
-    updateHistoryDisplay();
-
-    updateAnalyticsDisplay();
 
 }
 
@@ -346,6 +418,10 @@ async function updateDashboard() {
             await response.json();
 
 
+        // ----------------------------------------------------
+        // CONNECTION
+        // ----------------------------------------------------
+
         updateConnection(
             data.connected
         );
@@ -361,18 +437,16 @@ async function updateDashboard() {
             );
 
 
-        const waterElement =
-            document.getElementById(
-                "waterLevel"
-            );
+        updateElementText(
+            "waterLevel",
+            waterLevel.toFixed(2) + "%"
+        );
 
 
-        if (waterElement) {
-
-            waterElement.textContent =
-                waterLevel.toFixed(2) + "%";
-
-        }
+        updateElementText(
+            "waterFillText",
+            waterLevel.toFixed(2) + "%"
+        );
 
 
         const waterFill =
@@ -389,20 +463,6 @@ async function updateDashboard() {
         }
 
 
-        const waterFillText =
-            document.getElementById(
-                "waterFillText"
-            );
-
-
-        if (waterFillText) {
-
-            waterFillText.textContent =
-                waterLevel.toFixed(0) + "%";
-
-        }
-
-
         const homeLevelBar =
             document.getElementById(
                 "homeLevelBar"
@@ -412,6 +472,20 @@ async function updateDashboard() {
         if (homeLevelBar) {
 
             homeLevelBar.style.width =
+                waterLevel + "%";
+
+        }
+
+
+        const monitorLevelBar =
+            document.getElementById(
+                "monitorLevelBar"
+            );
+
+
+        if (monitorLevelBar) {
+
+            monitorLevelBar.style.width =
                 waterLevel + "%";
 
         }
@@ -440,22 +514,8 @@ async function updateDashboard() {
 
 
         // ----------------------------------------------------
-        // HISTORY
-        // ----------------------------------------------------
-
-        addHistoryPoint(
-            data
-        );
-
-
-        // ----------------------------------------------------
         // TANK
         // ----------------------------------------------------
-
-        document.getElementById(
-            "tankCondition"
-        );
-
 
         updateTankBadge(
             data.tank
@@ -484,19 +544,27 @@ async function updateDashboard() {
         // RUNTIME
         // ----------------------------------------------------
 
-        updateElementText(
-            "runtime",
+        const runtime =
             formatRuntime(
                 data.runtime
-            )
+            );
+
+
+        updateElementText(
+            "runtime",
+            runtime
         );
 
 
         updateElementText(
             "homeRuntime",
-            formatRuntime(
-                data.runtime
-            )
+            runtime
+        );
+
+
+        updateElementText(
+            "monitorPumpRuntime",
+            "Runtime: " + runtime
         );
 
 
@@ -510,16 +578,6 @@ async function updateDashboard() {
         );
 
 
-        updateElementText(
-            "homeSourceWater",
-            data.sourceWater
-                ? Number(
-                    data.sourceWaterLevel
-                ).toFixed(2) + "%"
-                : "UNAVAILABLE"
-        );
-
-
         // ----------------------------------------------------
         // CONSUMPTION
         // ----------------------------------------------------
@@ -529,20 +587,21 @@ async function updateDashboard() {
         );
 
 
-        updateElementText(
-            "homeConsumption",
-            data.consumption
-                ? "ON"
-                : "OFF"
+        // ----------------------------------------------------
+        // HOME QUICK STATUS
+        // ----------------------------------------------------
+
+        updateHomeQuickStatus(
+            data
         );
 
 
         // ----------------------------------------------------
-        // CONNECTION
+        // LIVE MONITOR
         // ----------------------------------------------------
 
-        updateConnection(
-            data.connected
+        updateMonitorPage(
+            data
         );
 
 
@@ -574,12 +633,19 @@ async function updateDashboard() {
 
 
         // ----------------------------------------------------
-        // MONITOR PAGE
+        // HISTORY
         // ----------------------------------------------------
 
-        updateMonitorPage(
+        updateHistory(
             data
         );
+
+
+        // ----------------------------------------------------
+        // ANALYTICS
+        // ----------------------------------------------------
+
+        updateAnalytics();
 
 
         // ----------------------------------------------------
@@ -592,16 +658,12 @@ async function updateDashboard() {
 
 
         // ----------------------------------------------------
-        // SETTINGS CURRENT VALUES
+        // SETTINGS
         // ----------------------------------------------------
 
-        if (data.settings) {
-
-            updateCurrentSettings(
-                data.settings
-            );
-
-        }
+        updateSettingsDisplay(
+            data.settings
+        );
 
     }
 
@@ -623,7 +685,7 @@ async function updateDashboard() {
 
 
 // ============================================================
-// GENERIC ELEMENT UPDATE
+// HELPER — UPDATE TEXT
 // ============================================================
 
 function updateElementText(
@@ -660,12 +722,21 @@ function drawWaterGraph() {
 
 
     if (!canvas) {
+
         return;
+
     }
 
 
     const area =
         canvas.parentElement;
+
+
+    if (!area) {
+
+        return;
+
+    }
 
 
     const width =
@@ -722,17 +793,13 @@ function drawWaterGraph() {
     );
 
 
-    const left =
-        40;
+    const left = 40;
 
-    const right =
-        15;
+    const right = 15;
 
-    const top =
-        15;
+    const top = 15;
 
-    const bottom =
-        25;
+    const bottom = 25;
 
 
     const graphWidth =
@@ -769,7 +836,7 @@ function drawWaterGraph() {
 
 
     levels.forEach(
-        level => {
+        function(level) {
 
             const y =
                 top +
@@ -837,16 +904,20 @@ function drawWaterGraph() {
 
 
     graphData.forEach(
-        (value, index) => {
+        function(value, index) {
+
+            const divisor =
+                Math.max(
+                    1,
+                    MAX_GRAPH_POINTS - 1
+                );
+
 
             const x =
                 left +
                 (
                     index /
-                    Math.max(
-                        1,
-                        MAX_GRAPH_POINTS - 1
-                    )
+                    divisor
                 ) *
                 graphWidth;
 
@@ -861,8 +932,8 @@ function drawWaterGraph() {
 
 
             points.push({
-                x,
-                y
+                x: x,
+                y: y
             });
 
         }
@@ -904,7 +975,7 @@ function drawWaterGraph() {
 
 
     points.forEach(
-        point => {
+        function(point) {
 
             ctx.lineTo(
                 point.x,
@@ -941,7 +1012,7 @@ function drawWaterGraph() {
 
 
     points.forEach(
-        (point, index) => {
+        function(point, index) {
 
             if (index === 0) {
 
@@ -1070,18 +1141,23 @@ function updatePumpDisplay(
         );
 
 
-    if (!status) {
-        return;
-    }
+    const monitorStatus =
+        document.getElementById(
+            "monitorPumpStatus"
+        );
 
 
     if (pumpOn) {
 
-        status.textContent =
-            "ON";
+        if (status) {
 
-        status.className =
-            "pump-state on";
+            status.textContent =
+                "ON";
+
+            status.className =
+                "pump-state on";
+
+        }
 
 
         if (indicator) {
@@ -1111,15 +1187,27 @@ function updatePumpDisplay(
 
         }
 
+
+        if (monitorStatus) {
+
+            monitorStatus.textContent =
+                "ON";
+
+        }
+
     }
 
     else {
 
-        status.textContent =
-            "OFF";
+        if (status) {
 
-        status.className =
-            "pump-state";
+            status.textContent =
+                "OFF";
+
+            status.className =
+                "pump-state";
+
+        }
 
 
         if (indicator) {
@@ -1149,6 +1237,14 @@ function updatePumpDisplay(
 
         }
 
+
+        if (monitorStatus) {
+
+            monitorStatus.textContent =
+                "OFF";
+
+        }
+
     }
 
 }
@@ -1171,6 +1267,12 @@ function updateModeDisplay(
     const modeDescription =
         document.getElementById(
             "modeDescription"
+        );
+
+
+    const modeCard =
+        document.getElementById(
+            "modeCard"
         );
 
 
@@ -1200,9 +1302,31 @@ function updateModeDisplay(
     }
 
 
+    if (modeCard) {
+
+        modeCard.textContent =
+            mode;
+
+    }
+
+
     if (topMode) {
 
         topMode.textContent =
+            mode;
+
+    }
+
+
+    const monitorMode =
+        document.getElementById(
+            "monitorMode"
+        );
+
+
+    if (monitorMode) {
+
+        monitorMode.textContent =
             mode;
 
     }
@@ -1283,44 +1407,103 @@ function updateTankBadge(
         );
 
 
-    if (!badge) {
-        return;
-    }
-
-
-    badge.textContent =
-        condition;
-
-
-    badge.className =
-        "status-badge";
-
-
-    if (condition === "LOW") {
-
-        badge.classList.add(
-            "low"
+    const conditionElement =
+        document.getElementById(
+            "tankCondition"
         );
 
-    }
 
-    else if (
-        condition === "FULL"
-    ) {
-
-        badge.classList.add(
-            "full"
+    const conditionDescription =
+        document.querySelector(
+            ".condition-description"
         );
 
+
+    if (badge) {
+
+        badge.textContent =
+            condition;
+
+
+        badge.className =
+            "status-badge";
+
+
+        if (condition === "LOW") {
+
+            badge.classList.add(
+                "low"
+            );
+
+        }
+
+        else if (
+            condition === "FULL"
+        ) {
+
+            badge.classList.add(
+                "full"
+            );
+
+        }
+
+        else {
+
+            badge.classList.add(
+                "normal"
+            );
+
+        }
+
     }
 
-    else {
 
-        badge.classList.add(
-            "normal"
-        );
+    if (conditionElement) {
+
+        conditionElement.textContent =
+            condition;
 
     }
+
+
+    if (conditionDescription) {
+
+        if (condition === "LOW") {
+
+            conditionDescription.textContent =
+                "Tank water level is low. Pump may need to refill the tank.";
+
+        }
+
+        else if (
+            condition === "FULL"
+        ) {
+
+            conditionDescription.textContent =
+                "Tank is full and the water level is at or above the pump OFF level.";
+
+        }
+
+        else {
+
+            conditionDescription.textContent =
+                "Tank level is currently within the normal operating range.";
+
+        }
+
+    }
+
+
+    updateElementText(
+        "monitorTankCondition",
+        condition
+    );
+
+
+    updateElementText(
+        "monitorTankStatus",
+        condition
+    );
 
 }
 
@@ -1346,10 +1529,73 @@ function updateSourceWater(
         );
 
 
-    const level =
-        Number(
-            sourceLevel
+    const sourceButton =
+        document.getElementById(
+            "sourceWaterButton"
         );
+
+
+    const monitorSourceWater =
+        document.getElementById(
+            "monitorSourceWater"
+        );
+
+
+    const monitorSourceBar =
+        document.getElementById(
+            "monitorSourceBar"
+        );
+
+
+    const monitorSourceLevel =
+        document.getElementById(
+            "monitorSourceLevel"
+        );
+
+
+    const homeSourceWater =
+        document.getElementById(
+            "homeSourceWater"
+        );
+
+
+    if (
+        sourceLevel !== null &&
+        sourceLevel !== undefined
+    ) {
+
+        const numericLevel =
+            Number(
+                sourceLevel
+            );
+
+
+        if (
+            !Number.isNaN(
+                numericLevel
+            )
+        ) {
+
+            if (monitorSourceBar) {
+
+                monitorSourceBar.style.width =
+                    numericLevel + "%";
+
+            }
+
+
+            if (monitorSourceLevel) {
+
+                monitorSourceLevel.textContent =
+                    "Level: " +
+                    numericLevel.toFixed(2) +
+                    "%";
+
+            }
+
+        }
+
+    }
 
 
     if (sourceAvailable) {
@@ -1357,26 +1603,39 @@ function updateSourceWater(
         if (
             sourceLevel !== null &&
             sourceLevel !== undefined &&
-            !Number.isNaN(level)
+            !Number.isNaN(
+                Number(sourceLevel)
+            )
         ) {
 
             if (sourceWater) {
 
                 sourceWater.textContent =
-                    level.toFixed(2) + "%";
+                    Number(
+                        sourceLevel
+                    ).toFixed(2) +
+                    "%";
+
+                sourceWater.className =
+                    "info-value green-text";
+
+                sourceWater.style.color =
+                    "";
 
             }
 
         }
 
-        else {
+        else if (sourceWater) {
 
-            if (sourceWater) {
+            sourceWater.textContent =
+                "AVAILABLE";
 
-                sourceWater.textContent =
-                    "AVAILABLE";
+            sourceWater.className =
+                "info-value green-text";
 
-            }
+            sourceWater.style.color =
+                "";
 
         }
 
@@ -1385,6 +1644,33 @@ function updateSourceWater(
 
             sourceDescription.textContent =
                 "Source tank water available";
+
+        }
+
+
+        if (sourceButton) {
+
+            sourceButton.style.display =
+                "none";
+
+        }
+
+
+        if (monitorSourceWater) {
+
+            monitorSourceWater.textContent =
+                "AVAILABLE";
+
+        }
+
+
+        if (homeSourceWater) {
+
+            homeSourceWater.textContent =
+                "AVAILABLE";
+
+            homeSourceWater.className =
+                "healthy-text";
 
         }
 
@@ -1397,6 +1683,12 @@ function updateSourceWater(
             sourceWater.textContent =
                 "NOT AVAILABLE";
 
+            sourceWater.className =
+                "info-value";
+
+            sourceWater.style.color =
+                "#c62828";
+
         }
 
 
@@ -1407,45 +1699,32 @@ function updateSourceWater(
 
         }
 
-    }
+
+        if (sourceButton) {
+
+            sourceButton.style.display =
+                "none";
+
+        }
 
 
-    // Monitor page
+        if (monitorSourceWater) {
 
-    updateElementText(
-        "monitorSourceWater",
-        sourceAvailable
-            ? "AVAILABLE"
-            : "UNAVAILABLE"
-    );
+            monitorSourceWater.textContent =
+                "UNAVAILABLE";
+
+        }
 
 
-    updateElementText(
-        "monitorSourceLevel",
-        "Level: " +
-        (
-            Number.isNaN(level)
-                ? "--"
-                : level.toFixed(2)
-        ) +
-        "%"
-    );
+        if (homeSourceWater) {
 
+            homeSourceWater.textContent =
+                "UNAVAILABLE";
 
-    const sourceBar =
-        document.getElementById(
-            "monitorSourceBar"
-        );
+            homeSourceWater.className =
+                "";
 
-
-    if (sourceBar) {
-
-        sourceBar.style.width =
-            (
-                Number.isNaN(level)
-                    ? 0
-                    : level
-            ) + "%";
+        }
 
     }
 
@@ -1478,24 +1757,38 @@ function updateConsumption(
         );
 
 
-    if (!status) {
-        return;
-    }
+    const homeConsumption =
+        document.getElementById(
+            "homeConsumption"
+        );
+
+
+    const monitorConsumption =
+        document.getElementById(
+            "monitorConsumption"
+        );
 
 
     if (consumptionOn) {
 
-        status.textContent =
-            "ON";
+        if (status) {
 
-        status.className =
-            "status-badge on";
+            status.textContent =
+                "ON";
+
+            status.className =
+                "status-badge on";
+
+        }
 
 
         if (button) {
 
             button.textContent =
                 "TURN OFF";
+
+            button.dataset.state =
+                "ON";
 
         }
 
@@ -1507,21 +1800,47 @@ function updateConsumption(
 
         }
 
+
+        if (homeConsumption) {
+
+            homeConsumption.textContent =
+                "ON";
+
+            homeConsumption.className =
+                "healthy-text";
+
+        }
+
+
+        if (monitorConsumption) {
+
+            monitorConsumption.textContent =
+                "Consumption: ON";
+
+        }
+
     }
 
     else {
 
-        status.textContent =
-            "OFF";
+        if (status) {
 
-        status.className =
-            "status-badge off";
+            status.textContent =
+                "OFF";
+
+            status.className =
+                "status-badge off";
+
+        }
 
 
         if (button) {
 
             button.textContent =
                 "TURN ON";
+
+            button.dataset.state =
+                "OFF";
 
         }
 
@@ -1533,14 +1852,52 @@ function updateConsumption(
 
         }
 
+
+        if (homeConsumption) {
+
+            homeConsumption.textContent =
+                "OFF";
+
+            homeConsumption.className =
+                "";
+
+        }
+
+
+        if (monitorConsumption) {
+
+            monitorConsumption.textContent =
+                "Consumption: OFF";
+
+        }
+
+    }
+
+}
+
+
+// ============================================================
+// SETUP CONSUMPTION BUTTON
+// ============================================================
+
+function setupConsumptionButton() {
+
+    const button =
+        document.getElementById(
+            "consumptionButton"
+        );
+
+
+    if (!button) {
+
+        return;
+
     }
 
 
-    updateElementText(
-        "monitorConsumption",
-        consumptionOn
-            ? "Consumption: ON"
-            : "Consumption: OFF"
+    button.addEventListener(
+        "click",
+        toggleConsumption
     );
 
 }
@@ -1554,13 +1911,16 @@ async function toggleConsumption() {
 
     try {
 
-        const response =
+        const statusResponse =
             await fetch(
-                "/api/status"
+                "/api/status",
+                {
+                    cache: "no-store"
+                }
             );
 
 
-        if (!response.ok) {
+        if (!statusResponse.ok) {
 
             throw new Error(
                 "Could not get system status."
@@ -1570,7 +1930,7 @@ async function toggleConsumption() {
 
 
         const data =
-            await response.json();
+            await statusResponse.json();
 
 
         const newCommand =
@@ -1579,39 +1939,40 @@ async function toggleConsumption() {
                 : "ON";
 
 
-        const controlResponse =
+        const response =
             await fetch(
                 "/api/consumption",
                 {
 
-                    method:
-                        "POST",
+                    method: "POST",
 
                     headers: {
+
                         "Content-Type":
                             "application/json"
+
                     },
 
-                    body:
-                        JSON.stringify({
+                    body: JSON.stringify({
 
-                            command:
-                                newCommand
+                        command:
+                            newCommand
 
-                        })
+                    })
 
                 }
             );
 
 
         const result =
-            await controlResponse.json();
+            await response.json();
 
 
         if (!result.success) {
 
-            alert(
-                result.message
+            showMessage(
+                result.message,
+                "error"
             );
 
             return;
@@ -1631,8 +1992,9 @@ async function toggleConsumption() {
         );
 
 
-        alert(
-            "Could not communicate with server."
+        showMessage(
+            "Could not communicate with server.",
+            "error"
         );
 
     }
@@ -1655,7 +2017,9 @@ function updateConnection(
 
 
     if (!element) {
+
         return;
+
     }
 
 
@@ -1663,9 +2027,7 @@ function updateConnection(
 
         element.innerHTML =
             '<span class="connection-dot"></span>' +
-            '<span class="connection-text">' +
-            'CONNECTED' +
-            '</span>';
+            '<span class="connection-text">CONNECTED</span>';
 
 
         element.className =
@@ -1677,9 +2039,7 @@ function updateConnection(
 
         element.innerHTML =
             '<span class="connection-dot"></span>' +
-            '<span class="connection-text">' +
-            'DISCONNECTED' +
-            '</span>';
+            '<span class="connection-text">DISCONNECTED</span>';
 
 
         element.className =
@@ -1687,11 +2047,19 @@ function updateConnection(
 
     }
 
+
+    updateElementText(
+        "monitorConnection",
+        connected
+            ? "CONNECTED"
+            : "DISCONNECTED"
+    );
+
 }
 
 
 // ============================================================
-// RUNTIME
+// RUNTIME FORMAT
 // ============================================================
 
 function formatRuntime(
@@ -1723,24 +2091,34 @@ function formatRuntime(
 
 
     return (
+
         String(hours).padStart(
             2,
             "0"
         )
+
         +
+
         ":"
+
         +
+
         String(minutes).padStart(
             2,
             "0"
         )
+
         +
+
         ":"
+
         +
+
         String(secs).padStart(
             2,
             "0"
         )
+
     );
 
 }
@@ -1754,209 +2132,361 @@ function updateAlerts(
     data
 ) {
 
-    const alerts =
+    const alert =
+        data.alert || {
+
+            active: false,
+
+            type: "NORMAL",
+
+            severity: "normal",
+
+            title: "No Active Alerts",
+
+            message:
+                "All monitored conditions are currently normal."
+
+        };
+
+
+    const homeAlert =
         document.getElementById(
             "alerts"
         );
 
 
-    if (!alerts) {
-        return;
-    }
-
-
-    let alertState =
-        "normal";
-
-
-    let alertText =
-        "No active alerts";
-
-
-    let icon =
-        "✓";
-
-
-    if (data.emergency) {
-
-        alertState =
-            "emergency";
-
-        alertText =
-            "EMERGENCY SHUTDOWN ACTIVE";
-
-        icon =
-            "🚨";
-
-    }
-
-    else if (!data.sourceWater) {
-
-        alertState =
-            "warning";
-
-        alertText =
-            "SOURCE WATER UNAVAILABLE";
-
-        icon =
-            "⚠";
-
-    }
-
-    else if (
-        data.waterLevel <=
-        Number(
-            data.settings
-                ?.autoPumpOnLevel ??
-            30
-        )
-    ) {
-
-        alertState =
-            "warning";
-
-        alertText =
-            "LOW WATER LEVEL";
-
-        icon =
-            "⚠";
-
-    }
-
-    else if (
-        data.waterLevel >=
-        Number(
-            data.settings
-                ?.autoPumpOffLevel ??
-            90
-        )
-    ) {
-
-        alertState =
-            "normal";
-
-        alertText =
-            "TANK FULL";
-
-        icon =
-            "✓";
-
-    }
-
-
-    alerts.className =
-        "home-alert";
-
-
-    if (
-        alertState ===
-        "emergency"
-    ) {
-
-        alerts.classList.add(
-            "emergency-alert"
+    const alertCard =
+        document.getElementById(
+            "additionalAlertStatus"
         );
 
-    }
 
-    else if (
-        alertState ===
-        "warning"
-    ) {
-
-        alerts.classList.add(
-            "warning-alert"
+    const alertTitle =
+        document.getElementById(
+            "additionalAlertTitle"
         );
 
-    }
 
-    else {
-
-        alerts.classList.add(
-            "normal-alert"
+    const alertDescription =
+        document.getElementById(
+            "additionalAlertDescription"
         );
 
-    }
 
-
-    alerts.innerHTML =
-        "<span>" +
-        icon +
-        "</span>" +
-        "<strong>" +
-        alertText +
-        "</strong>";
+    const alertIcon =
+        document.querySelector(
+            ".alert-large-icon"
+        );
 
 
     // --------------------------------------------------------
-    // Alert history
+    // HOME ALERT
     // --------------------------------------------------------
 
-    if (
-        alertState !== lastAlertState
-    ) {
+    if (homeAlert) {
+
+        homeAlert.className =
+            "home-alert";
+
 
         if (
-            alertState !== "normal"
+            alert.severity === "critical"
         ) {
 
-            alertHistory.unshift({
-
-                time:
-                    new Date().toLocaleTimeString(),
-
-                message:
-                    alertText,
-
-                type:
-                    alertState
-
-            });
-
-            if (
-                alertHistory.length >
-                50
-            ) {
-
-                alertHistory.pop();
-
-            }
+            homeAlert.classList.add(
+                "emergency-alert"
+            );
 
         }
 
-        lastAlertState =
-            alertState;
+        else if (
+            alert.severity === "warning"
+        ) {
 
-        updateAlertPage();
+            homeAlert.classList.add(
+                "warning-alert"
+            );
+
+        }
+
+        else if (
+            alert.severity === "info"
+        ) {
+
+            homeAlert.classList.add(
+                "info-alert"
+            );
+
+        }
+
+        else {
+
+            homeAlert.classList.add(
+                "normal-alert"
+            );
+
+        }
+
+
+        const icon =
+            getAlertIcon(
+                alert.type
+            );
+
+
+        homeAlert.innerHTML =
+            "<span>" +
+            icon +
+            "</span>" +
+            "<strong>" +
+            escapeHtml(
+                alert.title
+            ) +
+            "</strong>";
+
     }
 
 
-    updateAlertPage();
+    // --------------------------------------------------------
+    // ALERTS PAGE
+    // --------------------------------------------------------
+
+    if (alertTitle) {
+
+        alertTitle.textContent =
+            alert.title;
+
+    }
+
+
+    if (alertDescription) {
+
+        alertDescription.textContent =
+            alert.message;
+
+    }
+
+
+    if (alertIcon) {
+
+        alertIcon.textContent =
+            getAlertIcon(
+                alert.type
+            );
+
+    }
+
+
+    if (alertCard) {
+
+        alertCard.className =
+            "card current-alert-card";
+
+
+        if (
+            alert.severity === "critical"
+        ) {
+
+            alertCard.classList.add(
+                "critical-alert"
+            );
+
+        }
+
+        else if (
+            alert.severity === "warning"
+        ) {
+
+            alertCard.classList.add(
+                "warning-alert"
+            );
+
+        }
+
+        else if (
+            alert.severity === "info"
+        ) {
+
+            alertCard.classList.add(
+                "info-alert"
+            );
+
+        }
+
+        else {
+
+            alertCard.classList.add(
+                "normal-alert"
+            );
+
+        }
+
+    }
+
+
+    // --------------------------------------------------------
+    // NAVIGATION BADGE
+    // --------------------------------------------------------
+
+    updateAlertBadge(
+        data
+    );
+
+
+    // --------------------------------------------------------
+    // ALERT HISTORY
+    // --------------------------------------------------------
+
+    updateAlertHistory(
+        data.alertHistory || []
+    );
+
+
+    // --------------------------------------------------------
+    // REMEMBER STATE
+    // --------------------------------------------------------
+
+    lastAlertType =
+        alert.type;
+
+    lastAlertActive =
+        alert.active;
+
 }
 
 
 // ============================================================
-// ALERT PAGE
+// ALERT ICON
 // ============================================================
 
-function updateAlertPage() {
+function getAlertIcon(
+    type
+) {
 
-    const list =
+    switch (type) {
+
+        case "EMERGENCY":
+            return "🚨";
+
+        case "SOURCE_UNAVAILABLE":
+            return "⚠";
+
+        case "CRITICAL_LOW":
+            return "⚠";
+
+        case "LOW_WATER":
+            return "⚠";
+
+        case "TANK_FULL":
+            return "✓";
+
+        case "PUMP_RUNNING":
+            return "●";
+
+        default:
+            return "✓";
+
+    }
+
+}
+
+
+// ============================================================
+// ALERT BADGE
+// ============================================================
+
+function updateAlertBadge(
+    data
+) {
+
+    const badge =
+        document.getElementById(
+            "navAlertBadge"
+        );
+
+
+    if (!badge) {
+
+        return;
+
+    }
+
+
+    const alert =
+        data.alert;
+
+
+    if (
+        !alert ||
+        alert.type === "NORMAL"
+    ) {
+
+        badge.style.display =
+            "none";
+
+        badge.textContent =
+            "0";
+
+        return;
+
+    }
+
+
+    // Informational pump-running state
+    // does not count as a warning badge.
+
+    if (
+        alert.type === "PUMP_RUNNING"
+    ) {
+
+        badge.style.display =
+            "none";
+
+        badge.textContent =
+            "0";
+
+        return;
+
+    }
+
+
+    badge.textContent =
+        "1";
+
+
+    badge.style.display =
+        "inline-flex";
+
+}
+
+
+// ============================================================
+// ALERT HISTORY
+// ============================================================
+
+function updateAlertHistory(
+    history
+) {
+
+    const container =
         document.getElementById(
             "alertHistoryList"
         );
 
 
-    if (!list) {
+    if (!container) {
+
         return;
+
     }
 
 
     if (
-        alertHistory.length === 0
+        !Array.isArray(history) ||
+        history.length === 0
     ) {
 
-        list.innerHTML =
+        container.innerHTML =
             '<div class="empty-state">' +
             'No alert history recorded yet.' +
             '</div>';
@@ -1966,61 +2496,821 @@ function updateAlertPage() {
     }
 
 
-    list.innerHTML =
-        alertHistory.map(
-            alert => {
+    container.innerHTML =
+        history.map(
+            function(item) {
+
+                const severity =
+                    item.severity ||
+                    "normal";
+
+
+                const event =
+                    item.event ||
+                    "ACTIVATED";
+
+
+                const icon =
+                    event === "RESOLVED"
+                        ? "✓"
+                        : getAlertIcon(
+                            item.type
+                        );
+
 
                 return (
-                    '<div style="' +
-                    'padding:12px 0;' +
-                    'border-bottom:1px solid #edf1f4;' +
-                    'font-size:10px;">' +
+
+                    '<div class="alert-history-item ' +
+                    escapeHtml(
+                        severity
+                    ) +
+                    '">' +
+
+                    '<div class="alert-history-icon">' +
+                    icon +
+                    '</div>' +
+
+                    '<div class="alert-history-content">' +
 
                     '<strong>' +
-                    alert.message +
+                    escapeHtml(
+                        item.title
+                    ) +
                     '</strong>' +
 
-                    '<span style="' +
-                    'display:block;' +
-                    'color:#8b98a2;' +
-                    'margin-top:3px;">' +
-                    alert.time +
-                    '</span>' +
+                    '<p>' +
+                    escapeHtml(
+                        item.message
+                    ) +
+                    '</p>' +
+
+                    '<small>' +
+                    escapeHtml(
+                        item.time || "--:--:--"
+                    ) +
+                    " • " +
+                    escapeHtml(
+                        event
+                    ) +
+                    '</small>' +
+
+                    '</div>' +
 
                     '</div>'
+
                 );
 
             }
         ).join("");
 
+}
 
-    const badge =
+
+// ============================================================
+// SYSTEM HEALTH
+// ============================================================
+
+function updateSystemHealth(
+    data
+) {
+
+    const health =
         document.getElementById(
-            "navAlertBadge"
+            "systemHealth"
         );
 
 
-    if (badge) {
+    const homeHealth =
+        document.getElementById(
+            "homeSystemHealth"
+        );
 
-        if (
-            alertHistory.length > 0
-        ) {
 
-            badge.textContent =
-                Math.min(
-                    alertHistory.length,
-                    99
-                );
+    const monitorEmergency =
+        document.getElementById(
+            "monitorEmergency"
+        );
 
-            badge.style.display =
-                "flex";
+
+    if (monitorEmergency) {
+
+        monitorEmergency.textContent =
+            data.emergency
+                ? "ACTIVE"
+                : "INACTIVE";
+
+    }
+
+
+    const warning =
+        data.emergency ||
+        !data.connected ||
+        !data.sourceWater;
+
+
+    if (health) {
+
+        if (warning) {
+
+            health.textContent =
+                "WARNING";
+
+            health.className =
+                "info-value";
 
         }
 
         else {
 
-            badge.style.display =
-                "none";
+            health.textContent =
+                "HEALTHY";
+
+            health.className =
+                "info-value green-text";
+
+        }
+
+    }
+
+
+    if (homeHealth) {
+
+        if (warning) {
+
+            homeHealth.textContent =
+                "WARNING";
+
+            homeHealth.className =
+                "";
+
+        }
+
+        else {
+
+            homeHealth.textContent =
+                "HEALTHY";
+
+            homeHealth.className =
+                "healthy-text";
+
+        }
+
+    }
+
+}
+
+
+// ============================================================
+// HOME QUICK STATUS
+// ============================================================
+
+function updateHomeQuickStatus(
+    data
+) {
+
+    updateElementText(
+        "homeSourceWater",
+        data.sourceWater
+            ? "AVAILABLE"
+            : "UNAVAILABLE"
+    );
+
+
+    updateElementText(
+        "homeConsumption",
+        data.consumption
+            ? "ON"
+            : "OFF"
+    );
+
+
+    updateElementText(
+        "homeRuntime",
+        formatRuntime(
+            data.runtime
+        )
+    );
+
+
+    updateElementText(
+        "homeSystemHealth",
+        (
+            data.emergency ||
+            !data.connected ||
+            !data.sourceWater
+        )
+            ? "WARNING"
+            : "HEALTHY"
+    );
+
+}
+
+
+// ============================================================
+// LIVE MONITOR
+// ============================================================
+
+function updateMonitorPage(
+    data
+) {
+
+    updateElementText(
+        "monitorWaterLevel",
+        Number(
+            data.waterLevel
+        ).toFixed(2) + "%"
+    );
+
+
+    updateElementText(
+        "monitorMode",
+        data.mode
+    );
+
+
+    updateElementText(
+        "monitorPumpStatus",
+        data.pump
+            ? "ON"
+            : "OFF"
+    );
+
+
+    updateElementText(
+        "monitorConsumption",
+        "Consumption: " +
+        (
+            data.consumption
+                ? "ON"
+                : "OFF"
+        )
+    );
+
+
+    updateElementText(
+        "monitorLastUpdate",
+        new Date().toLocaleTimeString()
+    );
+
+}
+
+
+// ============================================================
+// HISTORY
+// ============================================================
+
+function updateHistory(
+    data
+) {
+
+    historyData.push({
+
+        time:
+            new Date().toLocaleTimeString(),
+
+        water:
+            Number(
+                data.waterLevel
+            ),
+
+        pump:
+            data.pump
+                ? "ON"
+                : "OFF",
+
+        mode:
+            data.mode,
+
+        tank:
+            data.tank
+
+    });
+
+
+    if (
+        historyData.length >
+        MAX_HISTORY_POINTS
+    ) {
+
+        historyData.shift();
+
+    }
+
+
+    updateElementText(
+        "historyPointCount",
+        historyData.length
+    );
+
+
+    if (
+        historyData.length === 0
+    ) {
+
+        return;
+
+    }
+
+
+    const values =
+        historyData.map(
+            function(item) {
+
+                return item.water;
+
+            }
+        );
+
+
+    const highest =
+        Math.max(
+            ...values
+        );
+
+
+    const lowest =
+        Math.min(
+            ...values
+        );
+
+
+    updateElementText(
+        "historyHighestLevel",
+        highest.toFixed(2) + "%"
+    );
+
+
+    updateElementText(
+        "historyLowestLevel",
+        lowest.toFixed(2) + "%"
+    );
+
+
+    const tbody =
+        document.getElementById(
+            "historyTableBody"
+        );
+
+
+    if (!tbody) {
+
+        return;
+
+    }
+
+
+    const recent =
+        historyData.slice(
+            -50
+        ).reverse();
+
+
+    tbody.innerHTML =
+        recent.map(
+            function(item) {
+
+                return (
+
+                    "<tr>" +
+
+                    "<td>" +
+                    escapeHtml(
+                        item.time
+                    ) +
+                    "</td>" +
+
+                    "<td>" +
+                    item.water.toFixed(2) +
+                    "%</td>" +
+
+                    "<td>" +
+                    escapeHtml(
+                        item.pump
+                    ) +
+                    "</td>" +
+
+                    "<td>" +
+                    escapeHtml(
+                        item.mode
+                    ) +
+                    "</td>" +
+
+                    "<td>" +
+                    escapeHtml(
+                        item.tank
+                    ) +
+                    "</td>" +
+
+                    "</tr>"
+
+                );
+
+            }
+        ).join("");
+
+}
+
+
+// ============================================================
+// CLEAR HISTORY
+// ============================================================
+
+function setupHistoryButton() {
+
+    const button =
+        document.getElementById(
+            "clearHistoryButton"
+        );
+
+
+    if (!button) {
+
+        return;
+
+    }
+
+
+    button.addEventListener(
+        "click",
+        function() {
+
+            historyData.length =
+                0;
+
+
+            updateElementText(
+                "historyPointCount",
+                "0"
+            );
+
+
+            updateElementText(
+                "historyHighestLevel",
+                "--%"
+            );
+
+
+            updateElementText(
+                "historyLowestLevel",
+                "--%"
+            );
+
+
+            const tbody =
+                document.getElementById(
+                    "historyTableBody"
+                );
+
+
+            if (tbody) {
+
+                tbody.innerHTML =
+                    '<tr>' +
+                    '<td colspan="5" class="empty-table">' +
+                    'No history recorded yet.' +
+                    '</td>' +
+                    '</tr>';
+
+            }
+
+        }
+    );
+
+}
+
+
+// ============================================================
+// ANALYTICS
+// ============================================================
+
+function updateAnalytics() {
+
+    if (
+        historyData.length === 0
+    ) {
+
+        return;
+
+    }
+
+
+    const values =
+        historyData.map(
+            function(item) {
+
+                return item.water;
+
+            }
+        );
+
+
+    const sum =
+        values.reduce(
+            function(total, value) {
+
+                return total + value;
+
+            },
+            0
+        );
+
+
+    const average =
+        sum /
+        values.length;
+
+
+    const highest =
+        Math.max(
+            ...values
+        );
+
+
+    const lowest =
+        Math.min(
+            ...values
+        );
+
+
+    const pumpSamples =
+        historyData.filter(
+            function(item) {
+
+                return item.pump === "ON";
+
+            }
+        ).length;
+
+
+    updateElementText(
+        "analyticsAverageLevel",
+        average.toFixed(2) + "%"
+    );
+
+
+    updateElementText(
+        "analyticsHighestLevel",
+        highest.toFixed(2) + "%"
+    );
+
+
+    updateElementText(
+        "analyticsLowestLevel",
+        lowest.toFixed(2) + "%"
+    );
+
+
+    updateElementText(
+        "analyticsPumpSamples",
+        pumpSamples
+    );
+
+
+    updateElementText(
+        "analyticsMinText",
+        lowest.toFixed(2) + "%"
+    );
+
+
+    updateElementText(
+        "analyticsAverageText",
+        average.toFixed(2) + "%"
+    );
+
+
+    updateElementText(
+        "analyticsMaxText",
+        highest.toFixed(2) + "%"
+    );
+
+
+    setBarWidth(
+        "analyticsMinBar",
+        lowest
+    );
+
+
+    setBarWidth(
+        "analyticsAverageBar",
+        average
+    );
+
+
+    setBarWidth(
+        "analyticsMaxBar",
+        highest
+    );
+
+}
+
+
+// ============================================================
+// ANALYTICS BAR
+// ============================================================
+
+function setBarWidth(
+    id,
+    value
+) {
+
+    const element =
+        document.getElementById(
+            id
+        );
+
+
+    if (element) {
+
+        element.style.width =
+            Math.max(
+                0,
+                Math.min(
+                    100,
+                    Number(value)
+                )
+            ) + "%";
+
+    }
+
+}
+
+
+// ============================================================
+// EMERGENCY BUTTON
+// ============================================================
+
+function setupEmergencyButton() {
+
+    const button =
+        document.getElementById(
+            "emergencyStopButton"
+        );
+
+
+    if (!button) {
+
+        return;
+
+    }
+
+
+    button.addEventListener(
+        "click",
+        async function() {
+
+            const confirmed =
+                window.confirm(
+                    "Activate emergency shutdown and stop the pump?"
+                );
+
+
+            if (!confirmed) {
+
+                return;
+
+            }
+
+
+            try {
+
+                const response =
+                    await fetch(
+                        "/api/emergency",
+                        {
+
+                            method: "POST",
+
+                            headers: {
+
+                                "Content-Type":
+                                    "application/json"
+
+                            },
+
+                            body: JSON.stringify({
+
+                                command: "ON"
+
+                            })
+
+                        }
+                    );
+
+
+                const result =
+                    await response.json();
+
+
+                if (!result.success) {
+
+                    showMessage(
+                        result.message,
+                        "error"
+                    );
+
+                    return;
+
+                }
+
+
+                await updateDashboard();
+
+            }
+
+            catch (error) {
+
+                console.error(
+                    "Emergency error:",
+                    error
+                );
+
+
+                showMessage(
+                    "Could not communicate with server.",
+                    "error"
+                );
+
+            }
+
+        }
+    );
+
+}
+
+
+// ============================================================
+// EMERGENCY PAGE
+// ============================================================
+
+function updateEmergencyPage(
+    data
+) {
+
+    updateElementText(
+        "emergencyPumpStatus",
+        data.pump
+            ? "ON"
+            : "OFF"
+    );
+
+
+    updateElementText(
+        "emergencyWaterLevel",
+        Number(
+            data.waterLevel
+        ).toFixed(2) + "%"
+    );
+
+
+    updateElementText(
+        "emergencySourceWater",
+        data.sourceWater
+            ? "AVAILABLE"
+            : "UNAVAILABLE"
+    );
+
+
+    const stateMessage =
+        document.getElementById(
+            "emergencyStateMessage"
+        );
+
+
+    if (stateMessage) {
+
+        stateMessage.textContent =
+            data.emergency
+                ? "Emergency state: ACTIVE"
+                : "Emergency state: INACTIVE";
+
+    }
+
+
+    const button =
+        document.getElementById(
+            "emergencyStopButton"
+        );
+
+
+    if (button) {
+
+        if (data.emergency) {
+
+            button.textContent =
+                "EMERGENCY ACTIVE";
+
+            button.disabled =
+                true;
+
+        }
+
+        else {
+
+            button.textContent =
+                "STOP PUMP";
+
+            button.disabled =
+                false;
 
         }
 
@@ -2056,7 +3346,9 @@ function updatePumpButtons(
 
 
     if (!onButton || !offButton) {
+
         return;
+
     }
 
 
@@ -2100,58 +3392,6 @@ function updatePumpButtons(
 
 
 // ============================================================
-// SYSTEM HEALTH
-// ============================================================
-
-function updateSystemHealth(
-    data
-) {
-
-    const health =
-        document.getElementById(
-            "homeSystemHealth"
-        );
-
-
-    if (!health) {
-        return;
-    }
-
-
-    if (
-        data.emergency ||
-        !data.connected ||
-        !data.sourceWater
-    ) {
-
-        health.textContent =
-            "WARNING";
-
-        health.className =
-            "";
-
-        health.style.color =
-            "#dc3545";
-
-    }
-
-    else {
-
-        health.textContent =
-            "HEALTHY";
-
-        health.className =
-            "healthy-text";
-
-        health.style.color =
-            "";
-
-    }
-
-}
-
-
-// ============================================================
 // CHANGE MODE
 // ============================================================
 
@@ -2166,21 +3406,21 @@ async function changeMode(
                 "/api/mode",
                 {
 
-                    method:
-                        "POST",
+                    method: "POST",
 
                     headers: {
+
                         "Content-Type":
                             "application/json"
+
                     },
 
-                    body:
-                        JSON.stringify({
+                    body: JSON.stringify({
 
-                            mode:
-                                newMode
+                        mode:
+                            newMode
 
-                        })
+                    })
 
                 }
             );
@@ -2192,8 +3432,9 @@ async function changeMode(
 
         if (!result.success) {
 
-            alert(
-                result.message
+            showMessage(
+                result.message,
+                "error"
             );
 
             return;
@@ -2213,8 +3454,9 @@ async function changeMode(
         );
 
 
-        alert(
-            "Could not communicate with server."
+        showMessage(
+            "Could not communicate with server.",
+            "error"
         );
 
     }
@@ -2237,21 +3479,21 @@ async function controlPump(
                 "/api/pump",
                 {
 
-                    method:
-                        "POST",
+                    method: "POST",
 
                     headers: {
+
                         "Content-Type":
                             "application/json"
+
                     },
 
-                    body:
-                        JSON.stringify({
+                    body: JSON.stringify({
 
-                            command:
-                                command
+                        command:
+                            command
 
-                        })
+                    })
 
                 }
             );
@@ -2263,8 +3505,9 @@ async function controlPump(
 
         if (!result.success) {
 
-            alert(
-                result.message
+            showMessage(
+                result.message,
+                "error"
             );
 
             return;
@@ -2284,8 +3527,9 @@ async function controlPump(
         );
 
 
-        alert(
-            "Could not communicate with server."
+        showMessage(
+            "Could not communicate with server.",
+            "error"
         );
 
     }
@@ -2297,98 +3541,161 @@ async function controlPump(
 // SETTINGS
 // ============================================================
 
-async function loadSettings() {
+function setupSettingsControls() {
 
-    try {
-
-        const response =
-            await fetch(
-                "/api/settings"
-            );
-
-
-        if (!response.ok) {
-
-            throw new Error(
-                "Could not load settings."
-            );
-
-        }
+    // The current HTML contains display-only
+    // settings cards.
+    //
+    // This function is intentionally prepared
+    // for the editable settings controls that
+    // we can add to the Settings page.
 
 
-        const result =
-            await response.json();
-
-
-        if (
-            !result.success
-        ) {
-
-            return;
-
-        }
-
-
-        populateSettingsForm(
-            result.settings
+    const saveButton =
+        document.getElementById(
+            "saveSettingsButton"
         );
 
 
-    }
+    if (!saveButton) {
 
-    catch (error) {
-
-        console.error(
-            "Settings load error:",
-            error
-        );
+        return;
 
     }
+
+
+    saveButton.addEventListener(
+        "click",
+        saveSettings
+    );
 
 }
 
 
 // ============================================================
-// POPULATE SETTINGS
+// UPDATE SETTINGS DISPLAY
 // ============================================================
 
-function populateSettingsForm(
-    data
+function updateSettingsDisplay(
+    settings
 ) {
+
+    if (!settings) {
+
+        return;
+
+    }
+
+
+    updateSettingValue(
+        "settingAutoOn",
+        settings.autoPumpOnLevel,
+        "%"
+    );
+
+
+    updateSettingValue(
+        "settingAutoOff",
+        settings.autoPumpOffLevel,
+        "%"
+    );
+
+
+    updateSettingValue(
+        "settingConsumptionRate",
+        settings.consumptionRate,
+        "% / sec"
+    );
+
+
+    updateSettingValue(
+        "settingPumpFillRate",
+        settings.pumpFillRate,
+        "% / sec"
+    );
+
+
+    updateSettingValue(
+        "settingSourceRefillRate",
+        settings.sourceRefillRate,
+        "% / sec"
+    );
+
+
+    updateSettingValue(
+        "settingCriticalLow",
+        settings.criticalLowLevel,
+        "%"
+    );
+
+
+    // Also populate inputs if the
+    // editable Settings HTML exists.
 
     setInputValue(
         "autoPumpOnInput",
-        data.autoPumpOnLevel
+        settings.autoPumpOnLevel
     );
 
 
     setInputValue(
         "autoPumpOffInput",
-        data.autoPumpOffLevel
+        settings.autoPumpOffLevel
     );
 
 
     setInputValue(
         "consumptionRateInput",
-        data.consumptionRate
+        settings.consumptionRate
     );
 
 
     setInputValue(
         "pumpFillRateInput",
-        data.pumpFillRate
+        settings.pumpFillRate
     );
 
 
     setInputValue(
         "sourceRefillRateInput",
-        data.sourceRefillRate
+        settings.sourceRefillRate
     );
 
 
-    updateCurrentSettings(
-        data
+    setInputValue(
+        "criticalLowInput",
+        settings.criticalLowLevel
     );
+
+}
+
+
+// ============================================================
+// SETTING DISPLAY VALUE
+// ============================================================
+
+function updateSettingValue(
+    id,
+    value,
+    suffix
+) {
+
+    const element =
+        document.getElementById(
+            id
+        );
+
+
+    if (!element) {
+
+        return;
+
+    }
+
+
+    element.textContent =
+        Number(value).toFixed(2) +
+        suffix;
 
 }
 
@@ -2411,7 +3718,7 @@ function setInputValue(
     if (input) {
 
         input.value =
-            Number(value).toFixed(2);
+            value;
 
     }
 
@@ -2419,60 +3726,139 @@ function setInputValue(
 
 
 // ============================================================
-// CURRENT SETTINGS DISPLAY
+// SAVE SETTINGS
 // ============================================================
 
-function updateCurrentSettings(
-    data
-) {
+async function saveSettings() {
 
-    updateElementText(
-        "currentAutoOn",
-        Number(
-            data.autoPumpOnLevel
-        ).toFixed(2) + "%"
-    );
+    const payload = {
+
+        autoPumpOnLevel:
+            getInputNumber(
+                "autoPumpOnInput"
+            ),
+
+        autoPumpOffLevel:
+            getInputNumber(
+                "autoPumpOffInput"
+            ),
+
+        consumptionRate:
+            getInputNumber(
+                "consumptionRateInput"
+            ),
+
+        pumpFillRate:
+            getInputNumber(
+                "pumpFillRateInput"
+            ),
+
+        sourceRefillRate:
+            getInputNumber(
+                "sourceRefillRateInput"
+            ),
+
+        criticalLowLevel:
+            getInputNumber(
+                "criticalLowInput"
+            )
+
+    };
 
 
-    updateElementText(
-        "currentAutoOff",
-        Number(
-            data.autoPumpOffLevel
-        ).toFixed(2) + "%"
-    );
+    if (
+        Object.values(payload).some(
+            function(value) {
+
+                return Number.isNaN(
+                    value
+                );
+
+            }
+        )
+    ) {
+
+        showMessage(
+            "Please enter valid settings values.",
+            "error"
+        );
+
+        return;
+
+    }
 
 
-    updateElementText(
-        "currentConsumptionRate",
-        Number(
-            data.consumptionRate
-        ).toFixed(2) +
-        "% / sec"
-    );
+    try {
+
+        const response =
+            await fetch(
+                "/api/settings",
+                {
+
+                    method: "POST",
+
+                    headers: {
+
+                        "Content-Type":
+                            "application/json"
+
+                    },
+
+                    body:
+                        JSON.stringify(
+                            payload
+                        )
+
+                }
+            );
 
 
-    updateElementText(
-        "currentPumpFillRate",
-        Number(
-            data.pumpFillRate
-        ).toFixed(2) +
-        "% / sec"
-    );
+        const result =
+            await response.json();
 
 
-    updateElementText(
-        "currentSourceRefillRate",
-        Number(
-            data.sourceRefillRate
-        ).toFixed(2) +
-        "% / sec"
-    );
+        if (!result.success) {
+
+            showMessage(
+                result.message,
+                "error"
+            );
+
+            return;
+
+        }
+
+
+        showMessage(
+            "Settings saved successfully.",
+            "success"
+        );
+
+
+        await updateDashboard();
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "Settings error:",
+            error
+        );
+
+
+        showMessage(
+            "Could not save settings.",
+            "error"
+        );
+
+    }
 
 }
 
 
 // ============================================================
-// GET NUMBER FROM INPUT
+// GET INPUT NUMBER
 // ============================================================
 
 function getInputNumber(
@@ -2500,1037 +3886,6 @@ function getInputNumber(
 
 
 // ============================================================
-// SETTINGS MESSAGE
-// ============================================================
-
-function showSettingsMessage(
-    message,
-    type
-) {
-
-    const element =
-        document.getElementById(
-            "settingsMessage"
-        );
-
-
-    if (!element) {
-        return;
-    }
-
-
-    element.textContent =
-        message;
-
-
-    element.className =
-        "settings-message " +
-        type;
-
-
-    element.style.display =
-        "block";
-
-
-    clearTimeout(
-        showSettingsMessage.timeout
-    );
-
-
-    showSettingsMessage.timeout =
-        setTimeout(
-            function () {
-
-                element.style.display =
-                    "none";
-
-            },
-            3500
-        );
-
-}
-
-
-// ============================================================
-// SAVE SETTINGS
-// ============================================================
-
-async function saveSettings() {
-
-    const autoPumpOnLevel =
-        getInputNumber(
-            "autoPumpOnInput"
-        );
-
-
-    const autoPumpOffLevel =
-        getInputNumber(
-            "autoPumpOffInput"
-        );
-
-
-    const consumptionRate =
-        getInputNumber(
-            "consumptionRateInput"
-        );
-
-
-    const pumpFillRate =
-        getInputNumber(
-            "pumpFillRateInput"
-        );
-
-
-    const sourceRefillRate =
-        getInputNumber(
-            "sourceRefillRateInput"
-        );
-
-
-    if (
-        [
-            autoPumpOnLevel,
-            autoPumpOffLevel,
-            consumptionRate,
-            pumpFillRate,
-            sourceRefillRate
-        ].some(
-            value =>
-                Number.isNaN(value)
-        )
-    ) {
-
-        showSettingsMessage(
-            "Please enter valid numbers in all fields.",
-            "error"
-        );
-
-        return;
-
-    }
-
-
-    if (
-        autoPumpOnLevel < 0 ||
-        autoPumpOnLevel > 100
-    ) {
-
-        showSettingsMessage(
-            "Pump ON level must be between 0 and 100%.",
-            "error"
-        );
-
-        return;
-
-    }
-
-
-    if (
-        autoPumpOffLevel < 0 ||
-        autoPumpOffLevel > 100
-    ) {
-
-        showSettingsMessage(
-            "Pump OFF level must be between 0 and 100%.",
-            "error"
-        );
-
-        return;
-
-    }
-
-
-    if (
-        autoPumpOnLevel >=
-        autoPumpOffLevel
-    ) {
-
-        showSettingsMessage(
-            "Pump ON level must be lower than Pump OFF level.",
-            "error"
-        );
-
-        return;
-
-    }
-
-
-    if (
-        consumptionRate < 0 ||
-        consumptionRate > 100
-    ) {
-
-        showSettingsMessage(
-            "Consumption rate must be between 0 and 100.",
-            "error"
-        );
-
-        return;
-
-    }
-
-
-    if (
-        pumpFillRate < 0 ||
-        pumpFillRate > 100
-    ) {
-
-        showSettingsMessage(
-            "Pump fill rate must be between 0 and 100.",
-            "error"
-        );
-
-        return;
-
-    }
-
-
-    if (
-        sourceRefillRate < 0 ||
-        sourceRefillRate > 100
-    ) {
-
-        showSettingsMessage(
-            "Source refill rate must be between 0 and 100.",
-            "error"
-        );
-
-        return;
-
-    }
-
-
-    try {
-
-        const response =
-            await fetch(
-                "/api/settings",
-                {
-
-                    method:
-                        "POST",
-
-                    headers: {
-                        "Content-Type":
-                            "application/json"
-                    },
-
-                    body:
-                        JSON.stringify({
-
-                            autoPumpOnLevel:
-                                autoPumpOnLevel,
-
-                            autoPumpOffLevel:
-                                autoPumpOffLevel,
-
-                            consumptionRate:
-                                consumptionRate,
-
-                            pumpFillRate:
-                                pumpFillRate,
-
-                            sourceRefillRate:
-                                sourceRefillRate
-
-                        })
-
-                }
-            );
-
-
-        const result =
-            await response.json();
-
-
-        if (!result.success) {
-
-            showSettingsMessage(
-                result.message,
-                "error"
-            );
-
-            return;
-
-        }
-
-
-        populateSettingsForm(
-            result.settings
-        );
-
-
-        showSettingsMessage(
-            "Settings saved successfully.",
-            "success"
-        );
-
-
-        await updateDashboard();
-
-    }
-
-    catch (error) {
-
-        console.error(
-            "Settings save error:",
-            error
-        );
-
-
-        showSettingsMessage(
-            "Could not communicate with the server.",
-            "error"
-        );
-
-    }
-
-}
-
-
-// ============================================================
-// RESET SETTINGS
-// ============================================================
-
-async function resetSettings() {
-
-    const confirmed =
-        confirm(
-            "Restore all settings to their default values?"
-        );
-
-
-    if (!confirmed) {
-
-        return;
-
-    }
-
-
-    try {
-
-        const response =
-            await fetch(
-                "/api/settings/reset",
-                {
-
-                    method:
-                        "POST"
-
-                }
-            );
-
-
-        const result =
-            await response.json();
-
-
-        if (!result.success) {
-
-            showSettingsMessage(
-                result.message,
-                "error"
-            );
-
-            return;
-
-        }
-
-
-        populateSettingsForm(
-            result.settings
-        );
-
-
-        showSettingsMessage(
-            "Default settings restored.",
-            "success"
-        );
-
-
-        await updateDashboard();
-
-    }
-
-    catch (error) {
-
-        console.error(
-            "Settings reset error:",
-            error
-        );
-
-
-        showSettingsMessage(
-            "Could not communicate with the server.",
-            "error"
-        );
-
-    }
-
-}
-
-
-// ============================================================
-// MONITOR PAGE
-// ============================================================
-
-function updateMonitorPage(
-    data
-) {
-
-    updateElementText(
-        "monitorWaterLevel",
-        Number(
-            data.waterLevel
-        ).toFixed(2) + "%"
-    );
-
-
-    updateElementText(
-        "monitorPumpStatus",
-        data.pump
-            ? "ON"
-            : "OFF"
-    );
-
-
-    updateElementText(
-        "monitorPumpRuntime",
-        "Runtime: " +
-        formatRuntime(
-            data.runtime
-        )
-    );
-
-
-    updateElementText(
-        "monitorMode",
-        data.mode
-    );
-
-
-    updateElementText(
-        "monitorTankCondition",
-        data.tank
-    );
-
-
-    updateElementText(
-        "monitorConnection",
-        data.connected
-            ? "CONNECTED"
-            : "DISCONNECTED"
-    );
-
-
-    updateElementText(
-        "monitorEmergency",
-        data.emergency
-            ? "ACTIVE"
-            : "INACTIVE"
-    );
-
-
-    updateElementText(
-        "monitorTankStatus",
-        data.tank
-    );
-
-
-    updateElementText(
-        "monitorLastUpdate",
-        new Date().toLocaleTimeString()
-    );
-
-
-    const levelBar =
-        document.getElementById(
-            "monitorLevelBar"
-        );
-
-
-    if (levelBar) {
-
-        levelBar.style.width =
-            Number(
-                data.waterLevel
-            ) + "%";
-
-    }
-
-}
-
-
-// ============================================================
-// HISTORY
-// ============================================================
-
-function addHistoryPoint(
-    data
-) {
-
-    const now =
-        new Date();
-
-
-    const point = {
-
-        time:
-            now.toLocaleTimeString(),
-
-        water:
-            Number(
-                data.waterLevel
-            ),
-
-        pump:
-            data.pump,
-
-        mode:
-            data.mode,
-
-        tank:
-            data.tank
-
-    };
-
-
-    // Avoid recording duplicate data every second
-    // if the exact same reading is repeated.
-
-    const last =
-        historyData[
-            historyData.length - 1
-        ];
-
-
-    if (
-        last &&
-        Math.abs(
-            last.water -
-            point.water
-        ) < 0.001 &&
-        last.pump === point.pump &&
-        last.mode === point.mode
-    ) {
-
-        return;
-
-    }
-
-
-    historyData.push(
-        point
-    );
-
-
-    if (
-        historyData.length >
-        MAX_HISTORY_POINTS
-    ) {
-
-        historyData.shift();
-
-    }
-
-
-    updateHistoryDisplay();
-
-    updateAnalyticsDisplay();
-
-}
-
-
-// ============================================================
-// HISTORY DISPLAY
-// ============================================================
-
-function updateHistoryDisplay() {
-
-    const body =
-        document.getElementById(
-            "historyTableBody"
-        );
-
-
-    if (!body) {
-        return;
-    }
-
-
-    const count =
-        document.getElementById(
-            "historyPointCount"
-        );
-
-
-    if (count) {
-
-        count.textContent =
-            historyData.length;
-
-    }
-
-
-    if (
-        historyData.length === 0
-    ) {
-
-        body.innerHTML =
-            '<tr>' +
-            '<td colspan="5" class="empty-table">' +
-            'No history recorded yet.' +
-            '</td>' +
-            '</tr>';
-
-        return;
-
-    }
-
-
-    const values =
-        historyData.map(
-            item =>
-                item.water
-        );
-
-
-    const highest =
-        Math.max(
-            ...values
-        );
-
-
-    const lowest =
-        Math.min(
-            ...values
-        );
-
-
-    updateElementText(
-        "historyHighestLevel",
-        highest.toFixed(2) + "%"
-    );
-
-
-    updateElementText(
-        "historyLowestLevel",
-        lowest.toFixed(2) + "%"
-    );
-
-
-    const recent =
-        historyData
-            .slice(
-                -30
-            )
-            .reverse();
-
-
-    body.innerHTML =
-        recent.map(
-            item => {
-
-                return (
-
-                    "<tr>" +
-
-                    "<td>" +
-                    item.time +
-                    "</td>" +
-
-                    "<td>" +
-                    item.water.toFixed(2) +
-                    "%</td>" +
-
-                    "<td>" +
-                    (
-                        item.pump
-                            ? "ON"
-                            : "OFF"
-                    ) +
-                    "</td>" +
-
-                    "<td>" +
-                    item.mode +
-                    "</td>" +
-
-                    "<td>" +
-                    item.tank +
-                    "</td>" +
-
-                    "</tr>"
-
-                );
-
-            }
-        ).join("");
-
-}
-
-
-// ============================================================
-// CLEAR HISTORY
-// ============================================================
-
-function clearHistory() {
-
-    historyData.length =
-        0;
-
-    updateHistoryDisplay();
-
-    updateAnalyticsDisplay();
-
-}
-
-
-// ============================================================
-// ANALYTICS
-// ============================================================
-
-function updateAnalyticsDisplay() {
-
-    if (
-        historyData.length === 0
-    ) {
-
-        updateElementText(
-            "analyticsAverageLevel",
-            "--%"
-        );
-
-        updateElementText(
-            "analyticsHighestLevel",
-            "--%"
-        );
-
-        updateElementText(
-            "analyticsLowestLevel",
-            "--%"
-        );
-
-        updateElementText(
-            "analyticsPumpSamples",
-            "0"
-        );
-
-        updateElementText(
-            "analyticsMinText",
-            "--%"
-        );
-
-        updateElementText(
-            "analyticsAverageText",
-            "--%"
-        );
-
-        updateElementText(
-            "analyticsMaxText",
-            "--%"
-        );
-
-        return;
-
-    }
-
-
-    const values =
-        historyData.map(
-            item =>
-                item.water
-        );
-
-
-    const minimum =
-        Math.min(
-            ...values
-        );
-
-
-    const maximum =
-        Math.max(
-            ...values
-        );
-
-
-    const average =
-        values.reduce(
-            (
-                total,
-                value
-            ) =>
-                total + value,
-            0
-        ) /
-        values.length;
-
-
-    const pumpSamples =
-        historyData.filter(
-            item =>
-                item.pump
-        ).length;
-
-
-    updateElementText(
-        "analyticsAverageLevel",
-        average.toFixed(2) + "%"
-    );
-
-
-    updateElementText(
-        "analyticsHighestLevel",
-        maximum.toFixed(2) + "%"
-    );
-
-
-    updateElementText(
-        "analyticsLowestLevel",
-        minimum.toFixed(2) + "%"
-    );
-
-
-    updateElementText(
-        "analyticsPumpSamples",
-        pumpSamples
-    );
-
-
-    updateElementText(
-        "analyticsMinText",
-        minimum.toFixed(2) + "%"
-    );
-
-
-    updateElementText(
-        "analyticsAverageText",
-        average.toFixed(2) + "%"
-    );
-
-
-    updateElementText(
-        "analyticsMaxText",
-        maximum.toFixed(2) + "%"
-    );
-
-
-    const minBar =
-        document.getElementById(
-            "analyticsMinBar"
-        );
-
-
-    const averageBar =
-        document.getElementById(
-            "analyticsAverageBar"
-        );
-
-
-    const maxBar =
-        document.getElementById(
-            "analyticsMaxBar"
-        );
-
-
-    if (minBar) {
-
-        minBar.style.width =
-            minimum + "%";
-
-    }
-
-
-    if (averageBar) {
-
-        averageBar.style.width =
-            average + "%";
-
-    }
-
-
-    if (maxBar) {
-
-        maxBar.style.width =
-            maximum + "%";
-
-    }
-
-}
-
-
-// ============================================================
-// EMERGENCY PAGE
-// ============================================================
-
-function updateEmergencyPage(
-    data
-) {
-
-    updateElementText(
-        "emergencyPumpStatus",
-        data.pump
-            ? "ON"
-            : "OFF"
-    );
-
-
-    updateElementText(
-        "emergencyWaterLevel",
-        Number(
-            data.waterLevel
-        ).toFixed(2) + "%"
-    );
-
-
-    updateElementText(
-        "emergencySourceWater",
-        data.sourceWater
-            ? "AVAILABLE"
-            : "UNAVAILABLE"
-    );
-
-
-    updateElementText(
-        "emergencyStateMessage",
-        data.emergency
-            ? "Emergency state: ACTIVE"
-            : "Emergency state: INACTIVE"
-    );
-
-
-    const button =
-        document.getElementById(
-            "emergencyStopButton"
-        );
-
-
-    if (button) {
-
-        if (data.emergency) {
-
-            button.textContent =
-                "RESET EMERGENCY";
-
-        }
-
-        else {
-
-            button.textContent =
-                "STOP PUMP";
-
-        }
-
-    }
-
-}
-
-
-// ============================================================
-// EMERGENCY CONTROL
-// ============================================================
-
-async function toggleEmergency() {
-
-    try {
-
-        const response =
-            await fetch(
-                "/api/status"
-            );
-
-
-        const data =
-            await response.json();
-
-
-        const command =
-            data.emergency
-                ? "RESET"
-                : "STOP";
-
-
-        if (
-            command === "STOP"
-        ) {
-
-            const confirmed =
-                confirm(
-                    "Activate emergency shutdown? This will immediately stop the pump."
-                );
-
-
-            if (!confirmed) {
-
-                return;
-
-            }
-
-        }
-
-
-        const controlResponse =
-            await fetch(
-                "/api/emergency",
-                {
-
-                    method:
-                        "POST",
-
-                    headers: {
-                        "Content-Type":
-                            "application/json"
-                    },
-
-                    body:
-                        JSON.stringify({
-
-                            command:
-                                command
-
-                        })
-
-                }
-            );
-
-
-        const result =
-            await controlResponse.json();
-
-
-        if (!result.success) {
-
-            alert(
-                result.message
-            );
-
-            return;
-
-        }
-
-
-        await updateDashboard();
-
-    }
-
-    catch (error) {
-
-        console.error(
-            "Emergency error:",
-            error
-        );
-
-
-        alert(
-            "Could not communicate with server."
-        );
-
-    }
-
-}
-
-
-// ============================================================
 // CLOCK
 // ============================================================
 
@@ -3543,7 +3898,9 @@ function updateClock() {
 
 
     if (!element) {
+
         return;
+
     }
 
 
@@ -3585,116 +3942,17 @@ function updateClock() {
 
 
 // ============================================================
-// RESIZE
+// WINDOW RESIZE
 // ============================================================
 
 window.addEventListener(
     "resize",
-    function () {
+    function() {
 
         drawWaterGraph();
 
     }
 );
-
-
-// ============================================================
-// INITIALIZE BUTTONS
-// ============================================================
-
-function initializeButtons() {
-
-    const saveButton =
-        document.getElementById(
-            "saveSettingsButton"
-        );
-
-
-    if (saveButton) {
-
-        saveButton.addEventListener(
-            "click",
-            saveSettings
-        );
-
-    }
-
-
-    const resetButton =
-        document.getElementById(
-            "resetSettingsButton"
-        );
-
-
-    if (resetButton) {
-
-        resetButton.addEventListener(
-            "click",
-            resetSettings
-        );
-
-    }
-
-
-    const clearHistoryButton =
-        document.getElementById(
-            "clearHistoryButton"
-        );
-
-
-    if (clearHistoryButton) {
-
-        clearHistoryButton.addEventListener(
-            "click",
-            function () {
-
-                const confirmed =
-                    confirm(
-                        "Clear all recorded history?"
-                    );
-
-
-                if (confirmed) {
-
-                    clearHistory();
-
-                }
-
-            }
-        );
-
-    }
-
-
-    const emergencyButton =
-        document.getElementById(
-            "emergencyStopButton"
-        );
-
-
-    if (emergencyButton) {
-
-        emergencyButton.addEventListener(
-            "click",
-            toggleEmergency
-        );
-
-    }
-
-}
-
-
-// ============================================================
-// START
-// ============================================================
-
-initializeNavigation();
-
-initializeButtons();
-
-updateClock();
-
-updateDashboard();
 
 
 // ============================================================
@@ -3715,3 +3973,154 @@ setInterval(
     updateDashboard,
     1000
 );
+
+
+// ============================================================
+// SOURCE WATER SIMULATION
+// ============================================================
+
+async function toggleSourceWater() {
+
+    try {
+
+        const statusResponse =
+            await fetch(
+                "/api/status",
+                {
+                    cache: "no-store"
+                }
+            );
+
+
+        const data =
+            await statusResponse.json();
+
+
+        const newState =
+            !data.sourceWater;
+
+
+        const response =
+            await fetch(
+                "/api/source-water",
+                {
+
+                    method: "POST",
+
+                    headers: {
+
+                        "Content-Type":
+                            "application/json"
+
+                    },
+
+                    body: JSON.stringify({
+
+                        available:
+                            newState
+
+                    })
+
+                }
+            );
+
+
+        const result =
+            await response.json();
+
+
+        if (!result.success) {
+
+            showMessage(
+                result.message,
+                "error"
+            );
+
+            return;
+
+        }
+
+
+        await updateDashboard();
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "Source water error:",
+            error
+        );
+
+
+        showMessage(
+            "Could not communicate with server.",
+            "error"
+        );
+
+    }
+
+}
+
+
+// ============================================================
+// SHOW MESSAGE
+// ============================================================
+
+function showMessage(
+    message,
+    type = "info"
+) {
+
+    // Use alert as a reliable fallback.
+    // If you already have a custom toast
+    // component in CSS/HTML, it can be
+    // connected here later.
+
+    console.log(
+        type.toUpperCase() +
+        ": " +
+        message
+    );
+
+
+    window.alert(
+        message
+    );
+
+}
+
+
+// ============================================================
+// HTML ESCAPE
+// ============================================================
+
+function escapeHtml(
+    value
+) {
+
+    return String(
+        value
+    )
+        .replace(
+            /&/g,
+            "&amp;"
+        )
+        .replace(
+            /</g,
+            "&lt;"
+        )
+        .replace(
+            />/g,
+            "&gt;"
+        )
+        .replace(
+            /"/g,
+            "&quot;"
+        )
+        .replace(
+            /'/g,
+            "&#039;"
+        );
+
+}
