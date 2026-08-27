@@ -2,21 +2,23 @@
 <html lang="en">
 
 <head>
+
     <link rel="manifest" href="/manifest.json">
 
-   <meta name="theme-color" content="#2196f3">
+    <meta name="theme-color" content="#2196f3">
 
-  <meta name="mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
 
-  <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
 
-  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
 
-  <meta name="apple-mobile-web-app-title"
-      content="Water Monitor">
+    <meta name="apple-mobile-web-app-title"
+          content="Water Monitor">
 
-   <link rel="apple-touch-icon"
-      href="/static/icon-192.png">
+    <link rel="apple-touch-icon"
+          href="/static/icon-192.png">
+
     <meta charset="UTF-8">
 
     <meta name="viewport"
@@ -28,108 +30,6 @@
 
     <link rel="stylesheet"
           href="{{ url_for('static', filename='style.css') }}">
-
-
-<style>
-/* ============================================================
-   HAMBURGER APP MENU
-   Kept in this HTML so it works without changing style.css.
-============================================================ */
-.hamburger-menu-button {
-    position: fixed;
-    top: 18px;
-    left: 18px;
-    z-index: 1200;
-    width: 48px;
-    height: 48px;
-    border: 0;
-    border-radius: 13px;
-    background: #2196f3;
-    cursor: pointer;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 5px;
-    box-shadow: 0 8px 22px rgba(0,0,0,.15);
-}
-.hamburger-menu-button span {
-    display: block;
-    width: 22px;
-    height: 3px;
-    border-radius: 3px;
-    background: #fff;
-    transition: .2s ease;
-}
-.hamburger-menu-button.menu-open span:nth-child(1) { transform: translateY(8px) rotate(45deg); }
-.hamburger-menu-button.menu-open span:nth-child(2) { opacity: 0; }
-.hamburger-menu-button.menu-open span:nth-child(3) { transform: translateY(-8px) rotate(-45deg); }
-.app-menu-overlay {
-    position: fixed;
-    inset: 0;
-    z-index: 1090;
-    background: rgba(0,0,0,.42);
-    opacity: 0;
-    visibility: hidden;
-    transition: .25s ease;
-}
-.app-menu-overlay.menu-visible { opacity: 1; visibility: visible; }
-.app-side-menu {
-    position: fixed;
-    top: 0;
-    left: 0;
-    bottom: 0;
-    z-index: 1150;
-    width: min(310px,84vw);
-    background: #fff;
-    box-shadow: 10px 0 35px rgba(0,0,0,.18);
-    transform: translateX(-105%);
-    transition: transform .28s ease;
-    display: flex;
-    flex-direction: column;
-    overflow-y: auto;
-}
-.app-side-menu.menu-visible { transform: translateX(0); }
-.app-side-menu-header {
-    min-height: 82px;
-    padding: 18px 16px 16px 20px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
-}
-.app-menu-brand { display:flex; align-items:center; gap:11px; }
-.app-menu-brand-icon {
-    width:46px; height:46px; border-radius:13px;
-    display:grid; place-items:center; background:#e3f2fd; font-size:25px;
-}
-.app-menu-brand strong,.app-menu-brand small { display:block; }
-.app-menu-brand strong { font-size:16px; }
-.app-menu-brand small { margin-top:3px; opacity:.6; font-size:12px; }
-.app-menu-close {
-    width:38px; height:38px; border:0; border-radius:10px;
-    background:#f2f5f8; color:#607080; font-size:27px; line-height:1; cursor:pointer;
-}
-.app-menu-divider { height:1px; margin:0 20px; background:rgba(0,0,0,.08); }
-.app-menu-links { display:grid; gap:5px; padding:18px 12px; }
-.app-menu-link {
-    width:100%; min-height:52px; padding:0 15px; border:0; border-radius:12px;
-    background:transparent; color:#536273; font:inherit; font-weight:700;
-    text-align:left; cursor:pointer; display:flex; align-items:center; gap:13px;
-}
-.app-menu-link:hover,.app-menu-link.active { background:#e3f2fd; color:#1976d2; }
-.app-menu-link-icon { width:28px; text-align:center; font-size:20px; }
-.app-menu-link.app-menu-emergency { color:#c62828; }
-.app-menu-link.app-menu-emergency:hover,.app-menu-link.app-menu-emergency.active { background:#ffebee; color:#c62828; }
-.app-menu-footer { margin-top:auto; padding:18px 20px 24px; color:#607080; border-top:1px solid rgba(0,0,0,.06); }
-.app-menu-footer span,.app-menu-footer small { display:block; }
-.app-menu-footer span { font-weight:700; font-size:12px; }
-.app-menu-footer small { margin-top:4px; opacity:.6; font-size:11px; }
-@media (max-width:700px) {
-    .hamburger-menu-button { top:12px; left:12px; width:46px; height:46px; }
-    .app-side-menu { width:min(320px,88vw); }
-}
-</style>
 
 </head>
 
@@ -190,9 +90,9 @@
 
     </header>
 
+
     <!-- =====================================================
          MOBILE / APP HAMBURGER NAVIGATION
-         Added without changing the existing dashboard.
     ====================================================== -->
 
     <button type="button"
@@ -200,95 +100,186 @@
             id="hamburgerMenuButton"
             aria-label="Open application menu"
             aria-expanded="false">
+
         <span></span>
         <span></span>
         <span></span>
+
     </button>
 
-    <div class="app-menu-overlay" id="appMenuOverlay"></div>
+
+    <div class="app-menu-overlay"
+         id="appMenuOverlay">
+    </div>
+
 
     <aside class="app-side-menu"
            id="appSideMenu"
            aria-hidden="true">
 
+
         <div class="app-side-menu-header">
 
             <div class="app-menu-brand">
-                <span class="app-menu-brand-icon">💧</span>
+
+                <span class="app-menu-brand-icon">
+                    💧
+                </span>
 
                 <div>
-                    <strong>Smart Water</strong>
-                    <small>Level Monitor</small>
+
+                    <strong>
+                        Smart Water
+                    </strong>
+
+                    <small>
+                        Level Monitor
+                    </small>
+
                 </div>
+
             </div>
+
 
             <button type="button"
                     class="app-menu-close"
                     id="appMenuClose"
                     aria-label="Close application menu">
+
                 ×
+
             </button>
 
         </div>
 
+
         <div class="app-menu-divider"></div>
+
 
         <nav class="app-menu-links">
 
+
             <button class="app-menu-link active"
                     data-section="homeSection">
-                <span class="app-menu-link-icon">🏠</span>
-                <span>Home</span>
+
+                <span class="app-menu-link-icon">
+                    🏠
+                </span>
+
+                <span>
+                    Home
+                </span>
+
             </button>
+
 
             <button class="app-menu-link"
                     data-section="monitorSection">
-                <span class="app-menu-link-icon">📊</span>
-                <span>Live Monitor</span>
+
+                <span class="app-menu-link-icon">
+                    📊
+                </span>
+
+                <span>
+                    Live Monitor
+                </span>
+
             </button>
+
 
             <button class="app-menu-link"
                     data-section="historySection">
-                <span class="app-menu-link-icon">🕘</span>
-                <span>History</span>
+
+                <span class="app-menu-link-icon">
+                    🕘
+                </span>
+
+                <span>
+                    History
+                </span>
+
             </button>
+
 
             <button class="app-menu-link"
                     data-section="alertsSection">
-                <span class="app-menu-link-icon">🔔</span>
-                <span>Alerts</span>
+
+                <span class="app-menu-link-icon">
+                    🔔
+                </span>
+
+                <span>
+                    Alerts
+                </span>
+
             </button>
+
 
             <button class="app-menu-link app-menu-emergency"
                     data-section="emergencySection">
-                <span class="app-menu-link-icon">🚨</span>
-                <span>Emergency</span>
+
+                <span class="app-menu-link-icon">
+                    🚨
+                </span>
+
+                <span>
+                    Emergency
+                </span>
+
             </button>
+
 
             <button class="app-menu-link"
                     data-section="analyticsSection">
-                <span class="app-menu-link-icon">📈</span>
-                <span>Analytics</span>
+
+                <span class="app-menu-link-icon">
+                    📈
+                </span>
+
+                <span>
+                    Analytics
+                </span>
+
             </button>
+
 
             <button class="app-menu-link"
                     data-section="settingsSection">
-                <span class="app-menu-link-icon">⚙️</span>
-                <span>Settings</span>
+
+                <span class="app-menu-link-icon">
+                    ⚙️
+                </span>
+
+                <span>
+                    Settings
+                </span>
+
             </button>
+
 
         </nav>
 
+
         <div class="app-menu-footer">
-            <span>Smart Water Level Monitor</span>
-            <small>Monitoring &amp; Control System</small>
+
+            <span>
+                Smart Water Level Monitor
+            </span>
+
+            <small>
+                Monitoring &amp; Control System
+            </small>
+
         </div>
 
     </aside>
 
 
 
-<main id="homeSection" class="app-page active-page">
+
+<main id="homeSection"
+      class="app-page active-page">
+
 
     <!-- =====================================================
          PAGE INTRO
@@ -721,8 +712,11 @@
             <div class="graph-footer">
 
                 <span>
+
                     <span class="graph-line-dot"></span>
+
                     Water Level
+
                 </span>
 
                 <span>
@@ -1045,9 +1039,8 @@
 
     <!-- =====================================================
          ADDITIONAL APP FEATURES
-         These are additions; the original dashboard remains
-         unchanged inside the Home section.
     ====================================================== -->
+
 
     <!-- =====================================================
          LIVE MONITOR
@@ -1057,61 +1050,153 @@
              class="app-page additional-app-page">
 
         <div class="additional-page-header">
-            <span class="card-kicker">REAL-TIME MONITORING</span>
-            <h2>Live Monitor</h2>
+
+            <span class="card-kicker">
+                REAL-TIME MONITORING
+            </span>
+
+            <h2>
+                Live Monitor
+            </h2>
+
             <p>
                 A mobile-friendly live view of the current water
                 system condition.
             </p>
+
         </div>
+
 
         <div class="additional-feature-grid">
 
-            <div class="card additional-feature-card">
-                <span class="card-kicker">MAIN TANK</span>
-                <h3>Water Level</h3>
-                <strong id="monitorWaterLevel">--%</strong>
-                <p id="monitorTankCondition">--</p>
-            </div>
 
             <div class="card additional-feature-card">
-                <span class="card-kicker">PUMP</span>
-                <h3>Pump Status</h3>
-                <strong id="monitorPumpStatus">--</strong>
-                <p id="monitorPumpRuntime">Runtime: --</p>
+
+                <span class="card-kicker">
+                    MAIN TANK
+                </span>
+
+                <h3>
+                    Water Level
+                </h3>
+
+                <strong id="monitorWaterLevel">
+                    --%
+                </strong>
+
+                <p id="monitorTankCondition">
+                    --
+                </p>
+
             </div>
 
-            <div class="card additional-feature-card">
-                <span class="card-kicker">SOURCE</span>
-                <h3>Source Water</h3>
-                <strong id="monitorSourceWater">--</strong>
-                <p id="monitorSourceLevel">Level: --%</p>
-            </div>
 
             <div class="card additional-feature-card">
-                <span class="card-kicker">OPERATION</span>
-                <h3>Current Mode</h3>
-                <strong id="monitorMode">--</strong>
-                <p id="monitorConsumption">Consumption: --</p>
+
+                <span class="card-kicker">
+                    PUMP
+                </span>
+
+                <h3>
+                    Pump Status
+                </h3>
+
+                <strong id="monitorPumpStatus">
+                    --
+                </strong>
+
+                <p id="monitorPumpRuntime">
+                    Runtime: --
+                </p>
+
             </div>
+
+
+            <div class="card additional-feature-card">
+
+                <span class="card-kicker">
+                    SOURCE
+                </span>
+
+                <h3>
+                    Source Water
+                </h3>
+
+                <strong id="monitorSourceWater">
+                    --
+                </strong>
+
+                <p id="monitorSourceLevel">
+                    Level: --%
+                </p>
+
+            </div>
+
+
+            <div class="card additional-feature-card">
+
+                <span class="card-kicker">
+                    OPERATION
+                </span>
+
+                <h3>
+                    Current Mode
+                </h3>
+
+                <strong id="monitorMode">
+                    --
+                </strong>
+
+                <p id="monitorConsumption">
+                    Consumption: --
+                </p>
+
+            </div>
+
 
         </div>
 
+
         <div class="card additional-feature-card monitor-live-status">
-            <div class="additional-status-row">
-                <span>System connection</span>
-                <strong id="monitorConnection">--</strong>
-            </div>
 
             <div class="additional-status-row">
-                <span>Emergency state</span>
-                <strong id="monitorEmergency">--</strong>
+
+                <span>
+                    System connection
+                </span>
+
+                <strong id="monitorConnection">
+                    --
+                </strong>
+
             </div>
 
+
             <div class="additional-status-row">
-                <span>Last update</span>
-                <strong id="monitorLastUpdate">--</strong>
+
+                <span>
+                    Emergency state
+                </span>
+
+                <strong id="monitorEmergency">
+                    --
+                </strong>
+
             </div>
+
+
+            <div class="additional-status-row">
+
+                <span>
+                    Last update
+                </span>
+
+                <strong id="monitorLastUpdate">
+                    --
+                </strong>
+
+            </div>
+
         </div>
 
     </section>
@@ -1125,74 +1210,165 @@
              class="app-page additional-app-page">
 
         <div class="additional-page-header">
-            <span class="card-kicker">SYSTEM RECORDS</span>
-            <h2>History</h2>
+
+            <span class="card-kicker">
+                SYSTEM RECORDS
+            </span>
+
+            <h2>
+                History
+            </h2>
+
             <p>
                 Recent water-level and pump activity recorded by
                 this device.
             </p>
+
         </div>
+
 
         <div class="history-summary-grid">
 
-            <div class="card additional-feature-card">
-                <span class="card-kicker">CURRENT SESSION</span>
-                <h3>Recorded Points</h3>
-                <strong id="historyPointCount">0</strong>
-                <p>Live samples stored on this device.</p>
-            </div>
 
             <div class="card additional-feature-card">
-                <span class="card-kicker">HIGHEST LEVEL</span>
-                <h3>Peak Water Level</h3>
-                <strong id="historyHighestLevel">--%</strong>
-                <p>Highest recorded level in this browser.</p>
+
+                <span class="card-kicker">
+                    CURRENT SESSION
+                </span>
+
+                <h3>
+                    Recorded Points
+                </h3>
+
+                <strong id="historyPointCount">
+                    0
+                </strong>
+
+                <p>
+                    Live samples stored on this device.
+                </p>
+
             </div>
 
+
             <div class="card additional-feature-card">
-                <span class="card-kicker">LOWEST LEVEL</span>
-                <h3>Minimum Water Level</h3>
-                <strong id="historyLowestLevel">--%</strong>
-                <p>Lowest recorded level in this browser.</p>
+
+                <span class="card-kicker">
+                    HIGHEST LEVEL
+                </span>
+
+                <h3>
+                    Peak Water Level
+                </h3>
+
+                <strong id="historyHighestLevel">
+                    --%
+                </strong>
+
+                <p>
+                    Highest recorded level in this browser.
+                </p>
+
             </div>
+
+
+            <div class="card additional-feature-card">
+
+                <span class="card-kicker">
+                    LOWEST LEVEL
+                </span>
+
+                <h3>
+                    Minimum Water Level
+                </h3>
+
+                <strong id="historyLowestLevel">
+                    --%
+                </strong>
+
+                <p>
+                    Lowest recorded level in this browser.
+                </p>
+
+            </div>
+
 
         </div>
+
 
         <div class="card history-card">
 
             <div class="additional-section-heading">
+
                 <div>
-                    <span class="card-kicker">RECENT ACTIVITY</span>
-                    <h3>Water & Pump History</h3>
+
+                    <span class="card-kicker">
+                        RECENT ACTIVITY
+                    </span>
+
+                    <h3>
+                        Water & Pump History
+                    </h3>
+
                 </div>
+
 
                 <button type="button"
                         class="additional-action-button"
                         id="clearHistoryButton">
+
                     Clear History
+
                 </button>
+
             </div>
+
 
             <div class="history-table-wrapper">
 
                 <table class="history-table">
 
                     <thead>
+
                         <tr>
-                            <th>Time</th>
-                            <th>Water</th>
-                            <th>Pump</th>
-                            <th>Mode</th>
-                            <th>Tank</th>
+
+                            <th>
+                                Time
+                            </th>
+
+                            <th>
+                                Water
+                            </th>
+
+                            <th>
+                                Pump
+                            </th>
+
+                            <th>
+                                Mode
+                            </th>
+
+                            <th>
+                                Tank
+                            </th>
+
                         </tr>
+
                     </thead>
 
+
                     <tbody id="historyTableBody">
+
                         <tr>
+
                             <td colspan="5">
+
                                 No history recorded yet.
+
                             </td>
+
                         </tr>
+
                     </tbody>
 
                 </table>
@@ -1212,22 +1388,34 @@
              class="app-page additional-app-page">
 
         <div class="additional-page-header">
-            <span class="card-kicker">SYSTEM MONITOR</span>
-            <h2>Alerts</h2>
+
+            <span class="card-kicker">
+                SYSTEM MONITOR
+            </span>
+
+            <h2>
+                Alerts
+            </h2>
+
             <p>
                 Important conditions detected by the water
                 monitoring system.
             </p>
+
         </div>
+
 
         <div class="card alert-overview-card">
 
             <div class="additional-alert-status"
                  id="additionalAlertStatus">
 
-                <span class="additional-alert-status-icon">✓</span>
+                <span class="additional-alert-status-icon">
+                    ✓
+                </span>
 
                 <div>
+
                     <strong id="additionalAlertTitle">
                         No Active Alerts
                     </strong>
@@ -1235,20 +1423,32 @@
                     <p id="additionalAlertDescription">
                         All monitored conditions are currently normal.
                     </p>
+
                 </div>
 
             </div>
 
         </div>
 
+
         <div class="card history-card">
 
             <div class="additional-section-heading">
+
                 <div>
-                    <span class="card-kicker">ALERT HISTORY</span>
-                    <h3>Recent Alerts</h3>
+
+                    <span class="card-kicker">
+                        ALERT HISTORY
+                    </span>
+
+                    <h3>
+                        Recent Alerts
+                    </h3>
+
                 </div>
+
             </div>
+
 
             <div id="alertHistoryList"
                  class="alert-history-list">
@@ -1266,22 +1466,28 @@
 
     <!-- =====================================================
          EMERGENCY
-         This is the emergency UI. The actual server-side
-         emergency endpoint can be connected without changing
-         the existing dashboard controls.
     ====================================================== -->
 
     <section id="emergencySection"
              class="app-page additional-app-page">
 
         <div class="additional-page-header">
-            <span class="card-kicker">SAFETY CONTROL</span>
-            <h2>Emergency</h2>
+
+            <span class="card-kicker">
+                SAFETY CONTROL
+            </span>
+
+            <h2>
+                Emergency
+            </h2>
+
             <p>
                 Emergency controls for stopping the pump when
                 an unsafe condition is detected.
             </p>
+
         </div>
+
 
         <div class="card emergency-card">
 
@@ -1301,35 +1507,68 @@
             <button type="button"
                     id="emergencyStopButton"
                     class="emergency-stop-button">
+
                 STOP PUMP
+
             </button>
 
             <div id="emergencyStateMessage"
                  class="emergency-state-message">
+
                 Emergency state: INACTIVE
+
             </div>
 
         </div>
 
+
         <div class="card additional-feature-card">
 
-            <span class="card-kicker">SAFETY INFORMATION</span>
+            <span class="card-kicker">
+                SAFETY INFORMATION
+            </span>
 
-            <h3>Current System State</h3>
+            <h3>
+                Current System State
+            </h3>
+
 
             <div class="additional-status-row">
-                <span>Pump</span>
-                <strong id="emergencyPumpStatus">--</strong>
+
+                <span>
+                    Pump
+                </span>
+
+                <strong id="emergencyPumpStatus">
+                    --
+                </strong>
+
             </div>
 
-            <div class="additional-status-row">
-                <span>Water level</span>
-                <strong id="emergencyWaterLevel">--%</strong>
-            </div>
 
             <div class="additional-status-row">
-                <span>Source water</span>
-                <strong id="emergencySourceWater">--</strong>
+
+                <span>
+                    Water level
+                </span>
+
+                <strong id="emergencyWaterLevel">
+                    --%
+                </strong>
+
+            </div>
+
+
+            <div class="additional-status-row">
+
+                <span>
+                    Source water
+                </span>
+
+                <strong id="emergencySourceWater">
+                    --
+                </strong>
+
             </div>
 
         </div>
@@ -1345,80 +1584,191 @@
              class="app-page additional-app-page">
 
         <div class="additional-page-header">
-            <span class="card-kicker">SYSTEM ANALYTICS</span>
-            <h2>Analytics</h2>
+
+            <span class="card-kicker">
+                SYSTEM ANALYTICS
+            </span>
+
+            <h2>
+                Analytics
+            </h2>
+
             <p>
                 Simple statistics calculated from the history
                 recorded by this browser.
             </p>
+
         </div>
+
 
         <div class="analytics-grid">
 
-            <div class="card additional-feature-card">
-                <span class="card-kicker">AVERAGE</span>
-                <h3>Average Water Level</h3>
-                <strong id="analyticsAverageLevel">--%</strong>
-                <p>Average recorded tank level.</p>
-            </div>
 
             <div class="card additional-feature-card">
-                <span class="card-kicker">PEAK</span>
-                <h3>Highest Level</h3>
-                <strong id="analyticsHighestLevel">--%</strong>
-                <p>Highest recorded tank level.</p>
+
+                <span class="card-kicker">
+                    AVERAGE
+                </span>
+
+                <h3>
+                    Average Water Level
+                </h3>
+
+                <strong id="analyticsAverageLevel">
+                    --%
+                </strong>
+
+                <p>
+                    Average recorded tank level.
+                </p>
+
             </div>
 
-            <div class="card additional-feature-card">
-                <span class="card-kicker">LOW</span>
-                <h3>Lowest Level</h3>
-                <strong id="analyticsLowestLevel">--%</strong>
-                <p>Lowest recorded tank level.</p>
-            </div>
 
             <div class="card additional-feature-card">
-                <span class="card-kicker">PUMP</span>
-                <h3>Pump ON Samples</h3>
-                <strong id="analyticsPumpSamples">0</strong>
-                <p>Recorded samples while the pump was ON.</p>
+
+                <span class="card-kicker">
+                    PEAK
+                </span>
+
+                <h3>
+                    Highest Level
+                </h3>
+
+                <strong id="analyticsHighestLevel">
+                    --%
+                </strong>
+
+                <p>
+                    Highest recorded tank level.
+                </p>
+
             </div>
+
+
+            <div class="card additional-feature-card">
+
+                <span class="card-kicker">
+                    LOW
+                </span>
+
+                <h3>
+                    Lowest Level
+                </h3>
+
+                <strong id="analyticsLowestLevel">
+                    --%
+                </strong>
+
+                <p>
+                    Lowest recorded tank level.
+                </p>
+
+            </div>
+
+
+            <div class="card additional-feature-card">
+
+                <span class="card-kicker">
+                    PUMP
+                </span>
+
+                <h3>
+                    Pump ON Samples
+                </h3>
+
+                <strong id="analyticsPumpSamples">
+                    0
+                </strong>
+
+                <p>
+                    Recorded samples while the pump was ON.
+                </p>
+
+            </div>
+
 
         </div>
+
 
         <div class="card analytics-card">
 
             <div class="additional-section-heading">
+
                 <div>
-                    <span class="card-kicker">RECORDED DATA</span>
-                    <h3>Water Level Statistics</h3>
+
+                    <span class="card-kicker">
+                        RECORDED DATA
+                    </span>
+
+                    <h3>
+                        Water Level Statistics
+                    </h3>
+
                 </div>
+
             </div>
+
 
             <div class="analytics-bar-container">
 
+
                 <div class="analytics-bar-row">
-                    <span>Minimum</span>
+
+                    <span>
+                        Minimum
+                    </span>
+
                     <div class="analytics-bar">
+
                         <span id="analyticsMinBar"></span>
+
                     </div>
-                    <strong id="analyticsMinText">--%</strong>
+
+                    <strong id="analyticsMinText">
+                        --%
+                    </strong>
+
                 </div>
 
+
                 <div class="analytics-bar-row">
-                    <span>Average</span>
+
+                    <span>
+                        Average
+                    </span>
+
                     <div class="analytics-bar">
+
                         <span id="analyticsAverageBar"></span>
+
                     </div>
-                    <strong id="analyticsAverageText">--%</strong>
+
+                    <strong id="analyticsAverageText">
+                        --%
+                    </strong>
+
                 </div>
 
+
                 <div class="analytics-bar-row">
-                    <span>Maximum</span>
+
+                    <span>
+                        Maximum
+                    </span>
+
                     <div class="analytics-bar">
+
                         <span id="analyticsMaxBar"></span>
+
                     </div>
-                    <strong id="analyticsMaxText">--%</strong>
+
+                    <strong id="analyticsMaxText">
+                        --%
+                    </strong>
+
                 </div>
+
 
             </div>
 
@@ -1429,29 +1779,41 @@
 
     <!-- =====================================================
          SETTINGS
-         Existing pump/system behavior is not changed here.
-         These controls provide the mobile settings interface.
     ====================================================== -->
 
     <section id="settingsSection"
              class="app-page additional-app-page">
 
         <div class="additional-page-header">
-            <span class="card-kicker">SYSTEM CONFIGURATION</span>
-            <h2>Settings</h2>
+
+            <span class="card-kicker">
+                SYSTEM CONFIGURATION
+            </span>
+
+            <h2>
+                Settings
+            </h2>
+
             <p>
                 View the operating parameters currently used by
                 the Smart Water Level Monitor.
             </p>
+
         </div>
+
 
         <div class="settings-grid">
 
+
             <div class="card settings-card">
 
-                <span class="card-kicker">AUTO MODE</span>
+                <span class="card-kicker">
+                    AUTO MODE
+                </span>
 
-                <h3>Automatic Pump ON Level</h3>
+                <h3>
+                    Automatic Pump ON Level
+                </h3>
 
                 <strong class="settings-value">
                     30%
@@ -1464,11 +1826,16 @@
 
             </div>
 
+
             <div class="card settings-card">
 
-                <span class="card-kicker">AUTO MODE</span>
+                <span class="card-kicker">
+                    AUTO MODE
+                </span>
 
-                <h3>Automatic Pump OFF Level</h3>
+                <h3>
+                    Automatic Pump OFF Level
+                </h3>
 
                 <strong class="settings-value">
                     90%
@@ -1481,11 +1848,16 @@
 
             </div>
 
+
             <div class="card settings-card">
 
-                <span class="card-kicker">CONSUMPTION</span>
+                <span class="card-kicker">
+                    CONSUMPTION
+                </span>
 
-                <h3>Consumption Rate</h3>
+                <h3>
+                    Consumption Rate
+                </h3>
 
                 <strong class="settings-value">
                     2.00% / sec
@@ -1497,11 +1869,16 @@
 
             </div>
 
+
             <div class="card settings-card">
 
-                <span class="card-kicker">PUMP</span>
+                <span class="card-kicker">
+                    PUMP
+                </span>
 
-                <h3>Pump Fill Rate</h3>
+                <h3>
+                    Pump Fill Rate
+                </h3>
 
                 <strong class="settings-value">
                     2.00% / sec
@@ -1513,11 +1890,16 @@
 
             </div>
 
+
             <div class="card settings-card">
 
-                <span class="card-kicker">SOURCE WATER</span>
+                <span class="card-kicker">
+                    SOURCE WATER
+                </span>
 
-                <h3>Source Refill Rate</h3>
+                <h3>
+                    Source Refill Rate
+                </h3>
 
                 <strong class="settings-value">
                     1.00% / sec
@@ -1529,11 +1911,16 @@
 
             </div>
 
+
             <div class="card settings-card">
 
-                <span class="card-kicker">APP</span>
+                <span class="card-kicker">
+                    APP
+                </span>
 
-                <h3>Application</h3>
+                <h3>
+                    Application
+                </h3>
 
                 <strong class="settings-value">
                     Smart Water Monitor
@@ -1545,13 +1932,19 @@
 
             </div>
 
+
         </div>
+
 
         <div class="card settings-note-card">
 
-            <span class="card-kicker">IMPORTANT</span>
+            <span class="card-kicker">
+                IMPORTANT
+            </span>
 
-            <h3>Existing System Controls</h3>
+            <h3>
+                Existing System Controls
+            </h3>
 
             <p>
                 The original AUTO/MANUAL, pump, consumption,
@@ -1585,7 +1978,9 @@
 
 <script src="{{ url_for('static', filename='script.js') }}">
 </script>
- <script>
+
+
+<script>
 
 if ("serviceWorker" in navigator) {
 
@@ -1594,6 +1989,7 @@ if ("serviceWorker" in navigator) {
         navigator.serviceWorker.register(
             "/service-worker.js"
         )
+
         .then(function (registration) {
 
             console.log(
@@ -1602,6 +1998,7 @@ if ("serviceWorker" in navigator) {
             );
 
         })
+
         .catch(function (error) {
 
             console.error(
@@ -1616,101 +2013,278 @@ if ("serviceWorker" in navigator) {
 }
 
 </script>
-    
+
 
 <script>
+
 /* ============================================================
    HAMBURGER MENU CONTROLLER
 ============================================================ */
+
 (function () {
+
     function setupHamburgerMenu() {
-        const button = document.getElementById('hamburgerMenuButton');
-        const menu = document.getElementById('appSideMenu');
-        const overlay = document.getElementById('appMenuOverlay');
-        const closeButton = document.getElementById('appMenuClose');
+
+        const button =
+            document.getElementById('hamburgerMenuButton');
+
+        const menu =
+            document.getElementById('appSideMenu');
+
+        const overlay =
+            document.getElementById('appMenuOverlay');
+
+        const closeButton =
+            document.getElementById('appMenuClose');
+
 
         if (!button || !menu || !overlay) {
-            console.error('Hamburger menu elements were not found.');
+
+            console.error(
+                'Hamburger menu elements were not found.'
+            );
+
             return;
+
         }
+
 
         function closeMenu() {
+
             menu.classList.remove('menu-visible');
+
             overlay.classList.remove('menu-visible');
+
             button.classList.remove('menu-open');
-            button.setAttribute('aria-expanded', 'false');
-            menu.setAttribute('aria-hidden', 'true');
+
+            button.setAttribute(
+                'aria-expanded',
+                'false'
+            );
+
+            menu.setAttribute(
+                'aria-hidden',
+                'true'
+            );
+
         }
+
 
         function openMenu() {
+
             menu.classList.add('menu-visible');
+
             overlay.classList.add('menu-visible');
+
             button.classList.add('menu-open');
-            button.setAttribute('aria-expanded', 'true');
-            menu.setAttribute('aria-hidden', 'false');
+
+            button.setAttribute(
+                'aria-expanded',
+                'true'
+            );
+
+            menu.setAttribute(
+                'aria-hidden',
+                'false'
+            );
+
         }
 
-        button.addEventListener('click', function () {
-            if (menu.classList.contains('menu-visible')) closeMenu();
-            else openMenu();
-        });
 
-        if (closeButton) closeButton.addEventListener('click', closeMenu);
-        overlay.addEventListener('click', closeMenu);
+        button.addEventListener(
+            'click',
+            function () {
 
-        // Start exactly like an app: Home is the only visible page.
-        document.querySelectorAll('.app-page').forEach(function (page) {
-            if (page.id === 'homeSection') {
-                page.classList.add('active-page');
-                page.style.display = '';
-            } else {
-                page.classList.remove('active-page');
-                page.style.display = 'none';
+                if (
+                    menu.classList.contains(
+                        'menu-visible'
+                    )
+                ) {
+
+                    closeMenu();
+
+                } else {
+
+                    openMenu();
+
+                }
+
             }
-        });
+        );
 
-        document.querySelectorAll('.app-menu-link').forEach(function (item) {
-            item.classList.toggle(
-                'active',
-                item.getAttribute('data-section') === 'homeSection'
+
+        if (closeButton) {
+
+            closeButton.addEventListener(
+                'click',
+                closeMenu
             );
-        });
 
-        document.querySelectorAll('.app-menu-link').forEach(function (link) {
-            link.addEventListener('click', function () {
-                const targetId = link.getAttribute('data-section');
-                const target = document.getElementById(targetId);
-                if (!target) return;
+        }
 
-                document.querySelectorAll('.app-page').forEach(function (page) {
-                    page.classList.remove('active-page');
+
+        overlay.addEventListener(
+            'click',
+            closeMenu
+        );
+
+
+        // Start exactly like an app:
+        // Home is the only visible page.
+
+        document
+            .querySelectorAll('.app-page')
+            .forEach(function (page) {
+
+                if (page.id === 'homeSection') {
+
+                    page.classList.add(
+                        'active-page'
+                    );
+
+                    page.style.display = '';
+
+                } else {
+
+                    page.classList.remove(
+                        'active-page'
+                    );
+
                     page.style.display = 'none';
-                });
 
-                target.classList.add('active-page');
-                target.style.display = '';
+                }
 
-                document.querySelectorAll('.app-menu-link').forEach(function (item) {
-                    item.classList.toggle('active', item === link);
-                });
-
-                closeMenu();
-                window.scrollTo({ top: 0, behavior: 'smooth' });
             });
-        });
 
-        document.addEventListener('keydown', function (event) {
-            if (event.key === 'Escape') closeMenu();
-        });
+
+        document
+            .querySelectorAll('.app-menu-link')
+            .forEach(function (item) {
+
+                item.classList.toggle(
+
+                    'active',
+
+                    item.getAttribute(
+                        'data-section'
+                    ) === 'homeSection'
+
+                );
+
+            });
+
+
+        document
+            .querySelectorAll('.app-menu-link')
+            .forEach(function (link) {
+
+                link.addEventListener(
+                    'click',
+                    function () {
+
+                        const targetId =
+                            link.getAttribute(
+                                'data-section'
+                            );
+
+                        const target =
+                            document.getElementById(
+                                targetId
+                            );
+
+
+                        if (!target) return;
+
+
+                        document
+                            .querySelectorAll('.app-page')
+                            .forEach(function (page) {
+
+                                page.classList.remove(
+                                    'active-page'
+                                );
+
+                                page.style.display =
+                                    'none';
+
+                            });
+
+
+                        target.classList.add(
+                            'active-page'
+                        );
+
+                        target.style.display = '';
+
+
+                        document
+                            .querySelectorAll(
+                                '.app-menu-link'
+                            )
+                            .forEach(
+                                function (item) {
+
+                                    item.classList.toggle(
+                                        'active',
+                                        item === link
+                                    );
+
+                                }
+                            );
+
+
+                        closeMenu();
+
+
+                        window.scrollTo({
+
+                            top: 0,
+
+                            behavior: 'smooth'
+
+                        });
+
+                    }
+                );
+
+            });
+
+
+        document.addEventListener(
+            'keydown',
+            function (event) {
+
+                if (event.key === 'Escape') {
+
+                    closeMenu();
+
+                }
+
+            }
+        );
+
     }
 
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', setupHamburgerMenu);
+
+    if (
+        document.readyState === 'loading'
+    ) {
+
+        document.addEventListener(
+            'DOMContentLoaded',
+            setupHamburgerMenu
+        );
+
     } else {
+
         setupHamburgerMenu();
+
     }
+
 })();
+
 </script>
+
 
 </body>
 
