@@ -359,7 +359,36 @@ def home():
     return render_template(
         "index.html"
     )
+# ============================================================
+# PWA MANIFEST
+# ============================================================
 
+@app.route("/manifest.json")
+def manifest():
+
+    return app.send_static_file(
+        "manifest.json"
+    )
+
+
+# ============================================================
+# PWA SERVICE WORKER
+# ============================================================
+
+@app.route("/service-worker.js")
+def service_worker():
+
+    response = app.send_static_file(
+        "service-worker.js"
+    )
+
+    response.headers["Content-Type"] = (
+        "application/javascript"
+    )
+
+    response.headers["Service-Worker-Allowed"] = "/"
+
+    return response
 
 # ============================================================
 # SYSTEM STATUS
