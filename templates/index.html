@@ -88,6 +88,105 @@
 
     </header>
 
+    <!-- =====================================================
+         MOBILE / APP HAMBURGER NAVIGATION
+         Added without changing the existing dashboard.
+    ====================================================== -->
+
+    <button type="button"
+            class="hamburger-menu-button"
+            id="hamburgerMenuButton"
+            aria-label="Open application menu"
+            aria-expanded="false">
+        <span></span>
+        <span></span>
+        <span></span>
+    </button>
+
+    <div class="app-menu-overlay" id="appMenuOverlay"></div>
+
+    <aside class="app-side-menu"
+           id="appSideMenu"
+           aria-hidden="true">
+
+        <div class="app-side-menu-header">
+
+            <div class="app-menu-brand">
+                <span class="app-menu-brand-icon">💧</span>
+
+                <div>
+                    <strong>Smart Water</strong>
+                    <small>Level Monitor</small>
+                </div>
+            </div>
+
+            <button type="button"
+                    class="app-menu-close"
+                    id="appMenuClose"
+                    aria-label="Close application menu">
+                ×
+            </button>
+
+        </div>
+
+        <div class="app-menu-divider"></div>
+
+        <nav class="app-menu-links">
+
+            <button class="app-menu-link active"
+                    data-section="homeSection">
+                <span class="app-menu-link-icon">🏠</span>
+                <span>Home</span>
+            </button>
+
+            <button class="app-menu-link"
+                    data-section="monitorSection">
+                <span class="app-menu-link-icon">📊</span>
+                <span>Live Monitor</span>
+            </button>
+
+            <button class="app-menu-link"
+                    data-section="historySection">
+                <span class="app-menu-link-icon">🕘</span>
+                <span>History</span>
+            </button>
+
+            <button class="app-menu-link"
+                    data-section="alertsSection">
+                <span class="app-menu-link-icon">🔔</span>
+                <span>Alerts</span>
+            </button>
+
+            <button class="app-menu-link app-menu-emergency"
+                    data-section="emergencySection">
+                <span class="app-menu-link-icon">🚨</span>
+                <span>Emergency</span>
+            </button>
+
+            <button class="app-menu-link"
+                    data-section="analyticsSection">
+                <span class="app-menu-link-icon">📈</span>
+                <span>Analytics</span>
+            </button>
+
+            <button class="app-menu-link"
+                    data-section="settingsSection">
+                <span class="app-menu-link-icon">⚙️</span>
+                <span>Settings</span>
+            </button>
+
+        </nav>
+
+        <div class="app-menu-footer">
+            <span>Smart Water Level Monitor</span>
+            <small>Monitoring &amp; Control System</small>
+        </div>
+
+    </aside>
+
+
+
+<main id="homeSection" class="app-page active-page">
 
     <!-- =====================================================
          PAGE INTRO
@@ -833,6 +932,531 @@
             </span>
 
             No active alerts
+
+        </div>
+
+    </section>
+
+
+</main>
+
+
+    <!-- =====================================================
+         ADDITIONAL APP FEATURES
+         These are additions; the original dashboard remains
+         unchanged inside the Home section.
+    ====================================================== -->
+
+    <!-- =====================================================
+         LIVE MONITOR
+    ====================================================== -->
+
+    <section id="monitorSection"
+             class="app-page additional-app-page">
+
+        <div class="additional-page-header">
+            <span class="card-kicker">REAL-TIME MONITORING</span>
+            <h2>Live Monitor</h2>
+            <p>
+                A mobile-friendly live view of the current water
+                system condition.
+            </p>
+        </div>
+
+        <div class="additional-feature-grid">
+
+            <div class="card additional-feature-card">
+                <span class="card-kicker">MAIN TANK</span>
+                <h3>Water Level</h3>
+                <strong id="monitorWaterLevel">--%</strong>
+                <p id="monitorTankCondition">--</p>
+            </div>
+
+            <div class="card additional-feature-card">
+                <span class="card-kicker">PUMP</span>
+                <h3>Pump Status</h3>
+                <strong id="monitorPumpStatus">--</strong>
+                <p id="monitorPumpRuntime">Runtime: --</p>
+            </div>
+
+            <div class="card additional-feature-card">
+                <span class="card-kicker">SOURCE</span>
+                <h3>Source Water</h3>
+                <strong id="monitorSourceWater">--</strong>
+                <p id="monitorSourceLevel">Level: --%</p>
+            </div>
+
+            <div class="card additional-feature-card">
+                <span class="card-kicker">OPERATION</span>
+                <h3>Current Mode</h3>
+                <strong id="monitorMode">--</strong>
+                <p id="monitorConsumption">Consumption: --</p>
+            </div>
+
+        </div>
+
+        <div class="card additional-feature-card monitor-live-status">
+            <div class="additional-status-row">
+                <span>System connection</span>
+                <strong id="monitorConnection">--</strong>
+            </div>
+
+            <div class="additional-status-row">
+                <span>Emergency state</span>
+                <strong id="monitorEmergency">--</strong>
+            </div>
+
+            <div class="additional-status-row">
+                <span>Last update</span>
+                <strong id="monitorLastUpdate">--</strong>
+            </div>
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         HISTORY
+    ====================================================== -->
+
+    <section id="historySection"
+             class="app-page additional-app-page">
+
+        <div class="additional-page-header">
+            <span class="card-kicker">SYSTEM RECORDS</span>
+            <h2>History</h2>
+            <p>
+                Recent water-level and pump activity recorded by
+                this device.
+            </p>
+        </div>
+
+        <div class="history-summary-grid">
+
+            <div class="card additional-feature-card">
+                <span class="card-kicker">CURRENT SESSION</span>
+                <h3>Recorded Points</h3>
+                <strong id="historyPointCount">0</strong>
+                <p>Live samples stored on this device.</p>
+            </div>
+
+            <div class="card additional-feature-card">
+                <span class="card-kicker">HIGHEST LEVEL</span>
+                <h3>Peak Water Level</h3>
+                <strong id="historyHighestLevel">--%</strong>
+                <p>Highest recorded level in this browser.</p>
+            </div>
+
+            <div class="card additional-feature-card">
+                <span class="card-kicker">LOWEST LEVEL</span>
+                <h3>Minimum Water Level</h3>
+                <strong id="historyLowestLevel">--%</strong>
+                <p>Lowest recorded level in this browser.</p>
+            </div>
+
+        </div>
+
+        <div class="card history-card">
+
+            <div class="additional-section-heading">
+                <div>
+                    <span class="card-kicker">RECENT ACTIVITY</span>
+                    <h3>Water & Pump History</h3>
+                </div>
+
+                <button type="button"
+                        class="additional-action-button"
+                        id="clearHistoryButton">
+                    Clear History
+                </button>
+            </div>
+
+            <div class="history-table-wrapper">
+
+                <table class="history-table">
+
+                    <thead>
+                        <tr>
+                            <th>Time</th>
+                            <th>Water</th>
+                            <th>Pump</th>
+                            <th>Mode</th>
+                            <th>Tank</th>
+                        </tr>
+                    </thead>
+
+                    <tbody id="historyTableBody">
+                        <tr>
+                            <td colspan="5">
+                                No history recorded yet.
+                            </td>
+                        </tr>
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         ALERTS
+    ====================================================== -->
+
+    <section id="alertsSection"
+             class="app-page additional-app-page">
+
+        <div class="additional-page-header">
+            <span class="card-kicker">SYSTEM MONITOR</span>
+            <h2>Alerts</h2>
+            <p>
+                Important conditions detected by the water
+                monitoring system.
+            </p>
+        </div>
+
+        <div class="card alert-overview-card">
+
+            <div class="additional-alert-status"
+                 id="additionalAlertStatus">
+
+                <span class="additional-alert-status-icon">✓</span>
+
+                <div>
+                    <strong id="additionalAlertTitle">
+                        No Active Alerts
+                    </strong>
+
+                    <p id="additionalAlertDescription">
+                        All monitored conditions are currently normal.
+                    </p>
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="card history-card">
+
+            <div class="additional-section-heading">
+                <div>
+                    <span class="card-kicker">ALERT HISTORY</span>
+                    <h3>Recent Alerts</h3>
+                </div>
+            </div>
+
+            <div id="alertHistoryList"
+                 class="alert-history-list">
+
+                <div class="empty-state">
+                    No alert history recorded yet.
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         EMERGENCY
+         This is the emergency UI. The actual server-side
+         emergency endpoint can be connected without changing
+         the existing dashboard controls.
+    ====================================================== -->
+
+    <section id="emergencySection"
+             class="app-page additional-app-page">
+
+        <div class="additional-page-header">
+            <span class="card-kicker">SAFETY CONTROL</span>
+            <h2>Emergency</h2>
+            <p>
+                Emergency controls for stopping the pump when
+                an unsafe condition is detected.
+            </p>
+        </div>
+
+        <div class="card emergency-card">
+
+            <div class="emergency-icon">
+                🚨
+            </div>
+
+            <h3 id="emergencyTitle">
+                Emergency Shutdown
+            </h3>
+
+            <p id="emergencyDescription">
+                Use the emergency control only when the pump
+                needs to be stopped immediately.
+            </p>
+
+            <button type="button"
+                    id="emergencyStopButton"
+                    class="emergency-stop-button">
+                STOP PUMP
+            </button>
+
+            <div id="emergencyStateMessage"
+                 class="emergency-state-message">
+                Emergency state: INACTIVE
+            </div>
+
+        </div>
+
+        <div class="card additional-feature-card">
+
+            <span class="card-kicker">SAFETY INFORMATION</span>
+
+            <h3>Current System State</h3>
+
+            <div class="additional-status-row">
+                <span>Pump</span>
+                <strong id="emergencyPumpStatus">--</strong>
+            </div>
+
+            <div class="additional-status-row">
+                <span>Water level</span>
+                <strong id="emergencyWaterLevel">--%</strong>
+            </div>
+
+            <div class="additional-status-row">
+                <span>Source water</span>
+                <strong id="emergencySourceWater">--</strong>
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         ANALYTICS
+    ====================================================== -->
+
+    <section id="analyticsSection"
+             class="app-page additional-app-page">
+
+        <div class="additional-page-header">
+            <span class="card-kicker">SYSTEM ANALYTICS</span>
+            <h2>Analytics</h2>
+            <p>
+                Simple statistics calculated from the history
+                recorded by this browser.
+            </p>
+        </div>
+
+        <div class="analytics-grid">
+
+            <div class="card additional-feature-card">
+                <span class="card-kicker">AVERAGE</span>
+                <h3>Average Water Level</h3>
+                <strong id="analyticsAverageLevel">--%</strong>
+                <p>Average recorded tank level.</p>
+            </div>
+
+            <div class="card additional-feature-card">
+                <span class="card-kicker">PEAK</span>
+                <h3>Highest Level</h3>
+                <strong id="analyticsHighestLevel">--%</strong>
+                <p>Highest recorded tank level.</p>
+            </div>
+
+            <div class="card additional-feature-card">
+                <span class="card-kicker">LOW</span>
+                <h3>Lowest Level</h3>
+                <strong id="analyticsLowestLevel">--%</strong>
+                <p>Lowest recorded tank level.</p>
+            </div>
+
+            <div class="card additional-feature-card">
+                <span class="card-kicker">PUMP</span>
+                <h3>Pump ON Samples</h3>
+                <strong id="analyticsPumpSamples">0</strong>
+                <p>Recorded samples while the pump was ON.</p>
+            </div>
+
+        </div>
+
+        <div class="card analytics-card">
+
+            <div class="additional-section-heading">
+                <div>
+                    <span class="card-kicker">RECORDED DATA</span>
+                    <h3>Water Level Statistics</h3>
+                </div>
+            </div>
+
+            <div class="analytics-bar-container">
+
+                <div class="analytics-bar-row">
+                    <span>Minimum</span>
+                    <div class="analytics-bar">
+                        <span id="analyticsMinBar"></span>
+                    </div>
+                    <strong id="analyticsMinText">--%</strong>
+                </div>
+
+                <div class="analytics-bar-row">
+                    <span>Average</span>
+                    <div class="analytics-bar">
+                        <span id="analyticsAverageBar"></span>
+                    </div>
+                    <strong id="analyticsAverageText">--%</strong>
+                </div>
+
+                <div class="analytics-bar-row">
+                    <span>Maximum</span>
+                    <div class="analytics-bar">
+                        <span id="analyticsMaxBar"></span>
+                    </div>
+                    <strong id="analyticsMaxText">--%</strong>
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         SETTINGS
+         Existing pump/system behavior is not changed here.
+         These controls provide the mobile settings interface.
+    ====================================================== -->
+
+    <section id="settingsSection"
+             class="app-page additional-app-page">
+
+        <div class="additional-page-header">
+            <span class="card-kicker">SYSTEM CONFIGURATION</span>
+            <h2>Settings</h2>
+            <p>
+                View the operating parameters currently used by
+                the Smart Water Level Monitor.
+            </p>
+        </div>
+
+        <div class="settings-grid">
+
+            <div class="card settings-card">
+
+                <span class="card-kicker">AUTO MODE</span>
+
+                <h3>Automatic Pump ON Level</h3>
+
+                <strong class="settings-value">
+                    30%
+                </strong>
+
+                <p>
+                    The pump starts automatically when the main
+                    tank reaches or falls below 30%.
+                </p>
+
+            </div>
+
+            <div class="card settings-card">
+
+                <span class="card-kicker">AUTO MODE</span>
+
+                <h3>Automatic Pump OFF Level</h3>
+
+                <strong class="settings-value">
+                    90%
+                </strong>
+
+                <p>
+                    The pump stops automatically when the main
+                    tank reaches 90%.
+                </p>
+
+            </div>
+
+            <div class="card settings-card">
+
+                <span class="card-kicker">CONSUMPTION</span>
+
+                <h3>Consumption Rate</h3>
+
+                <strong class="settings-value">
+                    2.00% / sec
+                </strong>
+
+                <p>
+                    Current simulated water consumption rate.
+                </p>
+
+            </div>
+
+            <div class="card settings-card">
+
+                <span class="card-kicker">PUMP</span>
+
+                <h3>Pump Fill Rate</h3>
+
+                <strong class="settings-value">
+                    2.00% / sec
+                </strong>
+
+                <p>
+                    Current simulated pump filling rate.
+                </p>
+
+            </div>
+
+            <div class="card settings-card">
+
+                <span class="card-kicker">SOURCE WATER</span>
+
+                <h3>Source Refill Rate</h3>
+
+                <strong class="settings-value">
+                    1.00% / sec
+                </strong>
+
+                <p>
+                    Current simulated source-water refill rate.
+                </p>
+
+            </div>
+
+            <div class="card settings-card">
+
+                <span class="card-kicker">APP</span>
+
+                <h3>Application</h3>
+
+                <strong class="settings-value">
+                    Smart Water Monitor
+                </strong>
+
+                <p>
+                    Installed PWA dashboard.
+                </p>
+
+            </div>
+
+        </div>
+
+        <div class="card settings-note-card">
+
+            <span class="card-kicker">IMPORTANT</span>
+
+            <h3>Existing System Controls</h3>
+
+            <p>
+                The original AUTO/MANUAL, pump, consumption,
+                source-water and safety controls remain unchanged.
+                These settings are currently displayed for
+                reference only.
+            </p>
 
         </div>
 
