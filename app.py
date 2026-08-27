@@ -5,25 +5,36 @@ app = Flask(__name__)
 
 
 # ============================================================
-# SYSTEM SETTINGS
+# DEFAULT SYSTEM SETTINGS
 # ============================================================
 
-CONSUMPTION_RATE = 2.00
-PUMP_FILL_RATE = 2.00
+DEFAULT_SETTINGS = {
+    "consumptionRate": 2.00,
+    "pumpFillRate": 2.00,
 
-AUTO_PUMP_ON_LEVEL = 30.0
-AUTO_PUMP_OFF_LEVEL = 90.0
+    "autoPumpOnLevel": 30.0,
+    "autoPumpOffLevel": 90.0,
+
+    "sourceRefillRate": 1.00
+}
+
+
+# ============================================================
+# ACTIVE SYSTEM SETTINGS
+# ============================================================
+
+settings = DEFAULT_SETTINGS.copy()
+
+
+# ============================================================
+# FIXED SYSTEM LIMITS
+# ============================================================
 
 MIN_LEVEL = 0.0
 MAX_LEVEL = 100.0
 
-# Source tank simulation
-SOURCE_START_LEVEL = 100.0
 SOURCE_MIN_LEVEL = 0.0
 SOURCE_MAX_LEVEL = 100.0
-
-# Source tank automatically refills at 1% per second
-SOURCE_REFILL_RATE = 1.00
 
 
 # ============================================================
@@ -42,17 +53,14 @@ system_data = {
 
     "tank": "NORMAL",
 
-    # Water consumption control
     "consumption": True,
 
-    # Source tank
     "sourceWater": True,
-    "sourceWaterLevel": SOURCE_START_LEVEL,
 
-    # Emergency system
+    "sourceWaterLevel": 100.0,
+
     "emergency": False,
 
-    # Connection status
     "connected": True
 }
 
@@ -62,6 +70,40 @@ system_data = {
 # ============================================================
 
 last_update_time = time.time()
+
+
+# ============================================================
+# HELPER
+# ============================================================
+
+def get_settings():
+
+    return {
+        "consumptionRate": settings["consumptionRate"],
+        "pumpFillRate": settings["pumpFillRate"],
+        "autoPumpOnLevel": settings["autoPumpOnLevel"],
+        "autoPumpOffLevel": settings["autoPumpOffLevel"],
+        "sourceRefillRate": settings["sourceRefillRate"]
+    }
+
+
+# ============================================================
+# UPDATE TANK CONDITION
+# ============================================================
+
+def update_tank_condition():
+
+    if system_data["waterLevel"] <= settings["autoPumpOnLevel"]:
+
+        system_data["tank"] = "LOW"
+
+    elif system_data["waterLevel"] >= settings["autoPumpOffLevel"]:
+
+        system_data["tank"] = "FULL"
+
+    else:
+
+        system_data["tank"] = "NORMAL"
 
 
 # ============================================================
@@ -77,43 +119,33 @@ def update_simulation():
     elapsed = current_time - last_update_time
 
     if elapsed <= 0:
+
         return
 
     last_update_time = current_time
 
 
-    # --------------------------------------------------------
+    # ========================================================
     # SOURCE WATER AUTOMATIC REFILL
-    #
-    # The source tank automatically refills at
-    # SOURCE_REFILL_RATE percent per second.
-    #
-    # When the source tank reaches 100%, it becomes
-    # available again.
-    # --------------------------------------------------------
+    # ========================================================
 
     if system_data["sourceWaterLevel"] < SOURCE_MAX_LEVEL:
 
         refill_amount = (
-            SOURCE_REFILL_RATE * elapsed
+            settings["sourceRefillRate"] * elapsed
         )
 
         system_data["sourceWaterLevel"] += refill_amount
 
-
-        # Prevent source level from going above 100%
         system_data["sourceWaterLevel"] = min(
             SOURCE_MAX_LEVEL,
             system_data["sourceWaterLevel"]
         )
 
 
-    # --------------------------------------------------------
+    # ========================================================
     # SOURCE WATER AVAILABILITY
-    #
-    # Source water is unavailable only when the source
-    # tank is completely empty.
-    # --------------------------------------------------------
+    # ========================================================
 
     if system_data["sourceWaterLevel"] <= SOURCE_MIN_LEVEL:
 
@@ -121,7 +153,6 @@ def update_simulation():
 
         system_data["sourceWater"] = False
 
-        # Pump cannot operate without source water
         system_data["pump"] = False
 
     else:
@@ -129,9 +160,9 @@ def update_simulation():
         system_data["sourceWater"] = True
 
 
-    # --------------------------------------------------------
-    # AUTO MODE DECISION
-    # --------------------------------------------------------
+    # ========================================================
+    # AUTO MODE
+    # ========================================================
 
     if system_data["mode"] == "AUTO":
 
@@ -143,35 +174,32 @@ def update_simulation():
 
             system_data["pump"] = False
 
-        elif system_data["waterLevel"] <= AUTO_PUMP_ON_LEVEL:
+        elif system_data["waterLevel"] <= settings["autoPumpOnLevel"]:
 
             system_data["pump"] = True
 
-        elif system_data["waterLevel"] >= AUTO_PUMP_OFF_LEVEL:
+        elif system_data["waterLevel"] >= settings["autoPumpOffLevel"]:
 
             system_data["pump"] = False
 
 
-    # --------------------------------------------------------
+    # ========================================================
     # WATER CONSUMPTION
-    #
-    # Water is consumed only when:
-    # 1. Consumption is ON
-    # 2. Pump is OFF
-    #
-    # If consumption is OFF, water level stays unchanged.
-    # --------------------------------------------------------
+    # ========================================================
 
-    if system_data["consumption"] and not system_data["pump"]:
+    if (
+        system_data["consumption"]
+        and not system_data["pump"]
+    ):
 
         system_data["waterLevel"] -= (
-            CONSUMPTION_RATE * elapsed
+            settings["consumptionRate"] * elapsed
         )
 
 
-    # --------------------------------------------------------
-    # PUMP FILLING + SOURCE TANK CONSUMPTION
-    # --------------------------------------------------------
+    # ========================================================
+    # PUMP FILLING
+    # ========================================================
 
     if system_data["pump"]:
 
@@ -180,26 +208,20 @@ def update_simulation():
             and system_data["sourceWaterLevel"] > SOURCE_MIN_LEVEL
         ):
 
-            amount = PUMP_FILL_RATE * elapsed
+            amount = settings["pumpFillRate"] * elapsed
 
-            # Main tank receives water
             system_data["waterLevel"] += amount
 
-            # Source tank supplies the water
             system_data["sourceWaterLevel"] -= amount
 
-            # Prevent negative source level
             system_data["sourceWaterLevel"] = max(
                 SOURCE_MIN_LEVEL,
                 system_data["sourceWaterLevel"]
             )
 
+
             # ------------------------------------------------
             # MAIN TANK OVERFLOW PROTECTION
-            #
-            # The pump must automatically turn OFF when the
-            # main tank reaches 100%, regardless of whether
-            # the system is in AUTO or MANUAL mode.
             # ------------------------------------------------
 
             if system_data["waterLevel"] >= MAX_LEVEL:
@@ -208,7 +230,11 @@ def update_simulation():
 
                 system_data["pump"] = False
 
-            # Source tank becomes unavailable at 0%
+
+            # ------------------------------------------------
+            # SOURCE WATER EMPTY
+            # ------------------------------------------------
+
             if system_data["sourceWaterLevel"] <= SOURCE_MIN_LEVEL:
 
                 system_data["sourceWaterLevel"] = SOURCE_MIN_LEVEL
@@ -224,9 +250,9 @@ def update_simulation():
             system_data["pump"] = False
 
 
-    # --------------------------------------------------------
-    # KEEP SOURCE TANK BETWEEN 0 AND 100
-    # --------------------------------------------------------
+    # ========================================================
+    # KEEP SOURCE LEVEL VALID
+    # ========================================================
 
     system_data["sourceWaterLevel"] = max(
         SOURCE_MIN_LEVEL,
@@ -237,9 +263,9 @@ def update_simulation():
     )
 
 
-    # --------------------------------------------------------
-    # UPDATE SOURCE WATER AVAILABILITY AFTER REFILL
-    # --------------------------------------------------------
+    # ========================================================
+    # UPDATE SOURCE AVAILABILITY
+    # ========================================================
 
     if system_data["sourceWaterLevel"] > SOURCE_MIN_LEVEL:
 
@@ -252,9 +278,9 @@ def update_simulation():
         system_data["pump"] = False
 
 
-    # --------------------------------------------------------
-    # KEEP MAIN TANK BETWEEN 0 AND 100
-    # --------------------------------------------------------
+    # ========================================================
+    # KEEP MAIN TANK VALID
+    # ========================================================
 
     system_data["waterLevel"] = max(
         MIN_LEVEL,
@@ -265,18 +291,18 @@ def update_simulation():
     )
 
 
-    # --------------------------------------------------------
+    # ========================================================
     # PUMP RUNTIME
-    # --------------------------------------------------------
+    # ========================================================
 
     if system_data["pump"]:
 
         system_data["runtime"] += elapsed
 
 
-    # --------------------------------------------------------
-    # AUTO SAFETY CHECK AFTER LEVEL UPDATE
-    # --------------------------------------------------------
+    # ========================================================
+    # AUTO SAFETY CHECK
+    # ========================================================
 
     if system_data["mode"] == "AUTO":
 
@@ -290,29 +316,22 @@ def update_simulation():
 
         elif system_data["waterLevel"] >= MAX_LEVEL:
 
-            # Overflow protection also applies in AUTO mode
             system_data["waterLevel"] = MAX_LEVEL
 
             system_data["pump"] = False
 
-        elif system_data["waterLevel"] <= AUTO_PUMP_ON_LEVEL:
+        elif system_data["waterLevel"] <= settings["autoPumpOnLevel"]:
 
             system_data["pump"] = True
 
-        elif system_data["waterLevel"] >= AUTO_PUMP_OFF_LEVEL:
+        elif system_data["waterLevel"] >= settings["autoPumpOffLevel"]:
 
             system_data["pump"] = False
 
 
-    # --------------------------------------------------------
+    # ========================================================
     # MANUAL MODE SAFETY
-    #
-    # Manual mode does not automatically start/stop the pump
-    # based on the main tank level.
-    #
-    # However, the pump MUST automatically turn OFF when
-    # the main tank reaches 100% to prevent overflow.
-    # --------------------------------------------------------
+    # ========================================================
 
     elif system_data["mode"] == "MANUAL":
 
@@ -326,27 +345,16 @@ def update_simulation():
 
         elif system_data["waterLevel"] >= MAX_LEVEL:
 
-            # Overflow protection in MANUAL mode
             system_data["waterLevel"] = MAX_LEVEL
 
             system_data["pump"] = False
 
 
-    # --------------------------------------------------------
+    # ========================================================
     # TANK CONDITION
-    # --------------------------------------------------------
+    # ========================================================
 
-    if system_data["waterLevel"] <= 30:
-
-        system_data["tank"] = "LOW"
-
-    elif system_data["waterLevel"] >= 90:
-
-        system_data["tank"] = "FULL"
-
-    else:
-
-        system_data["tank"] = "NORMAL"
+    update_tank_condition()
 
 
 # ============================================================
@@ -356,9 +364,9 @@ def update_simulation():
 @app.route("/")
 def home():
 
-    return render_template(
-        "index.html"
-    )
+    return render_template("index.html")
+
+
 # ============================================================
 # PWA MANIFEST
 # ============================================================
@@ -366,13 +374,11 @@ def home():
 @app.route("/manifest.json")
 def manifest():
 
-    return app.send_static_file(
-        "manifest.json"
-    )
+    return app.send_static_file("manifest.json")
 
 
 # ============================================================
-# PWA SERVICE WORKER
+# SERVICE WORKER
 # ============================================================
 
 @app.route("/service-worker.js")
@@ -389,6 +395,7 @@ def service_worker():
     response.headers["Service-Worker-Allowed"] = "/"
 
     return response
+
 
 # ============================================================
 # SYSTEM STATUS
@@ -416,10 +423,8 @@ def get_status():
 
         "tank": system_data["tank"],
 
-        # Water consumption status
         "consumption": system_data["consumption"],
 
-        # Source tank status
         "sourceWater": system_data["sourceWater"],
 
         "sourceWaterLevel": round(
@@ -427,11 +432,286 @@ def get_status():
             2
         ),
 
-        # Emergency status
         "emergency": system_data["emergency"],
 
-        # Connection status
-        "connected": system_data["connected"]
+        "connected": system_data["connected"],
+
+        "settings": get_settings()
+
+    })
+
+
+# ============================================================
+# SETTINGS GET
+# ============================================================
+
+@app.route("/api/settings")
+def get_system_settings():
+
+    update_simulation()
+
+    return jsonify({
+
+        "success": True,
+
+        "settings": get_settings()
+
+    })
+
+
+# ============================================================
+# SETTINGS UPDATE
+# ============================================================
+
+@app.route(
+    "/api/settings",
+    methods=["POST"]
+)
+def update_system_settings():
+
+    update_simulation()
+
+    data = request.get_json(
+        silent=True
+    ) or {}
+
+
+    try:
+
+        new_consumption_rate = float(
+            data.get(
+                "consumptionRate",
+                settings["consumptionRate"]
+            )
+        )
+
+        new_pump_fill_rate = float(
+            data.get(
+                "pumpFillRate",
+                settings["pumpFillRate"]
+            )
+        )
+
+        new_auto_on = float(
+            data.get(
+                "autoPumpOnLevel",
+                settings["autoPumpOnLevel"]
+            )
+        )
+
+        new_auto_off = float(
+            data.get(
+                "autoPumpOffLevel",
+                settings["autoPumpOffLevel"]
+            )
+        )
+
+        new_source_refill = float(
+            data.get(
+                "sourceRefillRate",
+                settings["sourceRefillRate"]
+            )
+        )
+
+
+    except (
+        TypeError,
+        ValueError
+    ):
+
+        return jsonify({
+
+            "success": False,
+
+            "message":
+                "All settings must contain valid numbers."
+
+        }), 400
+
+
+    # ========================================================
+    # VALIDATION
+    # ========================================================
+
+    if not (
+        0 <= new_consumption_rate <= 100
+    ):
+
+        return jsonify({
+
+            "success": False,
+
+            "message":
+                "Consumption rate must be between 0 and 100."
+
+        }), 400
+
+
+    if not (
+        0 <= new_pump_fill_rate <= 100
+    ):
+
+        return jsonify({
+
+            "success": False,
+
+            "message":
+                "Pump fill rate must be between 0 and 100."
+
+        }), 400
+
+
+    if not (
+        0 <= new_source_refill <= 100
+    ):
+
+        return jsonify({
+
+            "success": False,
+
+            "message":
+                "Source refill rate must be between 0 and 100."
+
+        }), 400
+
+
+    if not (
+        0 <= new_auto_on <= 100
+    ):
+
+        return jsonify({
+
+            "success": False,
+
+            "message":
+                "Pump ON level must be between 0 and 100%."
+
+        }), 400
+
+
+    if not (
+        0 <= new_auto_off <= 100
+    ):
+
+        return jsonify({
+
+            "success": False,
+
+            "message":
+                "Pump OFF level must be between 0 and 100%."
+
+        }), 400
+
+
+    if new_auto_on >= new_auto_off:
+
+        return jsonify({
+
+            "success": False,
+
+            "message":
+                "Pump ON level must be lower than Pump OFF level."
+
+        }), 400
+
+
+    # ========================================================
+    # SAVE SETTINGS
+    # ========================================================
+
+    settings["consumptionRate"] = round(
+        new_consumption_rate,
+        2
+    )
+
+    settings["pumpFillRate"] = round(
+        new_pump_fill_rate,
+        2
+    )
+
+    settings["autoPumpOnLevel"] = round(
+        new_auto_on,
+        2
+    )
+
+    settings["autoPumpOffLevel"] = round(
+        new_auto_off,
+        2
+    )
+
+    settings["sourceRefillRate"] = round(
+        new_source_refill,
+        2
+    )
+
+
+    # ========================================================
+    # RE-EVALUATE AUTO MODE
+    # ========================================================
+
+    if system_data["mode"] == "AUTO":
+
+        if system_data["emergency"]:
+
+            system_data["pump"] = False
+
+        elif not system_data["sourceWater"]:
+
+            system_data["pump"] = False
+
+        elif system_data["waterLevel"] <= settings["autoPumpOnLevel"]:
+
+            system_data["pump"] = True
+
+        elif system_data["waterLevel"] >= settings["autoPumpOffLevel"]:
+
+            system_data["pump"] = False
+
+
+    update_tank_condition()
+
+
+    return jsonify({
+
+        "success": True,
+
+        "message":
+            "System settings updated successfully.",
+
+        "settings":
+            get_settings()
+
+    })
+
+
+# ============================================================
+# RESET SETTINGS
+# ============================================================
+
+@app.route(
+    "/api/settings/reset",
+    methods=["POST"]
+)
+def reset_settings():
+
+    global settings
+
+    update_simulation()
+
+    settings = DEFAULT_SETTINGS.copy()
+
+    update_tank_condition()
+
+
+    return jsonify({
+
+        "success": True,
+
+        "message":
+            "Settings restored to default values.",
+
+        "settings":
+            get_settings()
 
     })
 
@@ -457,10 +737,6 @@ def change_mode():
     )
 
 
-    # --------------------------------------------------------
-    # VALIDATE MODE
-    # --------------------------------------------------------
-
     if requested_mode not in [
         "AUTO",
         "MANUAL"
@@ -476,17 +752,8 @@ def change_mode():
         }), 400
 
 
-    # --------------------------------------------------------
-    # CHANGE MODE
-    # --------------------------------------------------------
-
     system_data["mode"] = requested_mode
 
-
-    # --------------------------------------------------------
-    # WHEN SWITCHING TO AUTO
-    # LET AUTO LOGIC DECIDE WHAT TO DO
-    # --------------------------------------------------------
 
     if requested_mode == "AUTO":
 
@@ -500,29 +767,18 @@ def change_mode():
 
         elif system_data["waterLevel"] >= MAX_LEVEL:
 
-            # Overflow protection
             system_data["waterLevel"] = MAX_LEVEL
 
             system_data["pump"] = False
 
-        elif system_data["waterLevel"] <= AUTO_PUMP_ON_LEVEL:
+        elif system_data["waterLevel"] <= settings["autoPumpOnLevel"]:
 
             system_data["pump"] = True
 
-        elif system_data["waterLevel"] >= AUTO_PUMP_OFF_LEVEL:
+        elif system_data["waterLevel"] >= settings["autoPumpOffLevel"]:
 
             system_data["pump"] = False
 
-
-    # --------------------------------------------------------
-    # WHEN SWITCHING TO MANUAL
-    #
-    # Keep the current pump state.
-    # The ON/OFF buttons can control it afterward.
-    #
-    # Overflow protection is still handled by
-    # update_simulation() when the tank reaches 100%.
-    # --------------------------------------------------------
 
     return jsonify({
 
@@ -558,10 +814,6 @@ def pump_control():
     )
 
 
-    # --------------------------------------------------------
-    # ONLY MANUAL MODE CAN DIRECTLY CONTROL THE PUMP
-    # --------------------------------------------------------
-
     if system_data["mode"] != "MANUAL":
 
         return jsonify({
@@ -573,10 +825,6 @@ def pump_control():
 
         })
 
-
-    # --------------------------------------------------------
-    # EMERGENCY PROTECTION
-    # --------------------------------------------------------
 
     if system_data["emergency"]:
 
@@ -592,10 +840,6 @@ def pump_control():
         })
 
 
-    # --------------------------------------------------------
-    # SOURCE WATER PROTECTION
-    # --------------------------------------------------------
-
     if not system_data["sourceWater"]:
 
         system_data["pump"] = False
@@ -609,10 +853,6 @@ def pump_control():
 
         })
 
-
-    # --------------------------------------------------------
-    # TURN PUMP ON
-    # --------------------------------------------------------
 
     if command == "ON":
 
@@ -630,7 +870,6 @@ def pump_control():
 
         system_data["pump"] = True
 
-
         return jsonify({
 
             "success": True,
@@ -641,14 +880,9 @@ def pump_control():
         })
 
 
-    # --------------------------------------------------------
-    # TURN PUMP OFF
-    # --------------------------------------------------------
-
     elif command == "OFF":
 
         system_data["pump"] = False
-
 
         return jsonify({
 
@@ -660,20 +894,14 @@ def pump_control():
         })
 
 
-    # --------------------------------------------------------
-    # INVALID COMMAND
-    # --------------------------------------------------------
+    return jsonify({
 
-    else:
+        "success": False,
 
-        return jsonify({
+        "message":
+            "Invalid pump command."
 
-            "success": False,
-
-            "message":
-                "Invalid pump command."
-
-        }), 400
+    }), 400
 
 
 # ============================================================
@@ -697,10 +925,6 @@ def consumption_control():
     )
 
 
-    # --------------------------------------------------------
-    # TURN CONSUMPTION ON
-    # --------------------------------------------------------
-
     if command == "ON":
 
         system_data["consumption"] = True
@@ -717,10 +941,6 @@ def consumption_control():
 
         })
 
-
-    # --------------------------------------------------------
-    # TURN CONSUMPTION OFF
-    # --------------------------------------------------------
 
     elif command == "OFF":
 
@@ -739,20 +959,75 @@ def consumption_control():
         })
 
 
-    # --------------------------------------------------------
-    # INVALID COMMAND
-    # --------------------------------------------------------
+    return jsonify({
 
-    else:
+        "success": False,
+
+        "message":
+            "Invalid consumption command."
+
+    }), 400
+
+
+# ============================================================
+# EMERGENCY STOP
+# ============================================================
+
+@app.route(
+    "/api/emergency",
+    methods=["POST"]
+)
+def emergency_control():
+
+    update_simulation()
+
+    data = request.get_json(
+        silent=True
+    ) or {}
+
+    command = data.get(
+        "command"
+    )
+
+
+    if command == "STOP":
+
+        system_data["emergency"] = True
+
+        system_data["pump"] = False
 
         return jsonify({
 
-            "success": False,
+            "success": True,
 
             "message":
-                "Invalid consumption command."
+                "Emergency shutdown activated."
 
-        }), 400
+        })
+
+
+    elif command == "RESET":
+
+        system_data["emergency"] = False
+
+        return jsonify({
+
+            "success": True,
+
+            "message":
+                "Emergency shutdown reset."
+
+        })
+
+
+    return jsonify({
+
+        "success": False,
+
+        "message":
+            "Invalid emergency command."
+
+    }), 400
 
 
 # ============================================================
@@ -763,5 +1038,6 @@ if __name__ == "__main__":
 
     app.run(
         host="0.0.0.0",
-        port=5000
+        port=5000,
+        debug=False
     )
