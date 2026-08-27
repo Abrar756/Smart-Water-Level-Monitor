@@ -39,11 +39,6 @@
 
 <body>
 
-
-<!-- ============================================================
-     APPLICATION
-============================================================ -->
-
 <div class="app">
 
 
@@ -54,8 +49,6 @@
     <aside class="sidebar"
            id="sidebar">
 
-
-        <!-- BRAND -->
 
         <div class="sidebar-brand">
 
@@ -78,17 +71,13 @@
         </div>
 
 
-        <!-- NAVIGATION -->
-
         <nav class="navigation">
 
 
             <button class="nav-item active"
                     data-page="homePage">
 
-                <span class="nav-icon">
-                    🏠
-                </span>
+                <span class="nav-icon">🏠</span>
 
                 <span class="nav-text">
                     Home
@@ -100,9 +89,7 @@
             <button class="nav-item"
                     data-page="monitorPage">
 
-                <span class="nav-icon">
-                    📊
-                </span>
+                <span class="nav-icon">📊</span>
 
                 <span class="nav-text">
                     Live Monitor
@@ -114,9 +101,7 @@
             <button class="nav-item"
                     data-page="historyPage">
 
-                <span class="nav-icon">
-                    🕘
-                </span>
+                <span class="nav-icon">🕘</span>
 
                 <span class="nav-text">
                     History
@@ -128,16 +113,14 @@
             <button class="nav-item"
                     data-page="alertsPage">
 
-                <span class="nav-icon">
-                    🔔
-                </span>
+                <span class="nav-icon">🔔</span>
 
                 <span class="nav-text">
                     Alerts
                 </span>
 
-                <span class="nav-badge"
-                      id="navAlertBadge"
+                <span id="navAlertBadge"
+                      class="nav-badge"
                       style="display:none;">
                     0
                 </span>
@@ -148,9 +131,7 @@
             <button class="nav-item emergency-nav"
                     data-page="emergencyPage">
 
-                <span class="nav-icon">
-                    🚨
-                </span>
+                <span class="nav-icon">🚨</span>
 
                 <span class="nav-text">
                     Emergency
@@ -162,9 +143,7 @@
             <button class="nav-item"
                     data-page="analyticsPage">
 
-                <span class="nav-icon">
-                    📈
-                </span>
+                <span class="nav-icon">📈</span>
 
                 <span class="nav-text">
                     Analytics
@@ -176,9 +155,7 @@
             <button class="nav-item"
                     data-page="settingsPage">
 
-                <span class="nav-icon">
-                    ⚙️
-                </span>
+                <span class="nav-icon">⚙️</span>
 
                 <span class="nav-text">
                     Settings
@@ -189,8 +166,6 @@
 
         </nav>
 
-
-        <!-- SIDEBAR FOOTER -->
 
         <div class="sidebar-footer">
 
@@ -210,13 +185,8 @@
 
         </div>
 
-
     </aside>
 
-
-    <!-- ========================================================
-         SIDEBAR OVERLAY
-    ========================================================= -->
 
     <div class="sidebar-overlay"
          id="sidebarOverlay">
@@ -230,9 +200,7 @@
     <div class="main-area">
 
 
-        <!-- ====================================================
-             TOP BAR
-        ==================================================== -->
+        <!-- TOP BAR -->
 
         <header class="topbar">
 
@@ -263,14 +231,12 @@
 
             <div class="topbar-right">
 
-
                 <div class="clock"
                      id="systemTime">
                     --:--:--
                 </div>
 
-
-                <div class="connection"
+                <div class="connection connected"
                      id="connectionStatus">
 
                     <span class="connection-dot"></span>
@@ -281,15 +247,10 @@
 
                 </div>
 
-
             </div>
 
         </header>
 
-
-        <!-- ====================================================
-             PAGE CONTAINER
-        ==================================================== -->
 
         <main class="page-container">
 
@@ -336,7 +297,7 @@
                 </div>
 
 
-                <!-- MAIN OVERVIEW -->
+                <!-- MAIN CONTROL GRID -->
 
                 <div class="home-grid">
 
@@ -368,7 +329,6 @@
 
 
                         <div class="water-overview">
-
 
                             <div>
 
@@ -460,7 +420,7 @@
                             <div>
 
                                 <strong id="pumpStatus"
-                                        class="pump-status">
+                                        class="pump-state">
                                     OFF
                                 </strong>
 
@@ -574,7 +534,7 @@
                     </div>
 
 
-                    <!-- SYSTEM SUMMARY -->
+                    <!-- QUICK STATUS -->
 
                     <div class="card system-summary-card">
 
@@ -650,7 +610,6 @@
 
                             </div>
 
-
                         </div>
 
                     </div>
@@ -659,7 +618,56 @@
                 </div>
 
 
-                <!-- HOME GRAPH -->
+                <!-- ==================================================
+                     CONSUMPTION CONTROL
+                ================================================== -->
+
+                <div class="card consumption-control-card">
+
+                    <div class="consumption-main">
+
+                        <div class="consumption-icon">
+                            💧
+                        </div>
+
+                        <div>
+
+                            <span class="card-label">
+                                WATER USAGE
+                            </span>
+
+                            <h2>
+                                Water Consumption
+                            </h2>
+
+                            <p id="consumptionDescription">
+                                Water is being consumed automatically
+                            </p>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="consumption-action">
+
+                        <span id="consumptionStatus"
+                              class="status-badge on">
+                            ON
+                        </span>
+
+                        <button id="consumptionButton"
+                                class="control-button consumption-button"
+                                onclick="toggleConsumption()">
+                            TURN OFF
+                        </button>
+
+                    </div>
+
+                </div>
+
+
+                <!-- GRAPH -->
 
                 <div class="card home-graph-card">
 
@@ -678,8 +686,10 @@
                         </div>
 
                         <span class="live-indicator">
+
                             <i></i>
                             LIVE
+
                         </span>
 
                     </div>
@@ -710,7 +720,7 @@
 
                 <!-- ALERT -->
 
-                <div class="home-alert"
+                <div class="home-alert normal-alert"
                      id="alerts">
 
                     <span>✓</span>
@@ -731,7 +741,6 @@
 
             <section id="monitorPage"
                      class="app-page">
-
 
                 <div class="page-header">
 
@@ -903,7 +912,6 @@
             <section id="historyPage"
                      class="app-page">
 
-
                 <div class="page-header">
 
                     <div>
@@ -922,7 +930,6 @@
 
                     </div>
 
-
                     <button class="secondary-button"
                             id="clearHistoryButton">
 
@@ -934,7 +941,6 @@
 
 
                 <div class="stats-grid">
-
 
                     <div class="card stat-card">
 
@@ -995,7 +1001,6 @@
                         Recent Activity
                     </div>
 
-
                     <div class="table-container">
 
                         <table>
@@ -1011,7 +1016,6 @@
                                 </tr>
 
                             </thead>
-
 
                             <tbody id="historyTableBody">
 
@@ -1043,7 +1047,6 @@
 
             <section id="alertsPage"
                      class="app-page">
-
 
                 <div class="page-header">
 
@@ -1119,7 +1122,6 @@
             <section id="emergencyPage"
                      class="app-page">
 
-
                 <div class="page-header">
 
                     <div>
@@ -1146,22 +1148,18 @@
 
                     <div class="card emergency-card">
 
-
                         <div class="emergency-icon">
                             🚨
                         </div>
 
-
-                        <h2 id="emergencyTitle">
+                        <h2>
                             Emergency Shutdown
                         </h2>
 
-
-                        <p id="emergencyDescription">
+                        <p>
                             Use this control only when the pump
                             must be stopped immediately.
                         </p>
-
 
                         <button id="emergencyStopButton"
                                 class="emergency-button">
@@ -1169,7 +1167,6 @@
                             STOP PUMP
 
                         </button>
-
 
                         <div id="emergencyStateMessage"
                              class="emergency-message">
@@ -1191,12 +1188,9 @@
                             System Safety
                         </h2>
 
-
                         <div class="safety-row">
 
-                            <span>
-                                Pump
-                            </span>
+                            <span>Pump</span>
 
                             <strong id="emergencyPumpStatus">
                                 --
@@ -1204,12 +1198,9 @@
 
                         </div>
 
-
                         <div class="safety-row">
 
-                            <span>
-                                Water Level
-                            </span>
+                            <span>Water Level</span>
 
                             <strong id="emergencyWaterLevel">
                                 --%
@@ -1217,12 +1208,9 @@
 
                         </div>
 
-
                         <div class="safety-row">
 
-                            <span>
-                                Source Water
-                            </span>
+                            <span>Source Water</span>
 
                             <strong id="emergencySourceWater">
                                 --
@@ -1243,7 +1231,6 @@
 
             <section id="analyticsPage"
                      class="app-page">
-
 
                 <div class="page-header">
 
@@ -1399,7 +1386,6 @@
 
                         </div>
 
-
                     </div>
 
                 </div>
@@ -1414,7 +1400,6 @@
             <section id="settingsPage"
                      class="app-page">
 
-
                 <div class="page-header">
 
                     <div>
@@ -1428,7 +1413,7 @@
                         </h1>
 
                         <p>
-                            Current operating parameters of the system.
+                            Adjust how your water-management simulation operates.
                         </p>
 
                     </div>
@@ -1436,154 +1421,344 @@
                 </div>
 
 
-                <div class="settings-grid">
+                <div class="settings-layout">
 
 
-                    <div class="card settings-card">
+                    <!-- AUTO SETTINGS -->
+
+                    <div class="card settings-section">
+
+                        <div class="settings-section-header">
+
+                            <div class="settings-section-icon">
+                                ⚙️
+                            </div>
+
+                            <div>
+
+                                <span class="card-label">
+                                    AUTO MODE
+                                </span>
+
+                                <h2>
+                                    Pump Thresholds
+                                </h2>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="settings-form">
+
+
+                            <div class="setting-field">
+
+                                <label for="autoPumpOnInput">
+                                    Pump ON Level
+                                </label>
+
+                                <div class="input-with-unit">
+
+                                    <input
+                                        id="autoPumpOnInput"
+                                        type="number"
+                                        min="0"
+                                        max="99"
+                                        step="0.1"
+                                        value="30">
+
+                                    <span>%</span>
+
+                                </div>
+
+                                <small>
+                                    Pump starts automatically at or below this level.
+                                </small>
+
+                            </div>
+
+
+                            <div class="setting-field">
+
+                                <label for="autoPumpOffInput">
+                                    Pump OFF Level
+                                </label>
+
+                                <div class="input-with-unit">
+
+                                    <input
+                                        id="autoPumpOffInput"
+                                        type="number"
+                                        min="1"
+                                        max="100"
+                                        step="0.1"
+                                        value="90">
+
+                                    <span>%</span>
+
+                                </div>
+
+                                <small>
+                                    Pump stops automatically at or above this level.
+                                </small>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- SIMULATION SETTINGS -->
+
+                    <div class="card settings-section">
+
+                        <div class="settings-section-header">
+
+                            <div class="settings-section-icon">
+                                💧
+                            </div>
+
+                            <div>
+
+                                <span class="card-label">
+                                    SIMULATION
+                                </span>
+
+                                <h2>
+                                    Water Flow Rates
+                                </h2>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="settings-form">
+
+
+                            <div class="setting-field">
+
+                                <label for="consumptionRateInput">
+                                    Consumption Rate
+                                </label>
+
+                                <div class="input-with-unit">
+
+                                    <input
+                                        id="consumptionRateInput"
+                                        type="number"
+                                        min="0"
+                                        max="100"
+                                        step="0.1"
+                                        value="2">
+
+                                    <span>
+                                        % / sec
+                                    </span>
+
+                                </div>
+
+                                <small>
+                                    Rate at which water leaves the main tank.
+                                </small>
+
+                            </div>
+
+
+                            <div class="setting-field">
+
+                                <label for="pumpFillRateInput">
+                                    Pump Fill Rate
+                                </label>
+
+                                <div class="input-with-unit">
+
+                                    <input
+                                        id="pumpFillRateInput"
+                                        type="number"
+                                        min="0"
+                                        max="100"
+                                        step="0.1"
+                                        value="2">
+
+                                    <span>
+                                        % / sec
+                                    </span>
+
+                                </div>
+
+                                <small>
+                                    Rate at which the pump fills the main tank.
+                                </small>
+
+                            </div>
+
+
+                            <div class="setting-field">
+
+                                <label for="sourceRefillRateInput">
+                                    Source Refill Rate
+                                </label>
+
+                                <div class="input-with-unit">
+
+                                    <input
+                                        id="sourceRefillRateInput"
+                                        type="number"
+                                        min="0"
+                                        max="100"
+                                        step="0.1"
+                                        value="1">
+
+                                    <span>
+                                        % / sec
+                                    </span>
+
+                                </div>
+
+                                <small>
+                                    Rate at which the source tank refills.
+                                </small>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                </div>
+
+
+                <!-- SETTINGS ACTIONS -->
+
+                <div class="card settings-actions-card">
+
+                    <div>
 
                         <span class="card-label">
-                            AUTO MODE
+                            APPLY CHANGES
                         </span>
 
                         <h2>
-                            Pump ON Level
+                            Save System Settings
                         </h2>
 
-                        <strong>
-                            30%
-                        </strong>
-
                         <p>
-                            Pump automatically starts when the tank
-                            reaches or falls below 30%.
+                            Changes are applied immediately to the running system.
                         </p>
 
                     </div>
 
 
-                    <div class="card settings-card">
+                    <div class="settings-action-buttons">
 
-                        <span class="card-label">
-                            AUTO MODE
-                        </span>
+                        <button id="resetSettingsButton"
+                                class="secondary-button">
 
-                        <h2>
-                            Pump OFF Level
-                        </h2>
+                            RESET DEFAULTS
 
-                        <strong>
-                            90%
-                        </strong>
-
-                        <p>
-                            Pump automatically stops when the tank
-                            reaches 90%.
-                        </p>
-
-                    </div>
+                        </button>
 
 
-                    <div class="card settings-card">
+                        <button id="saveSettingsButton"
+                                class="primary-button">
 
-                        <span class="card-label">
-                            CONSUMPTION
-                        </span>
+                            SAVE SETTINGS
 
-                        <h2>
-                            Consumption Rate
-                        </h2>
-
-                        <strong>
-                            2.00% / sec
-                        </strong>
-
-                        <p>
-                            Simulated water consumption rate.
-                        </p>
-
-                    </div>
-
-
-                    <div class="card settings-card">
-
-                        <span class="card-label">
-                            PUMP
-                        </span>
-
-                        <h2>
-                            Fill Rate
-                        </h2>
-
-                        <strong>
-                            2.00% / sec
-                        </strong>
-
-                        <p>
-                            Simulated pump filling rate.
-                        </p>
-
-                    </div>
-
-
-                    <div class="card settings-card">
-
-                        <span class="card-label">
-                            SOURCE
-                        </span>
-
-                        <h2>
-                            Source Refill Rate
-                        </h2>
-
-                        <strong>
-                            1.00% / sec
-                        </strong>
-
-                        <p>
-                            Simulated source-water refill rate.
-                        </p>
-
-                    </div>
-
-
-                    <div class="card settings-card">
-
-                        <span class="card-label">
-                            APPLICATION
-                        </span>
-
-                        <h2>
-                            Application
-                        </h2>
-
-                        <strong>
-                            Smart Water Monitor
-                        </strong>
-
-                        <p>
-                            Installed PWA dashboard.
-                        </p>
+                        </button>
 
                     </div>
 
                 </div>
 
 
-                <div class="card settings-note">
+                <div id="settingsMessage"
+                     class="settings-message"
+                     style="display:none;">
 
-                    <span class="card-label">
-                        INFORMATION
-                    </span>
+                </div>
 
-                    <h2>
-                        System Controls
-                    </h2>
 
-                    <p>
-                        AUTO/MANUAL, pump control, consumption,
-                        source-water monitoring and safety functions
-                        continue to use the existing Flask backend.
-                    </p>
+                <!-- CURRENT VALUES -->
+
+                <div class="card current-settings-card">
+
+                    <div class="section-title">
+                        Current Configuration
+                    </div>
+
+
+                    <div class="current-settings-grid">
+
+
+                        <div>
+
+                            <span>
+                                Auto ON
+                            </span>
+
+                            <strong id="currentAutoOn">
+                                30%
+                            </strong>
+
+                        </div>
+
+
+                        <div>
+
+                            <span>
+                                Auto OFF
+                            </span>
+
+                            <strong id="currentAutoOff">
+                                90%
+                            </strong>
+
+                        </div>
+
+
+                        <div>
+
+                            <span>
+                                Consumption
+                            </span>
+
+                            <strong id="currentConsumptionRate">
+                                2.00% / sec
+                            </strong>
+
+                        </div>
+
+
+                        <div>
+
+                            <span>
+                                Pump Fill
+                            </span>
+
+                            <strong id="currentPumpFillRate">
+                                2.00% / sec
+                            </strong>
+
+                        </div>
+
+
+                        <div>
+
+                            <span>
+                                Source Refill
+                            </span>
+
+                            <strong id="currentSourceRefillRate">
+                                1.00% / sec
+                            </strong>
+
+                        </div>
+
+                    </div>
 
                 </div>
 
@@ -1592,8 +1767,6 @@
 
         </main>
 
-
-        <!-- FOOTER -->
 
         <footer>
 
@@ -1611,7 +1784,6 @@
 
         </footer>
 
-
     </div>
 
 </div>
@@ -1625,29 +1797,36 @@
 
 if ("serviceWorker" in navigator) {
 
-    window.addEventListener("load", function () {
+    window.addEventListener(
+        "load",
+        function () {
 
-        navigator.serviceWorker.register(
-            "/service-worker.js"
-        )
-        .then(function (registration) {
+            navigator.serviceWorker.register(
+                "/service-worker.js"
+            )
+            .then(
+                function (registration) {
 
-            console.log(
-                "Service Worker registered:",
-                registration.scope
+                    console.log(
+                        "Service Worker registered:",
+                        registration.scope
+                    );
+
+                }
+            )
+            .catch(
+                function (error) {
+
+                    console.error(
+                        "Service Worker registration failed:",
+                        error
+                    );
+
+                }
             );
 
-        })
-        .catch(function (error) {
-
-            console.error(
-                "Service Worker registration failed:",
-                error
-            );
-
-        });
-
-    });
+        }
+    );
 
 }
 
