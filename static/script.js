@@ -316,9 +316,6 @@ function setupNavigation() {
                     closeSidebar();
 
 
-                    // Draw graph when returning
-                    // to a page containing canvas.
-
                     setTimeout(
                         function() {
 
@@ -418,18 +415,10 @@ async function updateDashboard() {
             await response.json();
 
 
-        // ----------------------------------------------------
-        // CONNECTION
-        // ----------------------------------------------------
-
         updateConnection(
             data.connected
         );
 
-
-        // ----------------------------------------------------
-        // WATER LEVEL
-        // ----------------------------------------------------
 
         const waterLevel =
             Number(
@@ -491,10 +480,6 @@ async function updateDashboard() {
         }
 
 
-        // ----------------------------------------------------
-        // GRAPH
-        // ----------------------------------------------------
-
         graphData.push(
             waterLevel
         );
@@ -513,36 +498,20 @@ async function updateDashboard() {
         drawWaterGraph();
 
 
-        // ----------------------------------------------------
-        // TANK
-        // ----------------------------------------------------
-
         updateTankBadge(
             data.tank
         );
 
-
-        // ----------------------------------------------------
-        // PUMP
-        // ----------------------------------------------------
 
         updatePumpDisplay(
             data.pump
         );
 
 
-        // ----------------------------------------------------
-        // MODE
-        // ----------------------------------------------------
-
         updateModeDisplay(
             data.mode
         );
 
-
-        // ----------------------------------------------------
-        // RUNTIME
-        // ----------------------------------------------------
 
         const runtime =
             formatRuntime(
@@ -568,98 +537,57 @@ async function updateDashboard() {
         );
 
 
-        // ----------------------------------------------------
-        // SOURCE WATER
-        // ----------------------------------------------------
-
         updateSourceWater(
             data.sourceWater,
             data.sourceWaterLevel
         );
 
 
-        // ----------------------------------------------------
-        // CONSUMPTION
-        // ----------------------------------------------------
-
         updateConsumption(
             data.consumption
         );
 
-
-        // ----------------------------------------------------
-        // HOME QUICK STATUS
-        // ----------------------------------------------------
 
         updateHomeQuickStatus(
             data
         );
 
 
-        // ----------------------------------------------------
-        // LIVE MONITOR
-        // ----------------------------------------------------
-
         updateMonitorPage(
             data
         );
 
-
-        // ----------------------------------------------------
-        // ALERTS
-        // ----------------------------------------------------
 
         updateAlerts(
             data
         );
 
 
-        // ----------------------------------------------------
-        // PUMP BUTTONS
-        // ----------------------------------------------------
-
         updatePumpButtons(
             data.mode
         );
 
-
-        // ----------------------------------------------------
-        // SYSTEM HEALTH
-        // ----------------------------------------------------
 
         updateSystemHealth(
             data
         );
 
 
-        // ----------------------------------------------------
-        // HISTORY
-        // ----------------------------------------------------
-
         updateHistory(
             data
         );
 
 
-        // ----------------------------------------------------
-        // ANALYTICS
-        // ----------------------------------------------------
-
         updateAnalytics();
 
-
-        // ----------------------------------------------------
-        // EMERGENCY PAGE
-        // ----------------------------------------------------
 
         updateEmergencyPage(
             data
         );
 
 
-        // ----------------------------------------------------
-        // SETTINGS
-        // ----------------------------------------------------
+        // IMPORTANT:
+        // Settings are updated from the backend response.
 
         updateSettingsDisplay(
             data.settings
@@ -814,10 +742,6 @@ function drawWaterGraph() {
         bottom;
 
 
-    // --------------------------------------------------------
-    // GRID
-    // --------------------------------------------------------
-
     const levels = [
         100,
         75,
@@ -896,10 +820,6 @@ function drawWaterGraph() {
     }
 
 
-    // --------------------------------------------------------
-    // POINTS
-    // --------------------------------------------------------
-
     const points = [];
 
 
@@ -939,10 +859,6 @@ function drawWaterGraph() {
         }
     );
 
-
-    // --------------------------------------------------------
-    // FILL
-    // --------------------------------------------------------
 
     const gradient =
         ctx.createLinearGradient(
@@ -1004,10 +920,6 @@ function drawWaterGraph() {
     ctx.fill();
 
 
-    // --------------------------------------------------------
-    // LINE
-    // --------------------------------------------------------
-
     ctx.beginPath();
 
 
@@ -1054,10 +966,6 @@ function drawWaterGraph() {
 
     ctx.stroke();
 
-
-    // --------------------------------------------------------
-    // CURRENT POINT
-    // --------------------------------------------------------
 
     const last =
         points[
@@ -2179,10 +2087,6 @@ function updateAlerts(
         );
 
 
-    // --------------------------------------------------------
-    // HOME ALERT
-    // --------------------------------------------------------
-
     if (homeAlert) {
 
         homeAlert.className =
@@ -2246,10 +2150,6 @@ function updateAlerts(
 
     }
 
-
-    // --------------------------------------------------------
-    // ALERTS PAGE
-    // --------------------------------------------------------
 
     if (alertTitle) {
 
@@ -2324,27 +2224,15 @@ function updateAlerts(
     }
 
 
-    // --------------------------------------------------------
-    // NAVIGATION BADGE
-    // --------------------------------------------------------
-
     updateAlertBadge(
         data
     );
 
 
-    // --------------------------------------------------------
-    // ALERT HISTORY
-    // --------------------------------------------------------
-
     updateAlertHistory(
         data.alertHistory || []
     );
 
-
-    // --------------------------------------------------------
-    // REMEMBER STATE
-    // --------------------------------------------------------
 
     lastAlertType =
         alert.type;
@@ -2431,9 +2319,6 @@ function updateAlertBadge(
 
     }
 
-
-    // Informational pump-running state
-    // does not count as a warning badge.
 
     if (
         alert.type === "PUMP_RUNNING"
@@ -2542,6 +2427,7 @@ function updateAlertHistory(
                     escapeHtml(
                         item.message
                     ) +
+
                     '</p>' +
 
                     '<small>' +
@@ -2552,6 +2438,7 @@ function updateAlertHistory(
                     escapeHtml(
                         event
                     ) +
+
                     '</small>' +
 
                     '</div>' +
@@ -3543,14 +3430,6 @@ async function controlPump(
 
 function setupSettingsControls() {
 
-    // The current HTML contains display-only
-    // settings cards.
-    //
-    // This function is intentionally prepared
-    // for the editable settings controls that
-    // we can add to the Settings page.
-
-
     const saveButton =
         document.getElementById(
             "saveSettingsButton"
@@ -3567,6 +3446,80 @@ function setupSettingsControls() {
     saveButton.addEventListener(
         "click",
         saveSettings
+    );
+
+
+    // --------------------------------------------------------
+    // OPTIONAL RESET BUTTON
+    // --------------------------------------------------------
+    // If the HTML contains a reset button,
+    // connect it automatically.
+
+    const resetButton =
+        document.getElementById(
+            "resetSettingsButton"
+        );
+
+
+    if (resetButton) {
+
+        resetButton.addEventListener(
+            "click",
+            resetSettingsFromServer
+        );
+
+    }
+
+
+    // --------------------------------------------------------
+    // VALIDATION WHILE TYPING
+    // --------------------------------------------------------
+
+    const inputIds = [
+
+        "autoPumpOnInput",
+
+        "autoPumpOffInput",
+
+        "consumptionRateInput",
+
+        "pumpFillRateInput",
+
+        "sourceRefillRateInput",
+
+        "criticalLowInput"
+
+    ];
+
+
+    inputIds.forEach(
+        function(id) {
+
+            const input =
+                document.getElementById(
+                    id
+                );
+
+
+            if (!input) {
+
+                return;
+
+            }
+
+
+            input.addEventListener(
+                "input",
+                function() {
+
+                    validateSettingsInput(
+                        input
+                    );
+
+                }
+            );
+
+        }
     );
 
 }
@@ -3629,8 +3582,9 @@ function updateSettingsDisplay(
     );
 
 
-    // Also populate inputs if the
-    // editable Settings HTML exists.
+    // --------------------------------------------------------
+    // INPUTS
+    // --------------------------------------------------------
 
     setInputValue(
         "autoPumpOnInput",
@@ -3693,8 +3647,26 @@ function updateSettingValue(
     }
 
 
+    const numericValue =
+        Number(value);
+
+
+    if (
+        Number.isNaN(
+            numericValue
+        )
+    ) {
+
+        element.textContent =
+            "--" + suffix;
+
+        return;
+
+    }
+
+
     element.textContent =
-        Number(value).toFixed(2) +
+        numericValue.toFixed(2) +
         suffix;
 
 }
@@ -3715,12 +3687,313 @@ function setInputValue(
         );
 
 
-    if (input) {
+    if (!input) {
 
-        input.value =
-            value;
+        return;
 
     }
+
+
+    const numericValue =
+        Number(value);
+
+
+    if (
+        Number.isNaN(
+            numericValue
+        )
+    ) {
+
+        return;
+
+    }
+
+
+    // Do not overwrite the field while
+    // the user is currently typing in it.
+
+    if (
+        document.activeElement === input
+    ) {
+
+        return;
+
+    }
+
+
+    input.value =
+        numericValue;
+
+}
+
+
+// ============================================================
+// SETTINGS VALIDATION
+// ============================================================
+
+function validateSettingsInput(
+    input
+) {
+
+    if (!input) {
+
+        return false;
+
+    }
+
+
+    const value =
+        Number(
+            input.value
+        );
+
+
+    if (
+        input.value === "" ||
+        Number.isNaN(value)
+    ) {
+
+        input.classList.add(
+            "invalid"
+        );
+
+        return false;
+
+    }
+
+
+    if (value < 0) {
+
+        input.classList.add(
+            "invalid"
+        );
+
+        return false;
+
+    }
+
+
+    // Percentage settings cannot exceed 100.
+
+    const percentageInputs = [
+
+        "autoPumpOnInput",
+
+        "autoPumpOffInput",
+
+        "criticalLowInput"
+
+    ];
+
+
+    if (
+        percentageInputs.includes(
+            input.id
+        ) &&
+        value > 100
+    ) {
+
+        input.classList.add(
+            "invalid"
+        );
+
+        return false;
+
+    }
+
+
+    input.classList.remove(
+        "invalid"
+    );
+
+
+    return true;
+
+}
+
+
+// ============================================================
+// GET INPUT NUMBER
+// ============================================================
+
+function getInputNumber(
+    id
+) {
+
+    const input =
+        document.getElementById(
+            id
+        );
+
+
+    if (!input) {
+
+        return NaN;
+
+    }
+
+
+    const value =
+        input.value.trim();
+
+
+    if (value === "") {
+
+        return NaN;
+
+    }
+
+
+    return Number(
+        value
+    );
+
+}
+
+
+// ============================================================
+// VALIDATE COMPLETE SETTINGS
+// ============================================================
+
+function validateSettings(
+    settings
+) {
+
+    const values =
+        Object.values(
+            settings
+        );
+
+
+    if (
+        values.some(
+            function(value) {
+
+                return (
+                    typeof value !== "number" ||
+                    !Number.isFinite(value)
+                );
+
+            }
+        )
+    ) {
+
+        return {
+            valid: false,
+            message:
+                "Please enter valid numbers in all settings fields."
+        };
+
+    }
+
+
+    // --------------------------------------------------------
+    // RANGE CHECKS
+    // --------------------------------------------------------
+
+    if (
+        settings.autoPumpOnLevel < 0 ||
+        settings.autoPumpOnLevel > 100
+    ) {
+
+        return {
+            valid: false,
+            message:
+                "Automatic pump ON level must be between 0% and 100%."
+        };
+
+    }
+
+
+    if (
+        settings.autoPumpOffLevel < 0 ||
+        settings.autoPumpOffLevel > 100
+    ) {
+
+        return {
+            valid: false,
+            message:
+                "Automatic pump OFF level must be between 0% and 100%."
+        };
+
+    }
+
+
+    if (
+        settings.criticalLowLevel < 0 ||
+        settings.criticalLowLevel > 100
+    ) {
+
+        return {
+            valid: false,
+            message:
+                "Critical low level must be between 0% and 100%."
+        };
+
+    }
+
+
+    if (
+        settings.consumptionRate < 0
+    ) {
+
+        return {
+            valid: false,
+            message:
+                "Consumption rate cannot be negative."
+        };
+
+    }
+
+
+    if (
+        settings.pumpFillRate < 0
+    ) {
+
+        return {
+            valid: false,
+            message:
+                "Pump fill rate cannot be negative."
+        };
+
+    }
+
+
+    if (
+        settings.sourceRefillRate < 0
+    ) {
+
+        return {
+            valid: false,
+            message:
+                "Source refill rate cannot be negative."
+        };
+
+    }
+
+
+    // --------------------------------------------------------
+    // LOGICAL CHECK
+    // --------------------------------------------------------
+
+    if (
+        settings.autoPumpOnLevel >=
+        settings.autoPumpOffLevel
+    ) {
+
+        return {
+            valid: false,
+            message:
+                "Pump ON level must be lower than pump OFF level."
+        };
+
+    }
+
+
+    return {
+        valid: true,
+        message: ""
+    };
 
 }
 
@@ -3730,6 +4003,12 @@ function setInputValue(
 // ============================================================
 
 async function saveSettings() {
+
+    const saveButton =
+        document.getElementById(
+            "saveSettingsButton"
+        );
+
 
     const payload = {
 
@@ -3766,24 +4045,42 @@ async function saveSettings() {
     };
 
 
-    if (
-        Object.values(payload).some(
-            function(value) {
+    // --------------------------------------------------------
+    // VALIDATE
+    // --------------------------------------------------------
 
-                return Number.isNaN(
-                    value
-                );
+    const validation =
+        validateSettings(
+            payload
+        );
 
-            }
-        )
-    ) {
+
+    if (!validation.valid) {
 
         showMessage(
-            "Please enter valid settings values.",
+            validation.message,
             "error"
         );
 
         return;
+
+    }
+
+
+    // --------------------------------------------------------
+    // DISABLE BUTTON WHILE SAVING
+    // --------------------------------------------------------
+
+    if (saveButton) {
+
+        saveButton.disabled =
+            true;
+
+        saveButton.dataset.originalText =
+            saveButton.textContent;
+
+        saveButton.textContent =
+            "SAVING...";
 
     }
 
@@ -3813,6 +4110,16 @@ async function saveSettings() {
             );
 
 
+        if (!response.ok) {
+
+            throw new Error(
+                "Server returned HTTP " +
+                response.status
+            );
+
+        }
+
+
         const result =
             await response.json();
 
@@ -3820,7 +4127,8 @@ async function saveSettings() {
         if (!result.success) {
 
             showMessage(
-                result.message,
+                result.message ||
+                "Settings could not be saved.",
                 "error"
             );
 
@@ -3829,11 +4137,30 @@ async function saveSettings() {
         }
 
 
+        // ----------------------------------------------------
+        // SUCCESS
+        // ----------------------------------------------------
+
         showMessage(
             "Settings saved successfully.",
             "success"
         );
 
+
+        // If backend returns updated settings,
+        // immediately display them.
+
+        if (result.settings) {
+
+            updateSettingsDisplay(
+                result.settings
+            );
+
+        }
+
+
+        // Refresh entire dashboard so the new
+        // settings immediately affect the system.
 
         await updateDashboard();
 
@@ -3848,9 +4175,24 @@ async function saveSettings() {
 
 
         showMessage(
-            "Could not save settings.",
+            "Could not save settings. Please check the server connection.",
             "error"
         );
+
+    }
+
+    finally {
+
+        if (saveButton) {
+
+            saveButton.disabled =
+                false;
+
+            saveButton.textContent =
+                saveButton.dataset.originalText ||
+                "SAVE SETTINGS";
+
+        }
 
     }
 
@@ -3858,29 +4200,73 @@ async function saveSettings() {
 
 
 // ============================================================
-// GET INPUT NUMBER
+// RESET SETTINGS FROM SERVER
 // ============================================================
 
-function getInputNumber(
-    id
-) {
+async function resetSettingsFromServer() {
 
-    const input =
-        document.getElementById(
-            id
+    try {
+
+        const response =
+            await fetch(
+                "/api/status",
+                {
+                    cache: "no-store"
+                }
+            );
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                "Could not load settings."
+            );
+
+        }
+
+
+        const data =
+            await response.json();
+
+
+        if (!data.settings) {
+
+            showMessage(
+                "No settings were returned by the server.",
+                "error"
+            );
+
+            return;
+
+        }
+
+
+        updateSettingsDisplay(
+            data.settings
         );
 
 
-    if (!input) {
-
-        return NaN;
+        showMessage(
+            "Settings reset to the current server values.",
+            "success"
+        );
 
     }
 
+    catch (error) {
 
-    return Number(
-        input.value
-    );
+        console.error(
+            "Reset settings error:",
+            error
+        );
+
+
+        showMessage(
+            "Could not load current settings.",
+            "error"
+        );
+
+    }
 
 }
 
@@ -4071,11 +4457,6 @@ function showMessage(
     message,
     type = "info"
 ) {
-
-    // Use alert as a reliable fallback.
-    // If you already have a custom toast
-    // component in CSS/HTML, it can be
-    // connected here later.
 
     console.log(
         type.toUpperCase() +
