@@ -406,26 +406,6 @@ last_update_time = time.time()
 
 
 # ============================================================
-# SETTINGS GETTER
-# ============================================================
-
-def get_settings():
-
-    return {
-        "consumptionRate": CONSUMPTION_RATE,
-        "pumpFillRate": PUMP_FILL_RATE,
-        "autoPumpOnLevel": AUTO_PUMP_ON_LEVEL,
-        "autoPumpOffLevel": AUTO_PUMP_OFF_LEVEL,
-        "sourceRefillRate": SOURCE_REFILL_RATE,
-
-        # User editable
-        "criticalLowLevel": CRITICAL_LOW_LEVEL,
-        "minLevel": MIN_LEVEL,
-        "maxLevel": MAX_LEVEL
-    }
-
-
-# ============================================================
 # CURRENT ALERT CALCULATION
 # ============================================================
 
