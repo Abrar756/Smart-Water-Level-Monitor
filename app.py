@@ -70,7 +70,8 @@ USER_EDITABLE_SETTINGS = {
     "pumpFillRate",
     "autoPumpOnLevel",
     "autoPumpOffLevel",
-    "sourceRefillRate"
+    "sourceRefillRate",
+    "criticalLowLevel"
 }
 
 
@@ -253,11 +254,11 @@ def load_settings():
         settings["sourceRefillRate"]
     )
 
-    # Protected settings are always controlled
-    # by the application.
-    CRITICAL_LOW_LEVEL = DEFAULT_SETTINGS[
-        "criticalLowLevel"
-    ]
+    # Critical low level is user-editable and is loaded
+    # from the saved settings file.
+    CRITICAL_LOW_LEVEL = float(
+        settings["criticalLowLevel"]
+    )
 
     MIN_LEVEL = DEFAULT_SETTINGS[
         "minLevel"
@@ -412,7 +413,7 @@ def get_settings():
         "autoPumpOffLevel": AUTO_PUMP_OFF_LEVEL,
         "sourceRefillRate": SOURCE_REFILL_RATE,
 
-        # These are visible but protected.
+        # User editable
         "criticalLowLevel": CRITICAL_LOW_LEVEL,
         "minLevel": MIN_LEVEL,
         "maxLevel": MAX_LEVEL
@@ -1130,6 +1131,7 @@ def update_settings():
     global AUTO_PUMP_ON_LEVEL
     global AUTO_PUMP_OFF_LEVEL
     global SOURCE_REFILL_RATE
+    global CRITICAL_LOW_LEVEL
 
     update_simulation()
 
@@ -1175,6 +1177,13 @@ def update_settings():
             data.get(
                 "sourceRefillRate",
                 SOURCE_REFILL_RATE
+            )
+        )
+
+        new_critical_low = float(
+            data.get(
+                "criticalLowLevel",
+                CRITICAL_LOW_LEVEL
             )
         )
 
@@ -1266,18 +1275,25 @@ def update_settings():
 
         }), 400
 
+    if not (
+        0 <= new_critical_low <= 100
+    ):
+
+        return jsonify({
+
+            "success": False,
+
+            "message":
+                "Critical low level must be between 0% and 100%."
+
+        }), 400
+
     # ========================================================
-    # PROTECTED SETTINGS
+    # FIXED SYSTEM LIMITS
     # ========================================================
     #
-    # These values are deliberately NOT read from the user.
-    #
-    # criticalLowLevel
-    # minLevel
-    # maxLevel
-    #
-    # Even if somebody sends these values manually through
-    # the browser, they will NOT be changed.
+    # minLevel and maxLevel remain fixed at 0% and 100%.
+    # criticalLowLevel is user-editable.
     #
     # ========================================================
 
@@ -1303,10 +1319,10 @@ def update_settings():
         "sourceRefillRate":
             new_source_refill,
 
-        # Protected
         "criticalLowLevel":
-            CRITICAL_LOW_LEVEL,
+            new_critical_low,
 
+        # Fixed system limits
         "minLevel":
             MIN_LEVEL,
 
@@ -1358,6 +1374,10 @@ def update_settings():
 
     SOURCE_REFILL_RATE = (
         new_source_refill
+    )
+
+    CRITICAL_LOW_LEVEL = (
+        new_critical_low
     )
 
     # ========================================================
