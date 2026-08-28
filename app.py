@@ -217,11 +217,10 @@ def load_settings():
     ):
         invalid_settings = True
 
-    if min_level != 0:
-        invalid_settings = True
-
-    if max_level != 100:
-        invalid_settings = True
+    # FIXED: Reassign protected developer constants directly 
+    # instead of invalidating the user settings file.
+    min_level = 0.0
+    max_level = 100.0
 
     if invalid_settings:
         settings = DEFAULT_SETTINGS.copy()
@@ -230,43 +229,49 @@ def load_settings():
             settings
         )
 
+        # Fallback values for assignment if file was corrupted
+        consumption_rate = settings["consumptionRate"]
+        pump_fill_rate = settings["pumpFillRate"]
+        auto_pump_on_level = settings["autoPumpOnLevel"]
+        auto_pump_off_level = settings["autoPumpOffLevel"]
+        source_refill_rate = settings["sourceRefillRate"]
+        critical_low_level = settings["criticalLowLevel"]
+
     # --------------------------------------------------------
     # APPLY SETTINGS
     # --------------------------------------------------------
 
     CONSUMPTION_RATE = float(
-        settings["consumptionRate"]
+        consumption_rate
     )
 
     PUMP_FILL_RATE = float(
-        settings["pumpFillRate"]
+        pump_fill_rate
     )
 
     AUTO_PUMP_ON_LEVEL = float(
-        settings["autoPumpOnLevel"]
+        auto_pump_on_level
     )
 
     AUTO_PUMP_OFF_LEVEL = float(
-        settings["autoPumpOffLevel"]
+        auto_pump_off_level
     )
 
     SOURCE_REFILL_RATE = float(
-        settings["sourceRefillRate"]
+        source_refill_rate
     )
 
-    # Critical low level is user-editable and is loaded
-    # from the saved settings file.
     CRITICAL_LOW_LEVEL = float(
-        settings["criticalLowLevel"]
+        critical_low_level
     )
 
-    MIN_LEVEL = DEFAULT_SETTINGS[
-        "minLevel"
-    ]
+    MIN_LEVEL = float(
+        min_level
+    )
 
-    MAX_LEVEL = DEFAULT_SETTINGS[
-        "maxLevel"
-    ]
+    MAX_LEVEL = float(
+        max_level
+    )
 
 
 # ============================================================
@@ -1099,6 +1104,27 @@ def get_status():
 
 
 # ============================================================
+# SETTINGS FORMATTER HELPER
+# ============================================================
+
+def get_settings():
+    """
+    Helper function to safely construct a dictionary representation 
+    of the current dynamic runtime global engine parameters.
+    """
+    return {
+        "consumptionRate": CONSUMPTION_RATE,
+        "pumpFillRate": PUMP_FILL_RATE,
+        "autoPumpOnLevel": AUTO_PUMP_ON_LEVEL,
+        "autoPumpOffLevel": AUTO_PUMP_OFF_LEVEL,
+        "sourceRefillRate": SOURCE_REFILL_RATE,
+        "criticalLowLevel": CRITICAL_LOW_LEVEL,
+        "minLevel": MIN_LEVEL,
+        "maxLevel": MAX_LEVEL
+    }
+
+
+# ============================================================
 # GET SETTINGS
 # ============================================================
 
@@ -1126,13 +1152,8 @@ def get_settings_api():
 )
 def update_settings():
 
-    global CONSUMPTION_RATE
-    global PUMP_FILL_RATE
-    global AUTO_PUMP_ON_LEVEL
-    global AUTO_PUMP_OFF_LEVEL
-    global SOURCE_REFILL_RATE
-    global CRITICAL_LOW_LEVEL
-
+    # We can omit individual globals here because load_settings() 
+    # will handle safe atomic updates to global runtime scope variables.
     update_simulation()
 
     data = request.get_json(
@@ -1289,15 +1310,6 @@ def update_settings():
         }), 400
 
     # ========================================================
-    # FIXED SYSTEM LIMITS
-    # ========================================================
-    #
-    # minLevel and maxLevel remain fixed at 0% and 100%.
-    # criticalLowLevel is user-editable.
-    #
-    # ========================================================
-
-    # ========================================================
     # PREPARE NEW SETTINGS
     # ========================================================
 
@@ -1353,32 +1365,12 @@ def update_settings():
         }), 500
 
     # ========================================================
-    # APPLY SETTINGS TO RUNNING SYSTEM
+    # APPLY SETTINGS TO RUNNING SYSTEM VIA SYSTEM BOOT LOADER
     # ========================================================
 
-    CONSUMPTION_RATE = (
-        new_consumption_rate
-    )
-
-    PUMP_FILL_RATE = (
-        new_pump_fill_rate
-    )
-
-    AUTO_PUMP_ON_LEVEL = (
-        new_auto_on
-    )
-
-    AUTO_PUMP_OFF_LEVEL = (
-        new_auto_off
-    )
-
-    SOURCE_REFILL_RATE = (
-        new_source_refill
-    )
-
-    CRITICAL_LOW_LEVEL = (
-        new_critical_low
-    )
+    # FIXED: Calling load_settings() automatically validates, parses,
+    # and commits everything to runtime memory global parameters safely.
+    load_settings()
 
     # ========================================================
     # RE-EVALUATE CURRENT SYSTEM
