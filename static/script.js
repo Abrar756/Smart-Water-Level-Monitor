@@ -3450,10 +3450,8 @@ function setupSettingsControls() {
 
 
     // --------------------------------------------------------
-    // OPTIONAL RESET BUTTON
+    // RESET BUTTON
     // --------------------------------------------------------
-    // If the HTML contains a reset button,
-    // connect it automatically.
 
     const resetButton =
         document.getElementById(
@@ -3485,9 +3483,7 @@ function setupSettingsControls() {
 
         "pumpFillRateInput",
 
-        "sourceRefillRateInput",
-
-        "criticalLowInput"
+        "sourceRefillRateInput"
 
     ];
 
@@ -3540,6 +3536,10 @@ function updateSettingsDisplay(
     }
 
 
+    // --------------------------------------------------------
+    // CURRENT VALUE DISPLAY
+    // --------------------------------------------------------
+
     updateSettingValue(
         "settingAutoOn",
         settings.autoPumpOnLevel,
@@ -3575,15 +3575,8 @@ function updateSettingsDisplay(
     );
 
 
-    updateSettingValue(
-        "settingCriticalLow",
-        settings.criticalLowLevel,
-        "%"
-    );
-
-
     // --------------------------------------------------------
-    // INPUTS
+    // SETTINGS INPUTS
     // --------------------------------------------------------
 
     setInputValue(
@@ -3613,12 +3606,6 @@ function updateSettingsDisplay(
     setInputValue(
         "sourceRefillRateInput",
         settings.sourceRefillRate
-    );
-
-
-    setInputValue(
-        "criticalLowInput",
-        settings.criticalLowLevel
     );
 
 }
@@ -3652,7 +3639,7 @@ function updateSettingValue(
 
 
     if (
-        Number.isNaN(
+        !Number.isFinite(
             numericValue
         )
     ) {
@@ -3699,7 +3686,7 @@ function setInputValue(
 
 
     if (
-        Number.isNaN(
+        !Number.isFinite(
             numericValue
         )
     ) {
@@ -3709,8 +3696,8 @@ function setInputValue(
     }
 
 
-    // Do not overwrite the field while
-    // the user is currently typing in it.
+    // Do not overwrite a field
+    // while the user is typing.
 
     if (
         document.activeElement === input
@@ -3728,7 +3715,7 @@ function setInputValue(
 
 
 // ============================================================
-// SETTINGS VALIDATION
+// SETTINGS INPUT VALIDATION
 // ============================================================
 
 function validateSettingsInput(
@@ -3748,9 +3735,11 @@ function validateSettingsInput(
         );
 
 
+    // Empty or invalid number
+
     if (
-        input.value === "" ||
-        Number.isNaN(value)
+        input.value.trim() === "" ||
+        !Number.isFinite(value)
     ) {
 
         input.classList.add(
@@ -3762,7 +3751,11 @@ function validateSettingsInput(
     }
 
 
-    if (value < 0) {
+    // No negative values
+
+    if (
+        value < 0
+    ) {
 
         input.classList.add(
             "invalid"
@@ -3773,21 +3766,50 @@ function validateSettingsInput(
     }
 
 
-    // Percentage settings cannot exceed 100.
+    // Pump threshold percentages
 
     const percentageInputs = [
 
         "autoPumpOnInput",
 
-        "autoPumpOffInput",
-
-        "criticalLowInput"
+        "autoPumpOffInput"
 
     ];
 
 
     if (
         percentageInputs.includes(
+            input.id
+        ) &&
+        value > 100
+    ) {
+
+        input.classList.add(
+            "invalid"
+        );
+
+        return false;
+
+    }
+
+
+    // Other rate fields have their
+    // own HTML max="100" validation,
+    // but we also check them here.
+
+    const rateInputs = [
+
+        "consumptionRateInput",
+
+        "pumpFillRateInput",
+
+        "sourceRefillRateInput"
+
+    ];
+
+
+    if (
+        rateInputs.includes(
             input.id
         ) &&
         value > 100
@@ -3837,16 +3859,29 @@ function getInputNumber(
         input.value.trim();
 
 
-    if (value === "") {
+    if (
+        value === ""
+    ) {
 
         return NaN;
 
     }
 
 
-    return Number(
-        value
-    );
+    const number =
+        Number(value);
+
+
+    if (
+        !Number.isFinite(number)
+    ) {
+
+        return NaN;
+
+    }
+
+
+    return number;
 
 }
 
@@ -3859,14 +3894,27 @@ function validateSettings(
     settings
 ) {
 
-    const values =
-        Object.values(
-            settings
-        );
+    // --------------------------------------------------------
+    // CHECK THAT ALL FIVE SETTINGS ARE NUMBERS
+    // --------------------------------------------------------
+
+    const requiredSettings = [
+
+        settings.autoPumpOnLevel,
+
+        settings.autoPumpOffLevel,
+
+        settings.consumptionRate,
+
+        settings.pumpFillRate,
+
+        settings.sourceRefillRate
+
+    ];
 
 
     if (
-        values.some(
+        requiredSettings.some(
             function(value) {
 
                 return (
@@ -3879,16 +3927,19 @@ function validateSettings(
     ) {
 
         return {
+
             valid: false,
+
             message:
                 "Please enter valid numbers in all settings fields."
+
         };
 
     }
 
 
     // --------------------------------------------------------
-    // RANGE CHECKS
+    // PUMP ON LEVEL
     // --------------------------------------------------------
 
     if (
@@ -3897,13 +3948,20 @@ function validateSettings(
     ) {
 
         return {
+
             valid: false,
+
             message:
                 "Automatic pump ON level must be between 0% and 100%."
+
         };
 
     }
 
+
+    // --------------------------------------------------------
+    // PUMP OFF LEVEL
+    // --------------------------------------------------------
 
     if (
         settings.autoPumpOffLevel < 0 ||
@@ -3911,62 +3969,75 @@ function validateSettings(
     ) {
 
         return {
+
             valid: false,
+
             message:
                 "Automatic pump OFF level must be between 0% and 100%."
+
         };
 
     }
 
 
+    // --------------------------------------------------------
+    // CONSUMPTION RATE
+    // --------------------------------------------------------
+
     if (
-        settings.criticalLowLevel < 0 ||
-        settings.criticalLowLevel > 100
+        settings.consumptionRate < 0 ||
+        settings.consumptionRate > 100
     ) {
 
         return {
+
             valid: false,
+
             message:
-                "Critical low level must be between 0% and 100%."
+                "Consumption rate must be between 0 and 100 % / sec."
+
         };
 
     }
 
 
+    // --------------------------------------------------------
+    // PUMP FILL RATE
+    // --------------------------------------------------------
+
     if (
-        settings.consumptionRate < 0
+        settings.pumpFillRate < 0 ||
+        settings.pumpFillRate > 100
     ) {
 
         return {
+
             valid: false,
+
             message:
-                "Consumption rate cannot be negative."
+                "Pump fill rate must be between 0 and 100 % / sec."
+
         };
 
     }
 
 
+    // --------------------------------------------------------
+    // SOURCE REFILL RATE
+    // --------------------------------------------------------
+
     if (
-        settings.pumpFillRate < 0
+        settings.sourceRefillRate < 0 ||
+        settings.sourceRefillRate > 100
     ) {
 
         return {
+
             valid: false,
+
             message:
-                "Pump fill rate cannot be negative."
-        };
+                "Source refill rate must be between 0 and 100 % / sec."
 
-    }
-
-
-    if (
-        settings.sourceRefillRate < 0
-    ) {
-
-        return {
-            valid: false,
-            message:
-                "Source refill rate cannot be negative."
         };
 
     }
@@ -3982,17 +4053,23 @@ function validateSettings(
     ) {
 
         return {
+
             valid: false,
+
             message:
                 "Pump ON level must be lower than pump OFF level."
+
         };
 
     }
 
 
     return {
+
         valid: true,
+
         message: ""
+
     };
 
 }
@@ -4009,6 +4086,11 @@ async function saveSettings() {
             "saveSettingsButton"
         );
 
+
+    // --------------------------------------------------------
+    // READ ONLY THE FIVE SETTINGS THAT EXIST
+    // IN YOUR HTML
+    // --------------------------------------------------------
 
     const payload = {
 
@@ -4035,11 +4117,6 @@ async function saveSettings() {
         sourceRefillRate:
             getInputNumber(
                 "sourceRefillRateInput"
-            ),
-
-        criticalLowLevel:
-            getInputNumber(
-                "criticalLowInput"
             )
 
     };
@@ -4055,7 +4132,9 @@ async function saveSettings() {
         );
 
 
-    if (!validation.valid) {
+    if (
+        !validation.valid
+    ) {
 
         showMessage(
             validation.message,
@@ -4068,7 +4147,7 @@ async function saveSettings() {
 
 
     // --------------------------------------------------------
-    // DISABLE BUTTON WHILE SAVING
+    // DISABLE SAVE BUTTON
     // --------------------------------------------------------
 
     if (saveButton) {
@@ -4110,26 +4189,22 @@ async function saveSettings() {
             );
 
 
-        if (!response.ok) {
-
-            throw new Error(
-                "Server returned HTTP " +
-                response.status
-            );
-
-        }
-
-
         const result =
             await response.json();
 
 
-        if (!result.success) {
+        if (
+            !response.ok ||
+            !result.success
+        ) {
 
             showMessage(
+
                 result.message ||
                 "Settings could not be saved.",
+
                 "error"
+
             );
 
             return;
@@ -4147,10 +4222,11 @@ async function saveSettings() {
         );
 
 
-        // If backend returns updated settings,
-        // immediately display them.
+        // Apply returned server values
 
-        if (result.settings) {
+        if (
+            result.settings
+        ) {
 
             updateSettingsDisplay(
                 result.settings
@@ -4159,12 +4235,12 @@ async function saveSettings() {
         }
 
 
-        // Refresh entire dashboard so the new
-        // settings immediately affect the system.
+        // Refresh dashboard
 
         await updateDashboard();
 
     }
+
 
     catch (error) {
 
@@ -4180,6 +4256,7 @@ async function saveSettings() {
         );
 
     }
+
 
     finally {
 
@@ -4229,7 +4306,9 @@ async function resetSettingsFromServer() {
             await response.json();
 
 
-        if (!data.settings) {
+        if (
+            !data.settings
+        ) {
 
             showMessage(
                 "No settings were returned by the server.",
@@ -4253,6 +4332,7 @@ async function resetSettingsFromServer() {
 
     }
 
+
     catch (error) {
 
         console.error(
@@ -4269,7 +4349,6 @@ async function resetSettingsFromServer() {
     }
 
 }
-
 
 // ============================================================
 // CLOCK
