@@ -3,6 +3,7 @@ import time
 import json
 import os
 import tempfile
+import secrets
 
 app = Flask(__name__)
 
@@ -355,6 +356,7 @@ load_settings()
 
 system_data = {
     "waterLevel": 75.00,
+    "temperature": None,
     "pump": False,
     "mode": "AUTO",
     "runtime": 1250,
@@ -371,8 +373,38 @@ system_data = {
     "emergency": False,
 
     # Connection
-    "connected": True
+    "connected": False,
+    "connectionType": "SIMULATION"
 }
+
+
+# ============================================================
+# HARDWARE DEVICE BRIDGE (ESP8266)
+# ============================================================
+
+DEVICE_API_KEY = os.environ.get("DEVICE_API_KEY", "")
+HARDWARE_TIMEOUT_SECONDS = 25
+hardware_last_seen = 0.0
+hardware_command = None
+hardware_command_counter = 0
+
+def hardware_is_online():
+    return bool(hardware_last_seen and (time.time() - hardware_last_seen) <= HARDWARE_TIMEOUT_SECONDS)
+
+def require_device_key():
+    supplied = request.headers.get("X-Device-Key", "")
+    return bool(DEVICE_API_KEY) and secrets.compare_digest(supplied, DEVICE_API_KEY)
+
+def queue_hardware_command(command, value=None):
+    global hardware_command_counter, hardware_command
+    hardware_command_counter += 1
+    hardware_command = {
+        "id": hardware_command_counter,
+        "command": command,
+        "value": value,
+        "createdAt": int(time.time())
+    }
+    return hardware_command
 
 
 # ============================================================
@@ -1030,7 +1062,13 @@ def service_worker():
 @app.route("/api/status")
 def get_status():
 
-    update_simulation()
+    if hardware_is_online():
+        system_data["connected"] = True
+        system_data["connectionType"] = "HARDWARE"
+    else:
+        system_data["connected"] = False
+        system_data["connectionType"] = "SIMULATION"
+        update_simulation()
 
     return jsonify({
 
@@ -1039,6 +1077,10 @@ def get_status():
                 system_data["waterLevel"],
                 2
             ),
+
+        "temperature": system_data.get("temperature"),
+        "connectionType": system_data.get("connectionType", "SIMULATION"),
+        "hardwareLastSeen": int(hardware_last_seen) if hardware_last_seen else None,
 
         "pump":
             system_data["pump"],
@@ -1081,6 +1123,69 @@ def get_status():
         "settings":
             get_settings()
     })
+
+
+# ============================================================
+# ESP8266 HARDWARE API
+# ============================================================
+
+@app.route("/api/hardware/telemetry", methods=["POST"])
+def receive_hardware_telemetry():
+    global hardware_last_seen
+    if not require_device_key():
+        return jsonify({"success": False, "message": "Unauthorized device."}), 401
+
+    data = request.get_json(silent=True) or {}
+    try:
+        if "waterLevel" in data:
+            level = float(data["waterLevel"])
+            if not 0 <= level <= 100:
+                raise ValueError("waterLevel must be between 0 and 100")
+            system_data["waterLevel"] = round(level, 2)
+        if "temperature" in data:
+            temperature = data["temperature"]
+            if temperature is None:
+                system_data["temperature"] = None
+            else:
+                temperature = float(temperature)
+                if not -55 <= temperature <= 125:
+                    raise ValueError("Invalid DS18B20 temperature")
+                system_data["temperature"] = round(temperature, 2)
+        if "pump" in data:
+            system_data["pump"] = bool(data["pump"])
+        if "mode" in data and data["mode"] in ("AUTO", "MANUAL"):
+            system_data["mode"] = data["mode"]
+        if "runtime" in data:
+            system_data["runtime"] = max(0, int(data["runtime"]))
+        if "emergency" in data:
+            system_data["emergency"] = bool(data["emergency"])
+        if "tank" in data and isinstance(data["tank"], str):
+            system_data["tank"] = data["tank"][:20].upper()
+    except (TypeError, ValueError) as exc:
+        return jsonify({"success": False, "message": str(exc)}), 400
+
+    hardware_last_seen = time.time()
+    system_data["connected"] = True
+    system_data["connectionType"] = "HARDWARE"
+    update_tank_condition()
+    update_alert_state()
+    return jsonify({"success": True, "message": "Hardware data received."})
+
+@app.route("/api/hardware/command", methods=["GET"])
+def get_hardware_command():
+    if not require_device_key():
+        return jsonify({"success": False, "message": "Unauthorized device."}), 401
+    return jsonify({"success": True, "command": hardware_command})
+
+@app.route("/api/hardware/ack", methods=["POST"])
+def acknowledge_hardware_command():
+    global hardware_command
+    if not require_device_key():
+        return jsonify({"success": False, "message": "Unauthorized device."}), 401
+    data = request.get_json(silent=True) or {}
+    if hardware_command and data.get("id") == hardware_command.get("id"):
+        hardware_command = None
+    return jsonify({"success": True})
 
 
 # ============================================================
@@ -1427,7 +1532,8 @@ def update_settings():
 )
 def change_mode():
 
-    update_simulation()
+    if not hardware_is_online():
+        update_simulation()
 
     data = request.get_json(
         silent=True
@@ -1454,6 +1560,9 @@ def change_mode():
     system_data["mode"] = (
         requested_mode
     )
+
+    if hardware_is_online():
+        queue_hardware_command("SET_MODE", requested_mode)
 
     # --------------------------------------------------------
     # AUTO MODE
@@ -1518,7 +1627,8 @@ def change_mode():
 )
 def pump_control():
 
-    update_simulation()
+    if not hardware_is_online():
+        update_simulation()
 
     data = request.get_json(
         silent=True
@@ -1597,7 +1707,10 @@ def pump_control():
                     "Tank is already full."
             })
 
-        system_data["pump"] = True
+        if hardware_is_online():
+            queue_hardware_command("PUMP", "ON")
+        else:
+            system_data["pump"] = True
 
         update_alert_state()
 
@@ -1615,7 +1728,10 @@ def pump_control():
 
     elif command == "OFF":
 
-        system_data["pump"] = False
+        if hardware_is_online():
+            queue_hardware_command("PUMP", "OFF")
+        else:
+            system_data["pump"] = False
 
         update_alert_state()
 
@@ -1624,7 +1740,7 @@ def pump_control():
             "success": True,
 
             "message":
-                "Pump turned OFF."
+                "Pump OFF command sent." if hardware_is_online() else "Pump turned OFF."
         })
 
     # --------------------------------------------------------
@@ -1801,7 +1917,8 @@ def source_water_control():
 )
 def emergency_control():
 
-    update_simulation()
+    if not hardware_is_online():
+        update_simulation()
 
     data = request.get_json(
         silent=True
@@ -1820,6 +1937,8 @@ def emergency_control():
         system_data["emergency"] = True
 
         system_data["pump"] = False
+        if hardware_is_online():
+            queue_hardware_command("EMERGENCY", "ON")
 
         update_alert_state()
 
@@ -1841,6 +1960,8 @@ def emergency_control():
     elif command == "OFF":
 
         system_data["emergency"] = False
+        if hardware_is_online():
+            queue_hardware_command("EMERGENCY", "OFF")
 
         # Do NOT automatically start pump here.
         # AUTO mode will decide on the next update.
