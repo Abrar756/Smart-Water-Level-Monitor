@@ -419,6 +419,19 @@ async function updateDashboard() {
             data.connected
         );
 
+        const temperatureValue = document.getElementById("waterTemperature");
+        const temperatureStatus = document.getElementById("temperatureSensorStatus");
+        if (temperatureValue) {
+            temperatureValue.textContent = data.temperature === null || data.temperature === undefined
+                ? "-- °C"
+                : Number(data.temperature).toFixed(2) + " °C";
+        }
+        if (temperatureStatus) {
+            const hasTemperature = data.temperature !== null && data.temperature !== undefined;
+            temperatureStatus.textContent = hasTemperature ? "ACTIVE" : "WAITING";
+            temperatureStatus.className = "status-badge " + (hasTemperature ? "normal" : "off");
+        }
+
 
         const waterLevel =
             Number(
