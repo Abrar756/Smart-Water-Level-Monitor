@@ -1,2022 +1,223 @@
 from flask import Flask, render_template, jsonify, request
-import time
-import json
-import os
-import tempfile
-import secrets
+import os, time, secrets
 
 app = Flask(__name__)
 
-
-# ============================================================
-# SETTINGS FILE
-# ============================================================
-
-SETTINGS_FILE = os.path.join(
-    os.path.dirname(os.path.abspath(__file__)),
-    "settings.json"
-)
-
-
-# ============================================================
-# DEFAULT SYSTEM SETTINGS
-# ============================================================
-
-DEFAULT_SETTINGS = {
-    # User-editable settings
-    "consumptionRate": 2.00,
-    "pumpFillRate": 2.00,
-    "autoPumpOnLevel": 30.0,
-    "autoPumpOffLevel": 90.0,
-    "sourceRefillRate": 1.00,
-
-    # Developer/admin protected settings
-    "criticalLowLevel": 10.0,
-    "minLevel": 0.0,
-    "maxLevel": 100.0
-}
-
-
-# ============================================================
-# RUNTIME SETTINGS
-# ============================================================
-
-CONSUMPTION_RATE = DEFAULT_SETTINGS["consumptionRate"]
-PUMP_FILL_RATE = DEFAULT_SETTINGS["pumpFillRate"]
-AUTO_PUMP_ON_LEVEL = DEFAULT_SETTINGS["autoPumpOnLevel"]
-AUTO_PUMP_OFF_LEVEL = DEFAULT_SETTINGS["autoPumpOffLevel"]
-SOURCE_REFILL_RATE = DEFAULT_SETTINGS["sourceRefillRate"]
-
-# Developer/admin only
-CRITICAL_LOW_LEVEL = DEFAULT_SETTINGS["criticalLowLevel"]
-MIN_LEVEL = DEFAULT_SETTINGS["minLevel"]
-MAX_LEVEL = DEFAULT_SETTINGS["maxLevel"]
-
-
-# ============================================================
-# SOURCE TANK PROTECTED LIMITS
-# ============================================================
-
-SOURCE_START_LEVEL = 100.0
-SOURCE_MIN_LEVEL = 0.0
-SOURCE_MAX_LEVEL = 100.0
-
-
-# ============================================================
-# USER EDITABLE SETTINGS
-# ============================================================
-
-USER_EDITABLE_SETTINGS = {
-    "consumptionRate",
-    "pumpFillRate",
-    "autoPumpOnLevel",
-    "autoPumpOffLevel",
-    "sourceRefillRate",
-    "criticalLowLevel"
-}
-
-
-# ============================================================
-# LOAD SETTINGS FROM FILE
-# ============================================================
-
-def load_settings():
-    global CONSUMPTION_RATE
-    global PUMP_FILL_RATE
-    global AUTO_PUMP_ON_LEVEL
-    global AUTO_PUMP_OFF_LEVEL
-    global SOURCE_REFILL_RATE
-    global CRITICAL_LOW_LEVEL
-    global MIN_LEVEL
-    global MAX_LEVEL
-
-    # --------------------------------------------------------
-    # CREATE DEFAULT SETTINGS FILE IF IT DOES NOT EXIST
-    # --------------------------------------------------------
-
-    if not os.path.exists(SETTINGS_FILE):
-        save_settings_to_file(DEFAULT_SETTINGS)
-
-    try:
-        with open(
-            SETTINGS_FILE,
-            "r",
-            encoding="utf-8"
-        ) as file:
-            saved_settings = json.load(file)
-
-    except (
-        OSError,
-        json.JSONDecodeError,
-        TypeError,
-        ValueError
-    ):
-        # If the file is damaged or unreadable,
-        # safely restore defaults.
-        saved_settings = DEFAULT_SETTINGS.copy()
-
-        save_settings_to_file(
-            saved_settings
-        )
-
-    # --------------------------------------------------------
-    # MERGE WITH DEFAULTS
-    # --------------------------------------------------------
-
-    settings = DEFAULT_SETTINGS.copy()
-
-    if isinstance(saved_settings, dict):
-        settings.update(saved_settings)
-
-    # --------------------------------------------------------
-    # VALIDATE BEFORE APPLYING
-    # --------------------------------------------------------
-
-    try:
-        consumption_rate = float(
-            settings["consumptionRate"]
-        )
-
-        pump_fill_rate = float(
-            settings["pumpFillRate"]
-        )
-
-        auto_pump_on_level = float(
-            settings["autoPumpOnLevel"]
-        )
-
-        auto_pump_off_level = float(
-            settings["autoPumpOffLevel"]
-        )
-
-        source_refill_rate = float(
-            settings["sourceRefillRate"]
-        )
-
-        critical_low_level = float(
-            settings["criticalLowLevel"]
-        )
-
-        min_level = float(
-            settings["minLevel"]
-        )
-
-        max_level = float(
-            settings["maxLevel"]
-        )
-
-    except (
-        TypeError,
-        ValueError,
-        KeyError
-    ):
-        settings = DEFAULT_SETTINGS.copy()
-
-        consumption_rate = settings["consumptionRate"]
-        pump_fill_rate = settings["pumpFillRate"]
-        auto_pump_on_level = settings["autoPumpOnLevel"]
-        auto_pump_off_level = settings["autoPumpOffLevel"]
-        source_refill_rate = settings["sourceRefillRate"]
-        critical_low_level = settings["criticalLowLevel"]
-        min_level = settings["minLevel"]
-        max_level = settings["maxLevel"]
-
-        save_settings_to_file(
-            settings
-        )
-
-    # --------------------------------------------------------
-    # FINAL SAFETY VALIDATION
-    # --------------------------------------------------------
-
-    invalid_settings = False
-
-    if consumption_rate < 0:
-        invalid_settings = True
-
-    if pump_fill_rate < 0:
-        invalid_settings = True
-
-    if source_refill_rate < 0:
-        invalid_settings = True
-
-    if not (
-        0 <= auto_pump_on_level <= 100
-    ):
-        invalid_settings = True
-
-    if not (
-        0 <= auto_pump_off_level <= 100
-    ):
-        invalid_settings = True
-
-    if auto_pump_on_level >= auto_pump_off_level:
-        invalid_settings = True
-
-    if not (
-        0 <= critical_low_level <= 100
-    ):
-        invalid_settings = True
-
-    # FIXED: Reassign protected developer constants directly 
-    # instead of invalidating the user settings file.
-    min_level = 0.0
-    max_level = 100.0
-
-    if invalid_settings:
-        settings = DEFAULT_SETTINGS.copy()
-
-        save_settings_to_file(
-            settings
-        )
-
-        # Fallback values for assignment if file was corrupted
-        consumption_rate = settings["consumptionRate"]
-        pump_fill_rate = settings["pumpFillRate"]
-        auto_pump_on_level = settings["autoPumpOnLevel"]
-        auto_pump_off_level = settings["autoPumpOffLevel"]
-        source_refill_rate = settings["sourceRefillRate"]
-        critical_low_level = settings["criticalLowLevel"]
-
-    # --------------------------------------------------------
-    # APPLY SETTINGS
-    # --------------------------------------------------------
-
-    CONSUMPTION_RATE = float(
-        consumption_rate
-    )
-
-    PUMP_FILL_RATE = float(
-        pump_fill_rate
-    )
-
-    AUTO_PUMP_ON_LEVEL = float(
-        auto_pump_on_level
-    )
-
-    AUTO_PUMP_OFF_LEVEL = float(
-        auto_pump_off_level
-    )
-
-    SOURCE_REFILL_RATE = float(
-        source_refill_rate
-    )
-
-    CRITICAL_LOW_LEVEL = float(
-        critical_low_level
-    )
-
-    MIN_LEVEL = float(
-        min_level
-    )
-
-    MAX_LEVEL = float(
-        max_level
-    )
-
-
-# ============================================================
-# SAVE SETTINGS TO FILE
-# ============================================================
-
-def save_settings_to_file(settings):
-    """
-    Save settings safely and permanently.
-
-    A temporary file is written first and then replaced.
-    This reduces the chance of corrupting settings.json
-    if the application is interrupted while saving.
-    """
-
-    directory = os.path.dirname(
-        SETTINGS_FILE
-    )
-
-    if directory:
-        os.makedirs(
-            directory,
-            exist_ok=True
-        )
-
-    temp_file = None
-
-    try:
-        file_descriptor, temp_file = tempfile.mkstemp(
-            prefix="settings_",
-            suffix=".tmp",
-            dir=directory if directory else None,
-            text=True
-        )
-
-        with os.fdopen(
-            file_descriptor,
-            "w",
-            encoding="utf-8"
-        ) as file:
-
-            json.dump(
-                settings,
-                file,
-                indent=4
-            )
-
-            file.flush()
-
-        os.replace(
-            temp_file,
-            SETTINGS_FILE
-        )
-
-        temp_file = None
-
-    except OSError:
-        if temp_file and os.path.exists(
-            temp_file
-        ):
-            try:
-                os.remove(
-                    temp_file
-                )
-            except OSError:
-                pass
-
-        raise
-
-
-# ============================================================
-# LOAD SAVED SETTINGS WHEN APPLICATION STARTS
-# ============================================================
-
-load_settings()
-
-
-# ============================================================
-# SYSTEM DATA
-# ============================================================
-
-system_data = {
-    "waterLevel": 75.00,
-    "temperature": None,
-    "pump": False,
-    "mode": "AUTO",
-    "runtime": 1250,
-    "tank": "NORMAL",
-
-    # Water consumption
-    "consumption": True,
-
-    # Source tank
-    "sourceWater": True,
-    "sourceWaterLevel": SOURCE_START_LEVEL,
-
-    # Emergency
-    "emergency": False,
-
-    # Connection
-    "connected": False,
-    "connectionType": "SIMULATION"
-}
-
-
-# ============================================================
-# HARDWARE DEVICE BRIDGE (ESP8266)
-# ============================================================
-
 DEVICE_API_KEY = os.environ.get("DEVICE_API_KEY", "")
 HARDWARE_TIMEOUT_SECONDS = 25
-hardware_last_seen = 0.0
+hardware_last_seen = 0
 hardware_command = None
-hardware_command_counter = 0
+hardware_command_id = 0
 
-def hardware_is_online():
-    return bool(hardware_last_seen and (time.time() - hardware_last_seen) <= HARDWARE_TIMEOUT_SECONDS)
-
-def require_device_key():
-    supplied = request.headers.get("X-Device-Key", "")
-    return bool(DEVICE_API_KEY) and secrets.compare_digest(supplied, DEVICE_API_KEY)
-
-def queue_hardware_command(command, value=None):
-    global hardware_command_counter, hardware_command
-    hardware_command_counter += 1
-    hardware_command = {
-        "id": hardware_command_counter,
-        "command": command,
-        "value": value,
-        "createdAt": int(time.time())
-    }
-    return hardware_command
-
-
-# ============================================================
-# ALERT DATA
-# ============================================================
-
-alert_data = {
-    "active": False,
-    "type": "NORMAL",
-    "severity": "normal",
-    "title": "No Active Alerts",
-    "message": "All monitored conditions are currently normal.",
-    "timestamp": None
+# Values are populated ONLY by hardware telemetry. No simulated defaults.
+state = {
+    "waterLevel": None, "temperature": None, "pump": None, "mode": None,
+    "runtime": None, "tank": "NO DATA", "emergency": None,
+    "sourceWater": None, "sourceWaterLevel": None,
+    "turbidityRaw": None, "turbidityVoltage": None, "turbidityNTU": None,
+    "turbidityStatus": "NOT CALIBRATED", "connected": False,
+    "connectionType": "DISCONNECTED"
 }
-
-
-# ============================================================
-# ALERT HISTORY
-# ============================================================
-
+settings = {"autoPumpOnLevel": 30.0, "autoPumpOffLevel": 90.0, "criticalLowLevel": 10.0}
 alert_history = []
 
-MAX_ALERT_HISTORY = 100
-
-
-# ============================================================
-# TIME TRACKING
-# ============================================================
-
-last_update_time = time.time()
-
-
-# ============================================================
-# CURRENT ALERT CALCULATION
-# ============================================================
-
-def determine_current_alert():
-
-    water_level = system_data["waterLevel"]
-
-    source_available = system_data[
-        "sourceWater"
-    ]
-
-    emergency = system_data[
-        "emergency"
-    ]
-
-    pump = system_data[
-        "pump"
-    ]
-
-    # --------------------------------------------------------
-    # PRIORITY 1 — EMERGENCY
-    # --------------------------------------------------------
-
-    if emergency:
-
-        return {
-            "active": True,
-            "type": "EMERGENCY",
-            "severity": "critical",
-            "title": "Emergency Shutdown Active",
-            "message":
-                "Emergency shutdown is active. "
-                "The pump has been stopped for safety."
-        }
-
-    # --------------------------------------------------------
-    # PRIORITY 2 — SOURCE WATER UNAVAILABLE
-    # --------------------------------------------------------
-
-    if not source_available:
-
-        return {
-            "active": True,
-            "type": "SOURCE_UNAVAILABLE",
-            "severity": "critical",
-            "title": "Source Water Unavailable",
-            "message":
-                "The source tank is empty. "
-                "The pump cannot operate until source water is available."
-        }
-
-    # --------------------------------------------------------
-    # PRIORITY 3 — CRITICALLY LOW MAIN TANK
-    # --------------------------------------------------------
-
-    if water_level <= CRITICAL_LOW_LEVEL:
-
-        return {
-            "active": True,
-            "type": "CRITICAL_LOW",
-            "severity": "critical",
-            "title": "Critically Low Water Level",
-            "message":
-                f"Main tank water level is critically low "
-                f"at {water_level:.2f}%."
-        }
-
-    # --------------------------------------------------------
-    # PRIORITY 4 — LOW MAIN TANK
-    # --------------------------------------------------------
-
-    if water_level <= AUTO_PUMP_ON_LEVEL:
-
-        return {
-            "active": True,
-            "type": "LOW_WATER",
-            "severity": "warning",
-            "title": "Low Water Level",
-            "message":
-                f"Main tank water level is low "
-                f"at {water_level:.2f}%."
-        }
-
-    # --------------------------------------------------------
-    # PRIORITY 5 — FULL TANK
-    # --------------------------------------------------------
-
-    if water_level >= AUTO_PUMP_OFF_LEVEL:
-
-        return {
-            "active": True,
-            "type": "TANK_FULL",
-            "severity": "normal",
-            "title": "Tank Full",
-            "message":
-                f"Main tank is full at "
-                f"{water_level:.2f}%."
-        }
-
-    # --------------------------------------------------------
-    # PRIORITY 6 — PUMP RUNNING
-    # --------------------------------------------------------
-
-    if pump:
-
-        return {
-            "active": True,
-            "type": "PUMP_RUNNING",
-            "severity": "info",
-            "title": "Pump Running",
-            "message":
-                "The water pump is currently running."
-        }
-
-    # --------------------------------------------------------
-    # NORMAL
-    # --------------------------------------------------------
-
-    return {
-        "active": False,
-        "type": "NORMAL",
-        "severity": "normal",
-        "title": "No Active Alerts",
-        "message":
-            "All monitored conditions are currently normal."
-    }
-
-
-# ============================================================
-# RECORD ALERT CHANGE
-# ============================================================
-
-def update_alert_state():
-
-    global alert_data
-
-    new_alert = determine_current_alert()
-
-    old_type = alert_data["type"]
-
-    new_type = new_alert["type"]
-
-    # --------------------------------------------------------
-    # FIRST ALERT STATE
-    # --------------------------------------------------------
-
-    if alert_data["timestamp"] is None:
-
-        if new_type != "NORMAL":
-
-            timestamp = time.strftime(
-                "%H:%M:%S"
-            )
-
-            new_alert["timestamp"] = timestamp
-
-            alert_history.insert(
-                0,
-                {
-                    "time": timestamp,
-                    "type": new_alert["type"],
-                    "severity": new_alert["severity"],
-                    "title": new_alert["title"],
-                    "message": new_alert["message"],
-                    "event": "ACTIVATED"
-                }
-            )
-
-        else:
-
-            new_alert["timestamp"] = None
-
-        alert_data = new_alert
-
-        return
-
-    # --------------------------------------------------------
-    # ALERT CHANGED
-    # --------------------------------------------------------
-
-    if new_type != old_type:
-
-        timestamp = time.strftime(
-            "%H:%M:%S"
-        )
-
-        # ----------------------------------------------------
-        # NEW NORMAL STATE
-        # ----------------------------------------------------
-
-        if new_type == "NORMAL":
-
-            alert_history.insert(
-                0,
-                {
-                    "time": timestamp,
-                    "type": old_type,
-                    "severity": "normal",
-                    "title": "Alert Resolved",
-                    "message":
-                        f"{alert_data['title']} has been resolved.",
-                    "event": "RESOLVED"
-                }
-            )
-
-            new_alert["timestamp"] = None
-
-        # ----------------------------------------------------
-        # NEW ALERT
-        # ----------------------------------------------------
-
-        else:
-
-            new_alert["timestamp"] = timestamp
-
-            alert_history.insert(
-                0,
-                {
-                    "time": timestamp,
-                    "type": new_alert["type"],
-                    "severity": new_alert["severity"],
-                    "title": new_alert["title"],
-                    "message": new_alert["message"],
-                    "event": "ACTIVATED"
-                }
-            )
-
-        # Keep history limited
-
-        if len(alert_history) > MAX_ALERT_HISTORY:
-
-            del alert_history[
-                MAX_ALERT_HISTORY:
-            ]
-
-    else:
-
-        # Same alert type.
-        # Update message but do not create
-        # another history item every second.
-
-        new_alert["timestamp"] = (
-            alert_data["timestamp"]
-        )
-
-    alert_data = new_alert
-
-
-# ============================================================
-# UPDATE TANK CONDITION
-# ============================================================
-
-def update_tank_condition():
-
-    water_level = system_data[
-        "waterLevel"
-    ]
-
-    if water_level <= AUTO_PUMP_ON_LEVEL:
-
-        system_data["tank"] = "LOW"
-
-    elif water_level >= AUTO_PUMP_OFF_LEVEL:
-
-        system_data["tank"] = "FULL"
-
-    else:
-
-        system_data["tank"] = "NORMAL"
-
-
-# ============================================================
-# UPDATE SIMULATION
-# ============================================================
-
-def update_simulation():
-
-    global last_update_time
-
-    current_time = time.time()
-
-    elapsed = (
-        current_time -
-        last_update_time
-    )
-
-    if elapsed <= 0:
-
-        return
-
-    last_update_time = current_time
-
-    # --------------------------------------------------------
-    # SOURCE WATER AUTOMATIC REFILL
-    # --------------------------------------------------------
-
-    if (
-        system_data["sourceWaterLevel"]
-        < SOURCE_MAX_LEVEL
-    ):
-
-        refill_amount = (
-            SOURCE_REFILL_RATE *
-            elapsed
-        )
-
-        system_data["sourceWaterLevel"] += (
-            refill_amount
-        )
-
-        system_data["sourceWaterLevel"] = min(
-            SOURCE_MAX_LEVEL,
-            system_data["sourceWaterLevel"]
-        )
-
-    # --------------------------------------------------------
-    # SOURCE WATER AVAILABILITY
-    # --------------------------------------------------------
-
-    if (
-        system_data["sourceWaterLevel"]
-        <= SOURCE_MIN_LEVEL
-    ):
-
-        system_data["sourceWaterLevel"] = (
-            SOURCE_MIN_LEVEL
-        )
-
-        system_data["sourceWater"] = False
-
-        system_data["pump"] = False
-
-    else:
-
-        system_data["sourceWater"] = True
-
-    # --------------------------------------------------------
-    # AUTO MODE
-    # --------------------------------------------------------
-
-    if system_data["mode"] == "AUTO":
-
-        if system_data["emergency"]:
-
-            system_data["pump"] = False
-
-        elif not system_data["sourceWater"]:
-
-            system_data["pump"] = False
-
-        elif (
-            system_data["waterLevel"]
-            <= AUTO_PUMP_ON_LEVEL
-        ):
-
-            system_data["pump"] = True
-
-        elif (
-            system_data["waterLevel"]
-            >= AUTO_PUMP_OFF_LEVEL
-        ):
-
-            system_data["pump"] = False
-
-    # --------------------------------------------------------
-    # WATER CONSUMPTION
-    # --------------------------------------------------------
-
-    if (
-        system_data["consumption"]
-        and not system_data["pump"]
-    ):
-
-        system_data["waterLevel"] -= (
-            CONSUMPTION_RATE *
-            elapsed
-        )
-
-    # --------------------------------------------------------
-    # PUMP FILLING
-    # --------------------------------------------------------
-
-    if system_data["pump"]:
-
-        if (
-            system_data["sourceWater"]
-            and
-            system_data["sourceWaterLevel"]
-            > SOURCE_MIN_LEVEL
-        ):
-
-            amount = (
-                PUMP_FILL_RATE *
-                elapsed
-            )
-
-            system_data["waterLevel"] += amount
-
-            system_data["sourceWaterLevel"] -= (
-                amount
-            )
-
-            system_data["sourceWaterLevel"] = max(
-                SOURCE_MIN_LEVEL,
-                system_data["sourceWaterLevel"]
-            )
-
-            # ------------------------------------------------
-            # MAIN TANK OVERFLOW PROTECTION
-            # ------------------------------------------------
-
-            if (
-                system_data["waterLevel"]
-                >= MAX_LEVEL
-            ):
-
-                system_data["waterLevel"] = (
-                    MAX_LEVEL
-                )
-
-                system_data["pump"] = False
-
-            # ------------------------------------------------
-            # SOURCE TANK EMPTY
-            # ------------------------------------------------
-
-            if (
-                system_data["sourceWaterLevel"]
-                <= SOURCE_MIN_LEVEL
-            ):
-
-                system_data["sourceWaterLevel"] = (
-                    SOURCE_MIN_LEVEL
-                )
-
-                system_data["sourceWater"] = False
-
-                system_data["pump"] = False
-
-        else:
-
-            system_data["sourceWater"] = False
-
-            system_data["pump"] = False
-
-    # --------------------------------------------------------
-    # KEEP SOURCE LEVEL VALID
-    # --------------------------------------------------------
-
-    system_data["sourceWaterLevel"] = max(
-        SOURCE_MIN_LEVEL,
-        min(
-            SOURCE_MAX_LEVEL,
-            system_data["sourceWaterLevel"]
-        )
-    )
-
-    # --------------------------------------------------------
-    # UPDATE SOURCE STATUS
-    # --------------------------------------------------------
-
-    if (
-        system_data["sourceWaterLevel"]
-        > SOURCE_MIN_LEVEL
-    ):
-
-        system_data["sourceWater"] = True
-
-    else:
-
-        system_data["sourceWater"] = False
-
-        system_data["pump"] = False
-
-    # --------------------------------------------------------
-    # KEEP MAIN TANK VALID
-    # --------------------------------------------------------
-
-    system_data["waterLevel"] = max(
-        MIN_LEVEL,
-        min(
-            MAX_LEVEL,
-            system_data["waterLevel"]
-        )
-    )
-
-    # --------------------------------------------------------
-    # PUMP RUNTIME
-    # --------------------------------------------------------
-
-    if system_data["pump"]:
-
-        system_data["runtime"] += elapsed
-
-    # --------------------------------------------------------
-    # AUTO SAFETY CHECK
-    # --------------------------------------------------------
-
-    if system_data["mode"] == "AUTO":
-
-        if system_data["emergency"]:
-
-            system_data["pump"] = False
-
-        elif not system_data["sourceWater"]:
-
-            system_data["pump"] = False
-
-        elif (
-            system_data["waterLevel"]
-            >= MAX_LEVEL
-        ):
-
-            system_data["waterLevel"] = (
-                MAX_LEVEL
-            )
-
-            system_data["pump"] = False
-
-        elif (
-            system_data["waterLevel"]
-            <= AUTO_PUMP_ON_LEVEL
-        ):
-
-            system_data["pump"] = True
-
-        elif (
-            system_data["waterLevel"]
-            >= AUTO_PUMP_OFF_LEVEL
-        ):
-
-            system_data["pump"] = False
-
-    # --------------------------------------------------------
-    # MANUAL MODE SAFETY
-    # --------------------------------------------------------
-
-    elif system_data["mode"] == "MANUAL":
-
-        if system_data["emergency"]:
-
-            system_data["pump"] = False
-
-        elif not system_data["sourceWater"]:
-
-            system_data["pump"] = False
-
-        elif (
-            system_data["waterLevel"]
-            >= MAX_LEVEL
-        ):
-
-            system_data["waterLevel"] = (
-                MAX_LEVEL
-            )
-
-            system_data["pump"] = False
-
-    # --------------------------------------------------------
-    # UPDATE TANK CONDITION
-    # --------------------------------------------------------
-
-    update_tank_condition()
-
-    # --------------------------------------------------------
-    # UPDATE ALERT STATE
-    # --------------------------------------------------------
-
-    update_alert_state()
-
-
-# ============================================================
-# HOME PAGE
-# ============================================================
+def online():
+    return bool(hardware_last_seen and time.time() - hardware_last_seen <= HARDWARE_TIMEOUT_SECONDS)
+
+def auth():
+    key = request.headers.get("X-Device-Key", "")
+    return bool(DEVICE_API_KEY) and secrets.compare_digest(key, DEVICE_API_KEY)
+
+def queue_command(command, value=None):
+    global hardware_command_id, hardware_command
+    hardware_command_id += 1
+    hardware_command = {"id": hardware_command_id, "command": command, "value": value}
+    return hardware_command
+
+def current_alert():
+    if not online():
+        return {"active": True, "type": "DISCONNECTED", "severity": "warning",
+                "title": "Hardware Disconnected", "message": "No recent data received from Arduino/NodeMCU."}
+    if state["emergency"]:
+        return {"active": True, "type": "EMERGENCY", "severity": "critical",
+                "title": "Emergency Shutdown Active", "message": "Pump stopped by emergency control."}
+    if state["sourceWater"] is False:
+        return {"active": True, "type": "SOURCE_UNAVAILABLE", "severity": "critical",
+                "title": "Source Water Empty", "message": "Source container is empty. Pump operation is blocked."}
+    if state["waterLevel"] is not None and state["waterLevel"] <= settings["criticalLowLevel"]:
+        return {"active": True, "type": "CRITICAL_LOW", "severity": "critical",
+                "title": "Critically Low Water", "message": "Main tank water level is critically low."}
+    if state["waterLevel"] is not None and state["waterLevel"] <= settings["autoPumpOnLevel"]:
+        return {"active": True, "type": "LOW_WATER", "severity": "warning",
+                "title": "Low Water Level", "message": "Main tank water level is low."}
+    if state["waterLevel"] is not None and state["waterLevel"] >= settings["autoPumpOffLevel"]:
+        return {"active": True, "type": "TANK_FULL", "severity": "normal",
+                "title": "Tank Full", "message": "Main tank is full."}
+    if state["turbidityStatus"] == "POOR":
+        return {"active": True, "type": "POOR_WATER_QUALITY", "severity": "warning",
+                "title": "Poor Water Quality", "message": "Turbidity reading indicates poor water clarity."}
+    return {"active": False, "type": "NORMAL", "severity": "normal",
+            "title": "No Active Alerts", "message": "No active hardware alerts."}
 
 @app.route("/")
 def home():
-
-    return render_template(
-        "index.html"
-    )
-
-
-# ============================================================
-# PWA MANIFEST
-# ============================================================
+    return render_template("index.html")
 
 @app.route("/manifest.json")
 def manifest():
-
-    return app.send_static_file(
-        "manifest.json"
-    )
-
-
-# ============================================================
-# PWA SERVICE WORKER
-# ============================================================
+    return app.send_static_file("manifest.json")
 
 @app.route("/service-worker.js")
 def service_worker():
-
-    response = app.send_static_file(
-        "service-worker.js"
-    )
-
-    response.headers[
-        "Content-Type"
-    ] = "application/javascript"
-
-    response.headers[
-        "Service-Worker-Allowed"
-    ] = "/"
-
+    response = app.send_static_file("service-worker.js")
+    response.headers["Content-Type"] = "application/javascript"
+    response.headers["Service-Worker-Allowed"] = "/"
     return response
 
-
-# ============================================================
-# SYSTEM STATUS
-# ============================================================
-
 @app.route("/api/status")
-def get_status():
-
-    if hardware_is_online():
-        system_data["connected"] = True
-        system_data["connectionType"] = "HARDWARE"
-    else:
-        system_data["connected"] = False
-        system_data["connectionType"] = "SIMULATION"
-        update_simulation()
-
-    return jsonify({
-
-        "waterLevel":
-            round(
-                system_data["waterLevel"],
-                2
-            ),
-
-        "temperature": system_data.get("temperature"),
-        "connectionType": system_data.get("connectionType", "SIMULATION"),
-        "hardwareLastSeen": int(hardware_last_seen) if hardware_last_seen else None,
-
-        "pump":
-            system_data["pump"],
-
-        "mode":
-            system_data["mode"],
-
-        "runtime":
-            int(
-                system_data["runtime"]
-            ),
-
-        "tank":
-            system_data["tank"],
-
-        "consumption":
-            system_data["consumption"],
-
-        "sourceWater":
-            system_data["sourceWater"],
-
-        "sourceWaterLevel":
-            round(
-                system_data["sourceWaterLevel"],
-                2
-            ),
-
-        "emergency":
-            system_data["emergency"],
-
-        "connected":
-            system_data["connected"],
-
-        "alert":
-            alert_data,
-
-        "alertHistory":
-            alert_history[:],
-
-        "settings":
-            get_settings()
-    })
-
-
-# ============================================================
-# ESP8266 HARDWARE API
-# ============================================================
+def status():
+    connected = online()
+    state["connected"] = connected
+    state["connectionType"] = "HARDWARE" if connected else "DISCONNECTED"
+    alert = current_alert()
+    return jsonify({**state, "alert": alert, "alertHistory": alert_history[:],
+                    "settings": settings, "hardwareLastSeen": int(hardware_last_seen) if hardware_last_seen else None})
 
 @app.route("/api/hardware/telemetry", methods=["POST"])
-def receive_hardware_telemetry():
+def telemetry():
     global hardware_last_seen
-    if not require_device_key():
-        return jsonify({"success": False, "message": "Unauthorized device."}), 401
-
+    if not auth():
+        return jsonify(success=False, message="Unauthorized device"), 401
     data = request.get_json(silent=True) or {}
     try:
-        if "waterLevel" in data:
-            level = float(data["waterLevel"])
-            if not 0 <= level <= 100:
-                raise ValueError("waterLevel must be between 0 and 100")
-            system_data["waterLevel"] = round(level, 2)
-        if "temperature" in data:
-            temperature = data["temperature"]
-            if temperature is None:
-                system_data["temperature"] = None
-            else:
-                temperature = float(temperature)
-                if not -55 <= temperature <= 125:
-                    raise ValueError("Invalid DS18B20 temperature")
-                system_data["temperature"] = round(temperature, 2)
-        if "pump" in data:
-            system_data["pump"] = bool(data["pump"])
-        if "mode" in data and data["mode"] in ("AUTO", "MANUAL"):
-            system_data["mode"] = data["mode"]
-        if "runtime" in data:
-            system_data["runtime"] = max(0, int(data["runtime"]))
-        if "emergency" in data:
-            system_data["emergency"] = bool(data["emergency"])
-        if "tank" in data and isinstance(data["tank"], str):
-            system_data["tank"] = data["tank"][:20].upper()
-    except (TypeError, ValueError) as exc:
-        return jsonify({"success": False, "message": str(exc)}), 400
-
+        numeric = {
+            "waterLevel": (0, 100), "temperature": (-55, 125),
+            "runtime": (0, 2147483647), "sourceWaterLevel": (0, 100),
+            "turbidityRaw": (0, 1023), "turbidityVoltage": (0, 5),
+            "turbidityNTU": (0, 100000)
+        }
+        for key, (lo, hi) in numeric.items():
+            if key in data:
+                value = data[key]
+                if value is None:
+                    state[key] = None
+                else:
+                    value = float(value)
+                    if not lo <= value <= hi:
+                        raise ValueError(f"{key} is out of range")
+                    state[key] = round(value, 2) if key != "runtime" and key != "turbidityRaw" else int(value)
+        for key in ("pump", "emergency", "sourceWater"):
+            if key in data:
+                if not isinstance(data[key], bool):
+                    raise ValueError(f"{key} must be true or false")
+                state[key] = data[key]
+        if data.get("mode") in ("AUTO", "MANUAL"):
+            state["mode"] = data["mode"]
+        if isinstance(data.get("tank"), str):
+            state["tank"] = data["tank"][:20].upper()
+        if isinstance(data.get("turbidityStatus"), str):
+            allowed = ("CLEAR", "MODERATE", "POOR", "NOT CALIBRATED", "SENSOR ERROR")
+            if data["turbidityStatus"] not in allowed:
+                raise ValueError("Invalid turbidityStatus")
+            state["turbidityStatus"] = data["turbidityStatus"]
+    except (ValueError, TypeError) as exc:
+        return jsonify(success=False, message=str(exc)), 400
     hardware_last_seen = time.time()
-    system_data["connected"] = True
-    system_data["connectionType"] = "HARDWARE"
-    update_tank_condition()
-    update_alert_state()
-    return jsonify({"success": True, "message": "Hardware data received."})
+    state["connected"] = True
+    state["connectionType"] = "HARDWARE"
+    # Finite source container: do not refill it in software. The physical sensor
+    # must report sourceWater/sourceWaterLevel. If empty, force a pump-off command.
+    if state["sourceWater"] is False:
+        state["pump"] = False
+        queue_command("PUMP", "OFF")
+    return jsonify(success=True, message="Hardware telemetry received")
 
-@app.route("/api/hardware/command", methods=["GET"])
-def get_hardware_command():
-    if not require_device_key():
-        return jsonify({"success": False, "message": "Unauthorized device."}), 401
-    return jsonify({"success": True, "command": hardware_command})
+@app.route("/api/hardware/command")
+def device_command():
+    if not auth():
+        return jsonify(success=False, message="Unauthorized device"), 401
+    return jsonify(success=True, command=hardware_command)
 
 @app.route("/api/hardware/ack", methods=["POST"])
-def acknowledge_hardware_command():
+def device_ack():
     global hardware_command
-    if not require_device_key():
-        return jsonify({"success": False, "message": "Unauthorized device."}), 401
+    if not auth():
+        return jsonify(success=False), 401
     data = request.get_json(silent=True) or {}
     if hardware_command and data.get("id") == hardware_command.get("id"):
         hardware_command = None
-    return jsonify({"success": True})
+    return jsonify(success=True)
 
+@app.route("/api/mode", methods=["POST"])
+def set_mode():
+    data = request.get_json(silent=True) or {}
+    mode = data.get("mode")
+    if mode not in ("AUTO", "MANUAL"):
+        return jsonify(success=False, message="Invalid mode"), 400
+    if not online():
+        return jsonify(success=False, message="Hardware is disconnected; command not sent")
+    queue_command("SET_MODE", mode)
+    return jsonify(success=True, mode=mode, message="Mode command sent to hardware")
 
-# ============================================================
-# SETTINGS FORMATTER HELPER
-# ============================================================
+@app.route("/api/pump", methods=["POST"])
+def pump():
+    data = request.get_json(silent=True) or {}
+    command = data.get("command")
+    if command not in ("ON", "OFF"):
+        return jsonify(success=False, message="Invalid pump command"), 400
+    if not online():
+        return jsonify(success=False, message="Hardware is disconnected; command not sent")
+    if command == "ON":
+        if state["mode"] != "MANUAL":
+            return jsonify(success=False, message="Switch to MANUAL mode first")
+        if state["emergency"]:
+            return jsonify(success=False, message="Emergency shutdown is active")
+        if state["sourceWater"] is not True:
+            return jsonify(success=False, message="Source water empty or source sensor data unavailable")
+        if state["waterLevel"] is None or state["waterLevel"] >= 100:
+            return jsonify(success=False, message="Main tank full or water-level data unavailable")
+    queue_command("PUMP", command)
+    return jsonify(success=True, message=f"Pump {command} command sent to hardware")
 
-def get_settings():
-    """
-    Helper function to safely construct a dictionary representation 
-    of the current dynamic runtime global engine parameters.
-    """
-    return {
-        "consumptionRate": CONSUMPTION_RATE,
-        "pumpFillRate": PUMP_FILL_RATE,
-        "autoPumpOnLevel": AUTO_PUMP_ON_LEVEL,
-        "autoPumpOffLevel": AUTO_PUMP_OFF_LEVEL,
-        "sourceRefillRate": SOURCE_REFILL_RATE,
-        "criticalLowLevel": CRITICAL_LOW_LEVEL,
-        "minLevel": MIN_LEVEL,
-        "maxLevel": MAX_LEVEL
-    }
+@app.route("/api/emergency", methods=["POST"])
+def emergency():
+    data = request.get_json(silent=True) or {}
+    command = data.get("command")
+    if command not in ("ON", "OFF"):
+        return jsonify(success=False, message="Invalid emergency command"), 400
+    if not online():
+        return jsonify(success=False, message="Hardware is disconnected; command not sent")
+    queue_command("EMERGENCY", command)
+    return jsonify(success=True, emergency=(command == "ON"), message="Emergency command sent")
 
-
-# ============================================================
-# GET SETTINGS
-# ============================================================
-
-@app.route("/api/settings")
-def get_settings_api():
-
-    update_simulation()
-
-    return jsonify({
-
-        "success": True,
-
-        "settings":
-            get_settings()
-    })
-
-
-# ============================================================
-# UPDATE SETTINGS
-# ============================================================
-
-@app.route(
-    "/api/settings",
-    methods=["POST"]
-)
-def update_settings():
-
-    # We can omit individual globals here because load_settings() 
-    # will handle safe atomic updates to global runtime scope variables.
-    update_simulation()
-
-    data = request.get_json(
-        silent=True
-    ) or {}
-
-    # ========================================================
-    # ONLY THESE SETTINGS CAN BE CHANGED BY NORMAL USERS
-    # ========================================================
-
+@app.route("/api/settings", methods=["GET", "POST"])
+def settings_api():
+    if request.method == "GET":
+        return jsonify(success=True, settings=settings)
+    data = request.get_json(silent=True) or {}
     try:
-
-        new_consumption_rate = float(
-            data.get(
-                "consumptionRate",
-                CONSUMPTION_RATE
-            )
-        )
-
-        new_pump_fill_rate = float(
-            data.get(
-                "pumpFillRate",
-                PUMP_FILL_RATE
-            )
-        )
-
-        new_auto_on = float(
-            data.get(
-                "autoPumpOnLevel",
-                AUTO_PUMP_ON_LEVEL
-            )
-        )
-
-        new_auto_off = float(
-            data.get(
-                "autoPumpOffLevel",
-                AUTO_PUMP_OFF_LEVEL
-            )
-        )
-
-        new_source_refill = float(
-            data.get(
-                "sourceRefillRate",
-                SOURCE_REFILL_RATE
-            )
-        )
-
-        new_critical_low = float(
-            data.get(
-                "criticalLowLevel",
-                CRITICAL_LOW_LEVEL
-            )
-        )
-
-    except (
-        TypeError,
-        ValueError
-    ):
-
-        return jsonify({
-
-            "success": False,
-
-            "message":
-                "All editable settings must contain valid numbers."
-
-        }), 400
-
-    # ========================================================
-    # VALIDATION
-    # ========================================================
-
-    if new_consumption_rate < 0:
-
-        return jsonify({
-
-            "success": False,
-
-            "message":
-                "Consumption rate cannot be negative."
-
-        }), 400
-
-    if new_pump_fill_rate < 0:
-
-        return jsonify({
-
-            "success": False,
-
-            "message":
-                "Pump fill rate cannot be negative."
-
-        }), 400
-
-    if new_source_refill < 0:
-
-        return jsonify({
-
-            "success": False,
-
-            "message":
-                "Source refill rate cannot be negative."
-
-        }), 400
-
-    if not (
-        0 <= new_auto_on <= 100
-    ):
-
-        return jsonify({
-
-            "success": False,
-
-            "message":
-                "Pump ON level must be between 0% and 100%."
-
-        }), 400
-
-    if not (
-        0 <= new_auto_off <= 100
-    ):
-
-        return jsonify({
-
-            "success": False,
-
-            "message":
-                "Pump OFF level must be between 0% and 100%."
-
-        }), 400
-
-    if new_auto_on >= new_auto_off:
-
-        return jsonify({
-
-            "success": False,
-
-            "message":
-                "Pump ON level must be lower than Pump OFF level."
-
-        }), 400
-
-    if not (
-        0 <= new_critical_low <= 100
-    ):
-
-        return jsonify({
-
-            "success": False,
-
-            "message":
-                "Critical low level must be between 0% and 100%."
-
-        }), 400
-
-    # ========================================================
-    # PREPARE NEW SETTINGS
-    # ========================================================
-
-    new_settings = {
-
-        # User editable
-        "consumptionRate":
-            new_consumption_rate,
-
-        "pumpFillRate":
-            new_pump_fill_rate,
-
-        "autoPumpOnLevel":
-            new_auto_on,
-
-        "autoPumpOffLevel":
-            new_auto_off,
-
-        "sourceRefillRate":
-            new_source_refill,
-
-        "criticalLowLevel":
-            new_critical_low,
-
-        # Fixed system limits
-        "minLevel":
-            MIN_LEVEL,
-
-        "maxLevel":
-            MAX_LEVEL
-    }
-
-    # ========================================================
-    # SAVE PERMANENTLY FIRST
-    # ========================================================
-
-    try:
-
-        save_settings_to_file(
-            new_settings
-        )
-
-    except OSError:
-
-        return jsonify({
-
-            "success": False,
-
-            "message":
-                "Could not save settings. "
-                "Please check that the application folder is writable."
-
-        }), 500
-
-    # ========================================================
-    # APPLY SETTINGS TO RUNNING SYSTEM VIA SYSTEM BOOT LOADER
-    # ========================================================
-
-    # FIXED: Calling load_settings() automatically validates, parses,
-    # and commits everything to runtime memory global parameters safely.
-    load_settings()
-
-    # ========================================================
-    # RE-EVALUATE CURRENT SYSTEM
-    # ========================================================
-
-    update_tank_condition()
-
-    # --------------------------------------------------------
-    # Immediately re-evaluate AUTO mode
-    # --------------------------------------------------------
-
-    if system_data["mode"] == "AUTO":
-
-        if system_data["emergency"]:
-
-            system_data["pump"] = False
-
-        elif not system_data["sourceWater"]:
-
-            system_data["pump"] = False
-
-        elif (
-            system_data["waterLevel"]
-            >= MAX_LEVEL
-        ):
-
-            system_data["waterLevel"] = (
-                MAX_LEVEL
-            )
-
-            system_data["pump"] = False
-
-        elif (
-            system_data["waterLevel"]
-            <= AUTO_PUMP_ON_LEVEL
-        ):
-
-            system_data["pump"] = True
-
-        elif (
-            system_data["waterLevel"]
-            >= AUTO_PUMP_OFF_LEVEL
-        ):
-
-            system_data["pump"] = False
-
-    update_tank_condition()
-
-    update_alert_state()
-
-    # ========================================================
-    # SUCCESS
-    # ========================================================
-
-    return jsonify({
-
-        "success": True,
-
-        "message":
-            "System settings updated and saved successfully.",
-
-        "settings":
-            get_settings()
-    })
-
-
-# ============================================================
-# MODE CONTROL
-# ============================================================
-
-@app.route(
-    "/api/mode",
-    methods=["POST"]
-)
-def change_mode():
-
-    if not hardware_is_online():
-        update_simulation()
-
-    data = request.get_json(
-        silent=True
-    ) or {}
-
-    requested_mode = data.get(
-        "mode"
-    )
-
-    if requested_mode not in [
-        "AUTO",
-        "MANUAL"
-    ]:
-
-        return jsonify({
-
-            "success": False,
-
-            "message":
-                "Invalid operating mode."
-
-        }), 400
-
-    system_data["mode"] = (
-        requested_mode
-    )
-
-    if hardware_is_online():
-        queue_hardware_command("SET_MODE", requested_mode)
-
-    # --------------------------------------------------------
-    # AUTO MODE
-    # --------------------------------------------------------
-
-    if requested_mode == "AUTO":
-
-        if system_data["emergency"]:
-
-            system_data["pump"] = False
-
-        elif not system_data["sourceWater"]:
-
-            system_data["pump"] = False
-
-        elif (
-            system_data["waterLevel"]
-            >= MAX_LEVEL
-        ):
-
-            system_data["waterLevel"] = (
-                MAX_LEVEL
-            )
-
-            system_data["pump"] = False
-
-        elif (
-            system_data["waterLevel"]
-            <= AUTO_PUMP_ON_LEVEL
-        ):
-
-            system_data["pump"] = True
-
-        elif (
-            system_data["waterLevel"]
-            >= AUTO_PUMP_OFF_LEVEL
-        ):
-
-            system_data["pump"] = False
-
-    update_alert_state()
-
-    return jsonify({
-
-        "success": True,
-
-        "message":
-            f"Operating mode changed to {requested_mode}.",
-
-        "mode":
-            requested_mode
-    })
-
-
-# ============================================================
-# PUMP CONTROL
-# ============================================================
-
-@app.route(
-    "/api/pump",
-    methods=["POST"]
-)
-def pump_control():
-
-    if not hardware_is_online():
-        update_simulation()
-
-    data = request.get_json(
-        silent=True
-    ) or {}
-
-    command = data.get(
-        "command"
-    )
-
-    # --------------------------------------------------------
-    # ONLY MANUAL MODE
-    # --------------------------------------------------------
-
-    if system_data["mode"] != "MANUAL":
-
-        return jsonify({
-
-            "success": False,
-
-            "message":
-                "Switch to MANUAL mode to control the pump."
-        })
-
-    # --------------------------------------------------------
-    # EMERGENCY
-    # --------------------------------------------------------
-
-    if system_data["emergency"]:
-
-        system_data["pump"] = False
-
-        update_alert_state()
-
-        return jsonify({
-
-            "success": False,
-
-            "message":
-                "Emergency shutdown is active."
-        })
-
-    # --------------------------------------------------------
-    # SOURCE WATER
-    # --------------------------------------------------------
-
-    if not system_data["sourceWater"]:
-
-        system_data["pump"] = False
-
-        update_alert_state()
-
-        return jsonify({
-
-            "success": False,
-
-            "message":
-                "Source water is unavailable."
-        })
-
-    # --------------------------------------------------------
-    # PUMP ON
-    # --------------------------------------------------------
-
-    if command == "ON":
-
-        if (
-            system_data["waterLevel"]
-            >= MAX_LEVEL
-        ):
-
-            return jsonify({
-
-                "success": False,
-
-                "message":
-                    "Tank is already full."
-            })
-
-        if hardware_is_online():
-            queue_hardware_command("PUMP", "ON")
-        else:
-            system_data["pump"] = True
-
-        update_alert_state()
-
-        return jsonify({
-
-            "success": True,
-
-            "message":
-                "Pump turned ON."
-        })
-
-    # --------------------------------------------------------
-    # PUMP OFF
-    # --------------------------------------------------------
-
-    elif command == "OFF":
-
-        if hardware_is_online():
-            queue_hardware_command("PUMP", "OFF")
-        else:
-            system_data["pump"] = False
-
-        update_alert_state()
-
-        return jsonify({
-
-            "success": True,
-
-            "message":
-                "Pump OFF command sent." if hardware_is_online() else "Pump turned OFF."
-        })
-
-    # --------------------------------------------------------
-    # INVALID
-    # --------------------------------------------------------
-
-    return jsonify({
-
-        "success": False,
-
-        "message":
-            "Invalid pump command."
-
-    }), 400
-
-
-# ============================================================
-# WATER CONSUMPTION CONTROL
-# ============================================================
-
-@app.route(
-    "/api/consumption",
-    methods=["POST"]
-)
-def consumption_control():
-
-    update_simulation()
-
-    data = request.get_json(
-        silent=True
-    ) or {}
-
-    command = data.get(
-        "command"
-    )
-
-    if command == "ON":
-
-        system_data["consumption"] = True
-
-        return jsonify({
-
-            "success": True,
-
-            "message":
-                "Water consumption turned ON.",
-
-            "consumption":
-                True
-        })
-
-    elif command == "OFF":
-
-        system_data["consumption"] = False
-
-        return jsonify({
-
-            "success": True,
-
-            "message":
-                "Water consumption turned OFF.",
-
-            "consumption":
-                False
-        })
-
-    return jsonify({
-
-        "success": False,
-
-        "message":
-            "Invalid consumption command."
-
-    }), 400
-
-
-# ============================================================
-# SOURCE WATER CONTROL
-# ============================================================
-
-@app.route(
-    "/api/source-water",
-    methods=["POST"]
-)
-def source_water_control():
-
-    update_simulation()
-
-    data = request.get_json(
-        silent=True
-    ) or {}
-
-    available = data.get(
-        "available"
-    )
-
-    if not isinstance(
-        available,
-        bool
-    ):
-
-        return jsonify({
-
-            "success": False,
-
-            "message":
-                "Invalid source-water state."
-
-        }), 400
-
-    # --------------------------------------------------------
-    # SOURCE WATER AVAILABLE
-    # --------------------------------------------------------
-
-    if available:
-
-        if (
-            system_data["sourceWaterLevel"]
-            <= SOURCE_MIN_LEVEL
-        ):
-
-            system_data["sourceWaterLevel"] = (
-                SOURCE_START_LEVEL
-            )
-
-        system_data["sourceWater"] = True
-
-    # --------------------------------------------------------
-    # SOURCE WATER UNAVAILABLE
-    # --------------------------------------------------------
-
-    else:
-
-        system_data["sourceWaterLevel"] = (
-            SOURCE_MIN_LEVEL
-        )
-
-        system_data["sourceWater"] = False
-
-        system_data["pump"] = False
-
-    update_alert_state()
-
-    return jsonify({
-
-        "success": True,
-
-        "message":
-            (
-                "Source water restored."
-                if available
-                else
-                "Source water marked unavailable."
-            ),
-
-        "sourceWater":
-            system_data["sourceWater"],
-
-        "sourceWaterLevel":
-            round(
-                system_data["sourceWaterLevel"],
-                2
-            )
-    })
-
-
-# ============================================================
-# EMERGENCY CONTROL
-# ============================================================
-
-@app.route(
-    "/api/emergency",
-    methods=["POST"]
-)
-def emergency_control():
-
-    if not hardware_is_online():
-        update_simulation()
-
-    data = request.get_json(
-        silent=True
-    ) or {}
-
-    command = data.get(
-        "command"
-    )
-
-    # --------------------------------------------------------
-    # ACTIVATE
-    # --------------------------------------------------------
-
-    if command == "ON":
-
-        system_data["emergency"] = True
-
-        system_data["pump"] = False
-        if hardware_is_online():
-            queue_hardware_command("EMERGENCY", "ON")
-
-        update_alert_state()
-
-        return jsonify({
-
-            "success": True,
-
-            "message":
-                "Emergency shutdown activated.",
-
-            "emergency":
-                True
-        })
-
-    # --------------------------------------------------------
-    # DEACTIVATE
-    # --------------------------------------------------------
-
-    elif command == "OFF":
-
-        system_data["emergency"] = False
-        if hardware_is_online():
-            queue_hardware_command("EMERGENCY", "OFF")
-
-        # Do NOT automatically start pump here.
-        # AUTO mode will decide on the next update.
-
-        update_alert_state()
-
-        return jsonify({
-
-            "success": True,
-
-            "message":
-                "Emergency shutdown cleared.",
-
-            "emergency":
-                False
-        })
-
-    return jsonify({
-
-        "success": False,
-
-        "message":
-            "Invalid emergency command."
-
-    }), 400
-
-
-# ============================================================
-# CLEAR ALERT HISTORY
-# ============================================================
-
-@app.route(
-    "/api/alerts/clear",
-    methods=["POST"]
-)
-def clear_alert_history():
-
+        on = float(data.get("autoPumpOnLevel", settings["autoPumpOnLevel"]))
+        off = float(data.get("autoPumpOffLevel", settings["autoPumpOffLevel"]))
+        low = float(data.get("criticalLowLevel", settings["criticalLowLevel"]))
+        if not (0 <= low <= on < off <= 100):
+            raise ValueError("Thresholds must satisfy 0 ≤ critical low ≤ pump ON < pump OFF ≤ 100")
+    except (ValueError, TypeError) as exc:
+        return jsonify(success=False, message=str(exc)), 400
+    settings.update(autoPumpOnLevel=on, autoPumpOffLevel=off, criticalLowLevel=low)
+    return jsonify(success=True, settings=settings, message="Threshold settings saved")
+
+@app.route("/api/alerts/clear", methods=["POST"])
+def clear_alerts():
     alert_history.clear()
+    return jsonify(success=True)
 
-    return jsonify({
+@app.route("/api/consumption", methods=["POST"])
+def removed_consumption():
+    return jsonify(success=False, message="Water consumption simulation has been removed."), 410
 
-        "success": True,
-
-        "message":
-            "Alert history cleared."
-    })
-
-
-# ============================================================
-# RUN FLASK
-# ============================================================
+@app.route("/api/source-water", methods=["POST"])
+def removed_source_toggle():
+    return jsonify(success=False, message="Source water status must come from the physical source-container sensor."), 410
 
 if __name__ == "__main__":
-
-    app.run(
-        host="0.0.0.0",
-        port=5000
-    )
+    app.run(host="0.0.0.0", port=5000)
