@@ -334,7 +334,7 @@
 
                                 <div id="waterLevel"
                                      class="large-number">
-                                    75.00%
+                                    --
                                 </div>
 
                                 <span class="muted">
@@ -352,7 +352,7 @@
                                          class="water-fill">
 
                                         <span id="waterFillText">
-                                            75%
+                                            --
                                         </span>
 
                                     </div>
@@ -376,7 +376,7 @@
                             <span>0%</span>
                             <span>25%</span>
                             <span>50%</span>
-                            <span>75%</span>
+                            <span>--</span>
                             <span>100%</span>
 
                         </div>
@@ -406,6 +406,26 @@
 
                     </div>
 
+
+                    <!-- TURBIDITY SENSOR -->
+                    <div class="card">
+                        <div class="card-header">
+                            <div>
+                                <span class="card-label">WATER QUALITY</span>
+                                <h2>Turbidity</h2>
+                            </div>
+                            <span id="turbidityStatus" class="status-badge off">NO DATA</span>
+                        </div>
+                        <div class="water-overview">
+                            <div>
+                                <div id="turbidityNTU" class="large-number">--</div>
+                                <span class="muted">NTU (only after calibration)</span>
+                                <p id="turbidityRaw" class="muted">Raw ADC: -- | Voltage: -- V</p>
+                            </div>
+                            <div class="pump-icon" aria-hidden="true">🧪</div>
+                        </div>
+                        <p id="turbidityDescription" class="muted">Waiting for turbidity sensor data.</p>
+                    </div>
 
                     <!-- PUMP -->
 
@@ -584,24 +604,11 @@
                             <div class="quick-status">
 
                                 <span>
-                                    Source Water
+                                    Source Container
                                 </span>
 
                                 <strong id="homeSourceWater">
-                                    AVAILABLE
-                                </strong>
-
-                            </div>
-
-
-                            <div class="quick-status">
-
-                                <span>
-                                    Consumption
-                                </span>
-
-                                <strong id="homeConsumption">
-                                    ON
+                                    NO DATA
                                 </strong>
 
                             </div>
@@ -637,55 +644,6 @@
 
                     </div>
 
-
-                </div>
-
-
-                <!-- ==================================================
-                     CONSUMPTION CONTROL
-                ================================================== -->
-
-                <div class="card consumption-control-card">
-
-                    <div class="consumption-main">
-
-                        <div class="consumption-icon">
-                            💧
-                        </div>
-
-                        <div>
-
-                            <span class="card-label">
-                                WATER USAGE
-                            </span>
-
-                            <h2>
-                                Water Consumption
-                            </h2>
-
-                            <p id="consumptionDescription">
-                                Water is being consumed automatically
-                            </p>
-
-                        </div>
-
-                    </div>
-
-
-                    <div class="consumption-action">
-
-                        <span id="consumptionStatus"
-                              class="status-badge on">
-                            ON
-                        </span>
-
-                        <button id="consumptionButton"
-                                class="control-button consumption-button"
-                                onclick="toggleConsumption()">
-                            TURN OFF
-                        </button>
-
-                    </div>
 
                 </div>
 
@@ -846,7 +804,7 @@
                         </span>
 
                         <h2>
-                            Source Water
+                            Source Container
                         </h2>
 
                         <strong id="monitorSourceWater"
@@ -882,10 +840,6 @@
                                 class="monitor-big-value">
                             AUTO
                         </strong>
-
-                        <p id="monitorConsumption">
-                            Consumption: ON
-                        </p>
 
                     </div>
 
@@ -1233,7 +1187,7 @@
 
                         <div class="safety-row">
 
-                            <span>Source Water</span>
+                            <span>Source Container</span>
 
                             <strong id="emergencySourceWater">
                                 --
@@ -1436,7 +1390,7 @@
                         </h1>
 
                         <p>
-                            Adjust how your water-management simulation operates.
+                            Configure hardware safety thresholds.
                         </p>
 
                     </div>
@@ -1533,127 +1487,7 @@
                     </div>
 
 
-                    <!-- SIMULATION SETTINGS -->
-
-                    <div class="card settings-section">
-
-                        <div class="settings-section-header">
-
-                            <div class="settings-section-icon">
-                                💧
-                            </div>
-
-                            <div>
-
-                                <span class="card-label">
-                                    SIMULATION
-                                </span>
-
-                                <h2>
-                                    Water Flow Rates
-                                </h2>
-
-                            </div>
-
-                        </div>
-
-
-                        <div class="settings-form">
-
-
-                            <div class="setting-field">
-
-                                <label for="consumptionRateInput">
-                                    Consumption Rate
-                                </label>
-
-                                <div class="input-with-unit">
-
-                                    <input
-                                        id="consumptionRateInput"
-                                        type="number"
-                                        min="0"
-                                        max="100"
-                                        step="0.1"
-                                        value="2">
-
-                                    <span>
-                                        % / sec
-                                    </span>
-
-                                </div>
-
-                                <small>
-                                    Rate at which water leaves the main tank.
-                                </small>
-
-                            </div>
-
-
-                            <div class="setting-field">
-
-                                <label for="pumpFillRateInput">
-                                    Pump Fill Rate
-                                </label>
-
-                                <div class="input-with-unit">
-
-                                    <input
-                                        id="pumpFillRateInput"
-                                        type="number"
-                                        min="0"
-                                        max="100"
-                                        step="0.1"
-                                        value="2">
-
-                                    <span>
-                                        % / sec
-                                    </span>
-
-                                </div>
-
-                                <small>
-                                    Rate at which the pump fills the main tank.
-                                </small>
-
-                            </div>
-
-
-                            <div class="setting-field">
-
-                                <label for="sourceRefillRateInput">
-                                    Source Refill Rate
-                                </label>
-
-                                <div class="input-with-unit">
-
-                                    <input
-                                        id="sourceRefillRateInput"
-                                        type="number"
-                                        min="0"
-                                        max="100"
-                                        step="0.1"
-                                        value="1">
-
-                                    <span>
-                                        % / sec
-                                    </span>
-
-                                </div>
-
-                                <small>
-                                    Rate at which the source tank refills.
-                                </small>
-
-                            </div>
-
-                        </div>
-
-                    </div>
-
-
-                </div>
-
+                                    </div>
 
                 <!-- SETTINGS ACTIONS -->
 
