@@ -115,7 +115,7 @@ document.addEventListener(
 
         setupEmergencyButton();
 
-        setupConsumptionButton();
+    
 
         setupHistoryButton();
 
@@ -432,22 +432,44 @@ async function updateDashboard() {
             temperatureStatus.className = "status-badge " + (hasTemperature ? "normal" : "off");
         }
 
+        const turbidityStatus = document.getElementById("turbidityStatus");
+        const turbidityNTU = document.getElementById("turbidityNTU");
+        const turbidityRaw = document.getElementById("turbidityRaw");
+        const turbidityDescription = document.getElementById("turbidityDescription");
+        const turbidityValuePresent = data.turbidityNTU !== null && data.turbidityNTU !== undefined;
+        if (turbidityNTU) turbidityNTU.textContent = turbidityValuePresent ? Number(data.turbidityNTU).toFixed(2) : "--";
+        if (turbidityRaw) {
+            const raw = data.turbidityRaw === null || data.turbidityRaw === undefined ? "--" : data.turbidityRaw;
+            const volts = data.turbidityVoltage === null || data.turbidityVoltage === undefined ? "--" : Number(data.turbidityVoltage).toFixed(3);
+            turbidityRaw.textContent = "Raw ADC: " + raw + " | Voltage: " + volts + " V";
+        }
+        if (turbidityStatus) {
+            const label = data.turbidityStatus || "NO DATA";
+            turbidityStatus.textContent = label;
+            turbidityStatus.className = "status-badge " + (label === "CLEAR" ? "normal" : (label === "POOR" || label === "SENSOR ERROR" ? "low" : "off"));
+        }
+        if (turbidityDescription) {
+            turbidityDescription.textContent = !data.connected ? "Waiting for hardware connection." :
+                (turbidityValuePresent ? "Calibrated turbidity value received from the sensor." :
+                "Raw sensor data may be available, but NTU calibration is not configured.");
+        }
+
 
         const waterLevel =
-            Number(
-                data.waterLevel
-            );
+            data.waterLevel === null || data.waterLevel === undefined
+                ? NaN
+                : Number(data.waterLevel);
 
 
         updateElementText(
             "waterLevel",
-            waterLevel.toFixed(2) + "%"
+            Number.isFinite(waterLevel) ? waterLevel.toFixed(2) + "%" : "--"
         );
 
 
         updateElementText(
             "waterFillText",
-            waterLevel.toFixed(2) + "%"
+            Number.isFinite(waterLevel) ? waterLevel.toFixed(2) + "%" : "--"
         );
 
 
@@ -457,10 +479,9 @@ async function updateDashboard() {
             );
 
 
-        if (waterFill) {
+        if (waterFill && Number.isFinite(waterLevel)) {
 
-            waterFill.style.height =
-                waterLevel + "%";
+            waterFill.style.height = waterLevel + "%";
 
         }
 
@@ -471,10 +492,9 @@ async function updateDashboard() {
             );
 
 
-        if (homeLevelBar) {
+        if (homeLevelBar && Number.isFinite(waterLevel)) {
 
-            homeLevelBar.style.width =
-                waterLevel + "%";
+            homeLevelBar.style.width = waterLevel + "%";
 
         }
 
@@ -485,17 +505,16 @@ async function updateDashboard() {
             );
 
 
-        if (monitorLevelBar) {
+        if (monitorLevelBar && Number.isFinite(waterLevel)) {
 
-            monitorLevelBar.style.width =
-                waterLevel + "%";
+            monitorLevelBar.style.width = waterLevel + "%";
 
         }
 
 
-        graphData.push(
-            waterLevel
-        );
+        if (Number.isFinite(waterLevel)) {
+            graphData.push(waterLevel);
+        }
 
 
         if (
@@ -527,9 +546,9 @@ async function updateDashboard() {
 
 
         const runtime =
-            formatRuntime(
-                data.runtime
-            );
+            data.runtime === null || data.runtime === undefined
+                ? "--"
+                : formatRuntime(data.runtime);
 
 
         updateElementText(
@@ -553,11 +572,6 @@ async function updateDashboard() {
         updateSourceWater(
             data.sourceWater,
             data.sourceWaterLevel
-        );
-
-
-        updateConsumption(
-            data.consumption
         );
 
 
@@ -1038,6 +1052,14 @@ function updatePumpDisplay(
     pumpOn
 ) {
 
+    if (pumpOn === null || pumpOn === undefined) {
+        updateElementText("pumpStatus", "NO DATA");
+        updateElementText("pumpIndicator", "NO DATA");
+        updateElementText("monitorPumpStatus", "NO DATA");
+        updateElementText("pumpDescription", "Waiting for hardware telemetry");
+        return;
+    }
+
     const status =
         document.getElementById(
             "pumpStatus"
@@ -1178,6 +1200,14 @@ function updatePumpDisplay(
 function updateModeDisplay(
     mode
 ) {
+
+    if (mode === null || mode === undefined) {
+        updateElementText("mode", "--");
+        updateElementText("topMode", "--");
+        updateElementText("monitorMode", "--");
+        updateElementText("modeDescription", "Waiting for hardware telemetry");
+        return;
+    }
 
     const modeElement =
         document.getElementById(
@@ -1518,6 +1548,14 @@ function updateSourceWater(
 
     }
 
+
+    if (sourceAvailable === null || sourceAvailable === undefined) {
+        if (sourceWater) sourceWater.textContent = "NO DATA";
+        if (sourceDescription) sourceDescription.textContent = "Source-container sensor data unavailable.";
+        if (monitorSourceWater) monitorSourceWater.textContent = "NO DATA";
+        if (homeSourceWater) homeSourceWater.textContent = "NO DATA";
+        return;
+    }
 
     if (sourceAvailable) {
 
