@@ -1,29 +1,23 @@
-# Smart Water Monitor — ESP8266 Hardware API
+# Smart Water Level Monitor — real hardware mode
 
-This web app now has an ESP8266 telemetry bridge.
+This version has **no simulated readings** and no water-consumption-rate feature.
 
-## Render environment variable
+## Run locally
+```bash
+pip install -r requirements.txt
+python app.py
+```
+Open `http://127.0.0.1:5000`. Until the ESP8266 sends telemetry, the dashboard shows `DISCONNECTED` / `NO DATA`; it does not invent sensor values.
 
-Before connecting the NodeMCU, open the Render service for this app → Environment and add:
+## Render configuration
+Set `DEVICE_API_KEY` in the Render service environment to a long private key. Put the same key in the ESP8266 firmware. Do not commit the key to GitHub.
 
-- `DEVICE_API_KEY` = a long private key that you choose
+## ESP8266 telemetry
+POST `https://smart-water-level-monitor.onrender.com/api/hardware/telemetry`
+Header: `X-Device-Key: <DEVICE_API_KEY>`
+Content-Type: `application/json`
 
-Save the environment variable and redeploy. The same key will be placed in the NodeMCU firmware later. Do not commit the key to a public repository.
-
-## ESP8266 API contract
-
-Base URL: `https://smart-water-level-monitor.onrender.com`
-
-All device requests must include this HTTP header:
-
-`X-Device-Key: <same value as DEVICE_API_KEY>`
-
-### Send sensor telemetry
-
-`POST /api/hardware/telemetry`
-
-JSON example:
-
+Example payload (send only fields actually measured/known):
 ```json
 {
   "waterLevel": 63.25,
@@ -32,34 +26,33 @@ JSON example:
   "mode": "AUTO",
   "runtime": 1250,
   "emergency": false,
-  "tank": "NORMAL"
+  "tank": "NORMAL",
+  "sourceWater": true,
+  "turbidityRaw": 520,
+  "turbidityVoltage": 2.54,
+  "turbidityNTU": null,
+  "turbidityStatus": "NOT CALIBRATED"
 }
 ```
+`waterLevel` is main-tank level (0–100%). `temperature` is DS18B20 °C.
+`sourceWater` must come from a **physical source-container low-level/empty sensor**. The software never refills or assumes the source container is infinite. `sourceWaterLevel` is optional and must only be sent if a real source-level sensor measures it.
 
-`waterLevel` must be 0–100. `temperature` may be null or a DS18B20 reading from -55 to 125 °C. `pump` and `emergency` are booleans; `mode` is `AUTO` or `MANUAL`.
+Turbidity fields:
+- `turbidityRaw`: analog ADC count (0–1023 on Uno)
+- `turbidityVoltage`: measured sensor output voltage
+- `turbidityNTU`: send `null` until you calibrate the exact turbidity module against known reference samples
+- `turbidityStatus`: `CLEAR`, `MODERATE`, `POOR`, `NOT CALIBRATED`, or `SENSOR ERROR`
 
-The app marks the hardware online while telemetry has arrived within the last 25 seconds. If telemetry stops, it marks the hardware disconnected and returns to the existing simulation behavior.
+**Important calibration note:** generic turbidity modules do not share one reliable voltage-to-NTU formula. Do not display a made-up NTU value. First collect readings from clear and reference-turbidity water and calibrate your exact sensor.
 
-### Poll for web commands
+Telemetry is considered online for 25 seconds after the latest valid request. When offline, dashboard readings are not replaced with simulated values.
 
-`GET /api/hardware/command`
+## Device command polling
+GET `/api/hardware/command` with the same `X-Device-Key` header. Apply returned command and acknowledge with POST `/api/hardware/ack` and JSON `{"id": <returned id>}`.
 
-Possible command values:
+Commands: `PUMP` ON/OFF, `SET_MODE` AUTO/MANUAL, `EMERGENCY` ON/OFF. The web app refuses remote control while hardware is offline, and requires MANUAL mode, source-water-present data, no emergency, and non-full main tank for remote pump ON.
 
-- `{"command":"PUMP","value":"ON"}`
-- `{"command":"PUMP","value":"OFF"}`
-- `{"command":"SET_MODE","value":"AUTO"}`
-- `{"command":"SET_MODE","value":"MANUAL"}`
-- `{"command":"EMERGENCY","value":"ON"}`
-- `{"command":"EMERGENCY","value":"OFF"}`
+## Hardware wiring note
+The turbidity sensor analog output can be connected to Arduino Uno A3 if that pin is free in the current wiring. The sensor must be powered according to its module specification; keep its analog output within the Uno's 0–5 V input range.
 
-The command response also includes an `id`. After the NodeMCU has applied it, acknowledge it:
-
-`POST /api/hardware/ack` with JSON `{"id": 1}` using the same device header.
-
-## Notes
-
-- Existing dashboard styling and routes are retained.
-- A Water Temperature card now displays the DS18B20 reading to two decimal places.
-- Existing pump safety rules remain in the web API (MANUAL mode required, emergency and source-water checks, and full-tank protection).
-- The Arduino/NodeMCU firmware still needs to be updated separately to send telemetry, poll commands, and acknowledge commands.
+A finite source container needs a physical empty/low-water sensor too (for example, a suitable float switch). Without that sensor, the app cannot know when the source container is empty. Do not report a guessed source level.
