@@ -5,9 +5,9 @@
 #include <ArduinoJson.h>
 
 // ================= USER SETTINGS =================
-const char* WIFI_SSID = "YOUR_WIFI_NAME";
-const char* WIFI_PASSWORD = "YOUR_WIFI_PASSWORD";
-const char* DEVICE_API_KEY = "PASTE_THE_SAME_RENDER_DEVICE_API_KEY_HERE";
+const char* WIFI_SSID = "Ayet Ali";
+const char* WIFI_PASSWORD = "AyetAli#2026";
+const char* DEVICE_API_KEY = "6083f1363a5d9445f174651b0b0cec19";
 const char* BASE_URL = "https://smart-water-level-monitor.onrender.com";
 
 // NodeMCU D5 = RX from Arduino TX divider; D6 = TX to Arduino RX.
