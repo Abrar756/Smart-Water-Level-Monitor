@@ -75,7 +75,7 @@ const float tankHeight = 17.1;
 
 const float lowLevel = 20.0;
 const float highLevel = 70.0;
-const float safetyLevel = 95.0;
+const float safetyLevel = 85.0;
 
 // ================= SENSOR SETTINGS =================
 const unsigned long sensorInterval = 500;
