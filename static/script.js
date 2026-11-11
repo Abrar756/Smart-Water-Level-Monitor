@@ -419,6 +419,14 @@ async function updateDashboard() {
             data.connected
         );
 
+        const distanceText = data.distanceCm === null || data.distanceCm === undefined
+            ? "Distance: -- cm"
+            : "Distance: " + Number(data.distanceCm).toFixed(1) + " cm";
+        updateElementText("waterDistance", distanceText);
+        updateElementText("monitorDistance", data.distanceCm === null || data.distanceCm === undefined
+            ? "-- cm"
+            : Number(data.distanceCm).toFixed(1) + " cm");
+
         const temperatureValue = document.getElementById("waterTemperature");
         const temperatureStatus = document.getElementById("temperatureSensorStatus");
         if (temperatureValue) {
@@ -569,10 +577,7 @@ async function updateDashboard() {
         );
 
 
-        updateSourceWater(
-            data.sourceWater,
-            data.sourceWaterLevel
-        );
+        updateSourceWater();
 
 
         updateHomeQuickStatus(
@@ -1460,233 +1465,20 @@ function updateTankBadge(
 
 
 // ============================================================
-// SOURCE WATER
+// SOURCE WATER SENSOR STATUS (NOT INSTALLED)
 // ============================================================
 
-function updateSourceWater(
-    sourceAvailable,
-    sourceLevel = null
-) {
-
-    const sourceWater =
-        document.getElementById(
-            "sourceWater"
-        );
-
-
-    const sourceDescription =
-        document.getElementById(
-            "sourceWaterDescription"
-        );
-
-
-    const sourceButton =
-        document.getElementById(
-            "sourceWaterButton"
-        );
-
-
-    const monitorSourceWater =
-        document.getElementById(
-            "monitorSourceWater"
-        );
-
-
-    const monitorSourceBar =
-        document.getElementById(
-            "monitorSourceBar"
-        );
-
-
-    const monitorSourceLevel =
-        document.getElementById(
-            "monitorSourceLevel"
-        );
-
-
-    const homeSourceWater =
-        document.getElementById(
-            "homeSourceWater"
-        );
-
-
-    if (
-        sourceLevel !== null &&
-        sourceLevel !== undefined
-    ) {
-
-        const numericLevel =
-            Number(
-                sourceLevel
-            );
-
-
-        if (
-            !Number.isNaN(
-                numericLevel
-            )
-        ) {
-
-            if (monitorSourceBar) {
-
-                monitorSourceBar.style.width =
-                    numericLevel + "%";
-
-            }
-
-
-            if (monitorSourceLevel) {
-
-                monitorSourceLevel.textContent =
-                    "Level: " +
-                    numericLevel.toFixed(2) +
-                    "%";
-
-            }
-
-        }
-
-    }
-
-
-    if (sourceAvailable === null || sourceAvailable === undefined) {
-        if (sourceWater) sourceWater.textContent = "NO DATA";
-        if (sourceDescription) sourceDescription.textContent = "Source-container sensor data unavailable.";
-        if (monitorSourceWater) monitorSourceWater.textContent = "NO DATA";
-        if (homeSourceWater) homeSourceWater.textContent = "NO DATA";
-        return;
-    }
-
-    if (sourceAvailable) {
-
-        if (
-            sourceLevel !== null &&
-            sourceLevel !== undefined &&
-            !Number.isNaN(
-                Number(sourceLevel)
-            )
-        ) {
-
-            if (sourceWater) {
-
-                sourceWater.textContent =
-                    Number(
-                        sourceLevel
-                    ).toFixed(2) +
-                    "%";
-
-                sourceWater.className =
-                    "info-value green-text";
-
-                sourceWater.style.color =
-                    "";
-
-            }
-
-        }
-
-        else if (sourceWater) {
-
-            sourceWater.textContent =
-                "AVAILABLE";
-
-            sourceWater.className =
-                "info-value green-text";
-
-            sourceWater.style.color =
-                "";
-
-        }
-
-
-        if (sourceDescription) {
-
-            sourceDescription.textContent =
-                "Source tank water available";
-
-        }
-
-
-        if (sourceButton) {
-
-            sourceButton.style.display =
-                "none";
-
-        }
-
-
-        if (monitorSourceWater) {
-
-            monitorSourceWater.textContent =
-                "AVAILABLE";
-
-        }
-
-
-        if (homeSourceWater) {
-
-            homeSourceWater.textContent =
-                "AVAILABLE";
-
-            homeSourceWater.className =
-                "healthy-text";
-
-        }
-
-    }
-
-    else {
-
-        if (sourceWater) {
-
-            sourceWater.textContent =
-                "NOT AVAILABLE";
-
-            sourceWater.className =
-                "info-value";
-
-            sourceWater.style.color =
-                "#c62828";
-
-        }
-
-
-        if (sourceDescription) {
-
-            sourceDescription.textContent =
-                "Source tank is empty";
-
-        }
-
-
-        if (sourceButton) {
-
-            sourceButton.style.display =
-                "none";
-
-        }
-
-
-        if (monitorSourceWater) {
-
-            monitorSourceWater.textContent =
-                "UNAVAILABLE";
-
-        }
-
-
-        if (homeSourceWater) {
-
-            homeSourceWater.textContent =
-                "UNAVAILABLE";
-
-            homeSourceWater.className =
-                "";
-
-        }
-
-    }
-
+function updateSourceWater() {
+    updateElementText("sourceWater", "NOT INSTALLED");
+    updateElementText("monitorSourceWater", "NOT INSTALLED");
+    updateElementText("homeSourceWater", "NOT INSTALLED");
+    updateElementText("emergencySourceWater", "NOT INSTALLED");
+    updateElementText("sourceWaterDescription", "No source-water sensor is installed; source availability is not monitored.");
+    updateElementText("monitorSourceLevel", "Source-water level is not measured");
+    const bar = document.getElementById("monitorSourceBar");
+    if (bar) bar.style.width = "0%";
+    const button = document.getElementById("sourceWaterButton");
+    if (button) button.style.display = "none";
 }
 
 
@@ -2307,9 +2099,6 @@ function getAlertIcon(
         case "EMERGENCY":
             return "🚨";
 
-        case "SOURCE_UNAVAILABLE":
-            return "⚠";
-
         case "CRITICAL_LOW":
             return "⚠";
 
@@ -2542,8 +2331,7 @@ function updateSystemHealth(
 
     const warning =
         data.emergency ||
-        !data.connected ||
-        !data.sourceWater;
+        !data.connected;
 
 
     if (health) {
@@ -2606,12 +2394,7 @@ function updateHomeQuickStatus(
     data
 ) {
 
-    updateElementText(
-        "homeSourceWater",
-        data.sourceWater
-            ? "AVAILABLE"
-            : "UNAVAILABLE"
-    );
+    updateElementText("homeSourceWater", "NOT INSTALLED");
 
 
     updateElementText(
@@ -2634,8 +2417,7 @@ function updateHomeQuickStatus(
         "homeSystemHealth",
         (
             data.emergency ||
-            !data.connected ||
-            !data.sourceWater
+            !data.connected
         )
             ? "WARNING"
             : "HEALTHY"
@@ -2654,9 +2436,9 @@ function updateMonitorPage(
 
     updateElementText(
         "monitorWaterLevel",
-        Number(
-            data.waterLevel
-        ).toFixed(2) + "%"
+        data.waterLevel === null || data.waterLevel === undefined
+            ? "--%"
+            : Number(data.waterLevel).toFixed(2) + "%"
     );
 
 
@@ -3096,20 +2878,17 @@ function setupEmergencyButton() {
         "click",
         async function() {
 
-            const confirmed =
-                window.confirm(
-                    "Activate emergency shutdown and stop the pump?"
-                );
-
-
-            if (!confirmed) {
-
-                return;
-
-            }
-
-
             try {
+
+                const statusResponse = await fetch("/api/status", { cache: "no-store" });
+                const current = await statusResponse.json();
+                const emergencyCommand = current.emergency ? "OFF" : "ON";
+                const confirmed = window.confirm(
+                    emergencyCommand === "ON"
+                        ? "Activate emergency shutdown and stop the pump?"
+                        : "Reset emergency shutdown? Make sure it is safe to resume operation."
+                );
+                if (!confirmed) return;
 
                 const response =
                     await fetch(
@@ -3127,7 +2906,7 @@ function setupEmergencyButton() {
 
                             body: JSON.stringify({
 
-                                command: "ON"
+                                command: emergencyCommand
 
                             })
 
@@ -3194,18 +2973,13 @@ function updateEmergencyPage(
 
     updateElementText(
         "emergencyWaterLevel",
-        Number(
-            data.waterLevel
-        ).toFixed(2) + "%"
+        data.waterLevel === null || data.waterLevel === undefined
+            ? "--%"
+            : Number(data.waterLevel).toFixed(2) + "%"
     );
 
 
-    updateElementText(
-        "emergencySourceWater",
-        data.sourceWater
-            ? "AVAILABLE"
-            : "UNAVAILABLE"
-    );
+    updateElementText("emergencySourceWater", "NOT INSTALLED");
 
 
     const stateMessage =
@@ -3233,23 +3007,12 @@ function updateEmergencyPage(
     if (button) {
 
         if (data.emergency) {
-
-            button.textContent =
-                "EMERGENCY ACTIVE";
-
-            button.disabled =
-                true;
-
+            button.textContent = "RESET EMERGENCY";
+            button.disabled = false;
         }
-
         else {
-
-            button.textContent =
-                "STOP PUMP";
-
-            button.disabled =
-                false;
-
+            button.textContent = "STOP PUMP";
+            button.disabled = false;
         }
 
     }
@@ -4489,149 +4252,3 @@ setInterval(
     updateDashboard,
     1000
 );
-
-
-// ============================================================
-// SOURCE WATER SIMULATION
-// ============================================================
-
-async function toggleSourceWater() {
-
-    try {
-
-        const statusResponse =
-            await fetch(
-                "/api/status",
-                {
-                    cache: "no-store"
-                }
-            );
-
-
-        const data =
-            await statusResponse.json();
-
-
-        const newState =
-            !data.sourceWater;
-
-
-        const response =
-            await fetch(
-                "/api/source-water",
-                {
-
-                    method: "POST",
-
-                    headers: {
-
-                        "Content-Type":
-                            "application/json"
-
-                    },
-
-                    body: JSON.stringify({
-
-                        available:
-                            newState
-
-                    })
-
-                }
-            );
-
-
-        const result =
-            await response.json();
-
-
-        if (!result.success) {
-
-            showMessage(
-                result.message,
-                "error"
-            );
-
-            return;
-
-        }
-
-
-        await updateDashboard();
-
-    }
-
-    catch (error) {
-
-        console.error(
-            "Source water error:",
-            error
-        );
-
-
-        showMessage(
-            "Could not communicate with server.",
-            "error"
-        );
-
-    }
-
-}
-
-
-// ============================================================
-// SHOW MESSAGE
-// ============================================================
-
-function showMessage(
-    message,
-    type = "info"
-) {
-
-    console.log(
-        type.toUpperCase() +
-        ": " +
-        message
-    );
-
-
-    window.alert(
-        message
-    );
-
-}
-
-
-// ============================================================
-// HTML ESCAPE
-// ============================================================
-
-function escapeHtml(
-    value
-) {
-
-    return String(
-        value
-    )
-        .replace(
-            /&/g,
-            "&amp;"
-        )
-        .replace(
-            /</g,
-            "&lt;"
-        )
-        .replace(
-            />/g,
-            "&gt;"
-        )
-        .replace(
-            /"/g,
-            "&quot;"
-        )
-        .replace(
-            /'/g,
-            "&#039;"
-        );
-
-}
