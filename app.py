@@ -11,14 +11,13 @@ hardware_command_id = 0
 
 # Values are populated ONLY by hardware telemetry. No simulated defaults.
 state = {
-    "waterLevel": None, "temperature": None, "pump": None, "mode": None,
+    "waterLevel": None, "distanceCm": None, "temperature": None, "pump": None, "mode": None,
     "runtime": None, "tank": "NO DATA", "emergency": None,
-    "sourceWater": None, "sourceWaterLevel": None,
     "turbidityRaw": None, "turbidityVoltage": None, "turbidityNTU": None,
     "turbidityStatus": "NOT CALIBRATED", "connected": False,
     "connectionType": "DISCONNECTED"
 }
-settings = {"autoPumpOnLevel": 30.0, "autoPumpOffLevel": 90.0, "criticalLowLevel": 10.0}
+settings = {"autoPumpOnLevel": 20.0, "autoPumpOffLevel": 70.0, "criticalLowLevel": 10.0}
 alert_history = []
 
 def online():
@@ -41,9 +40,6 @@ def current_alert():
     if state["emergency"]:
         return {"active": True, "type": "EMERGENCY", "severity": "critical",
                 "title": "Emergency Shutdown Active", "message": "Pump stopped by emergency control."}
-    if state["sourceWater"] is False:
-        return {"active": True, "type": "SOURCE_UNAVAILABLE", "severity": "critical",
-                "title": "Source Water Empty", "message": "Source container is empty. Pump operation is blocked."}
     if state["waterLevel"] is not None and state["waterLevel"] <= settings["criticalLowLevel"]:
         return {"active": True, "type": "CRITICAL_LOW", "severity": "critical",
                 "title": "Critically Low Water", "message": "Main tank water level is critically low."}
@@ -91,8 +87,8 @@ def telemetry():
     data = request.get_json(silent=True) or {}
     try:
         numeric = {
-            "waterLevel": (0, 100), "temperature": (-55, 125),
-            "runtime": (0, 2147483647), "sourceWaterLevel": (0, 100),
+            "waterLevel": (0, 100), "distanceCm": (0, 1000), "temperature": (-55, 125),
+            "runtime": (0, 2147483647),
             "turbidityRaw": (0, 1023), "turbidityVoltage": (0, 5),
             "turbidityNTU": (0, 100000)
         }
@@ -106,7 +102,7 @@ def telemetry():
                     if not lo <= value <= hi:
                         raise ValueError(f"{key} is out of range")
                     state[key] = round(value, 2) if key != "runtime" and key != "turbidityRaw" else int(value)
-        for key in ("pump", "emergency", "sourceWater"):
+        for key in ("pump", "emergency"):
             if key in data:
                 if not isinstance(data[key], bool):
                     raise ValueError(f"{key} must be true or false")
@@ -125,11 +121,6 @@ def telemetry():
     hardware_last_seen = time.time()
     state["connected"] = True
     state["connectionType"] = "HARDWARE"
-    # Finite source container: do not refill it in software. The physical sensor
-    # must report sourceWater/sourceWaterLevel. If empty, force a pump-off command.
-    if state["sourceWater"] is False:
-        state["pump"] = False
-        queue_command("PUMP", "OFF")
     return jsonify(success=True, message="Hardware telemetry received")
 
 @app.route("/api/hardware/command")
@@ -172,10 +163,8 @@ def pump():
             return jsonify(success=False, message="Switch to MANUAL mode first")
         if state["emergency"]:
             return jsonify(success=False, message="Emergency shutdown is active")
-        if state["sourceWater"] is not True:
-            return jsonify(success=False, message="Source water empty or source sensor data unavailable")
-        if state["waterLevel"] is None or state["waterLevel"] >= 100:
-            return jsonify(success=False, message="Main tank full or water-level data unavailable")
+        if state["waterLevel"] is None or state["waterLevel"] >= 95:
+            return jsonify(success=False, message="Main tank at/above the 95% safety cutoff or water-level data unavailable")
     queue_command("PUMP", command)
     return jsonify(success=True, message=f"Pump {command} command sent to hardware")
 
@@ -214,10 +203,6 @@ def clear_alerts():
 @app.route("/api/consumption", methods=["POST"])
 def removed_consumption():
     return jsonify(success=False, message="Water consumption simulation has been removed."), 410
-
-@app.route("/api/source-water", methods=["POST"])
-def removed_source_toggle():
-    return jsonify(success=False, message="Source water status must come from the physical source-container sensor."), 410
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
