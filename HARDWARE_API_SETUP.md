@@ -21,13 +21,13 @@ Example payload (send only fields actually measured/known):
 ```json
 {
   "waterLevel": 63.25,
+  "distanceCm": 6.28,
   "temperature": 24.75,
   "pump": false,
   "mode": "AUTO",
   "runtime": 1250,
   "emergency": false,
   "tank": "NORMAL",
-  "sourceWater": true,
   "turbidityRaw": 520,
   "turbidityVoltage": 2.54,
   "turbidityNTU": null,
@@ -35,7 +35,6 @@ Example payload (send only fields actually measured/known):
 }
 ```
 `waterLevel` is main-tank level (0–100%). `temperature` is DS18B20 °C.
-`sourceWater` must come from a **physical source-container low-level/empty sensor**. The software never refills or assumes the source container is infinite. `sourceWaterLevel` is optional and must only be sent if a real source-level sensor measures it.
 
 Turbidity fields:
 - `turbidityRaw`: analog ADC count (0–1023 on Uno)
@@ -50,9 +49,9 @@ Telemetry is considered online for 25 seconds after the latest valid request. Wh
 ## Device command polling
 GET `/api/hardware/command` with the same `X-Device-Key` header. Apply returned command and acknowledge with POST `/api/hardware/ack` and JSON `{"id": <returned id>}`.
 
-Commands: `PUMP` ON/OFF, `SET_MODE` AUTO/MANUAL, `EMERGENCY` ON/OFF. The web app refuses remote control while hardware is offline, and requires MANUAL mode, source-water-present data, no emergency, and non-full main tank for remote pump ON.
+Commands: `PUMP` ON/OFF, `SET_MODE` AUTO/MANUAL, `EMERGENCY` ON/OFF. The web app refuses remote control while hardware is offline, and requires MANUAL mode, no emergency, and valid non-full main-tank data for remote pump ON. The installation has no source-water sensor, so source-water availability and dry-run protection are not monitored.
 
 ## Hardware wiring note
 The turbidity sensor analog output can be connected to Arduino Uno A3 if that pin is free in the current wiring. The sensor must be powered according to its module specification; keep its analog output within the Uno's 0–5 V input range.
 
-A finite source container needs a physical empty/low-water sensor too (for example, a suitable float switch). Without that sensor, the app cannot know when the source container is empty. Do not report a guessed source level.
+IMPORTANT: no source-water sensor is installed. The app cannot detect an empty source container or prevent pump dry-running. Check the source water manually before remote pump ON. For unattended operation, install a suitable source low-level float switch.
